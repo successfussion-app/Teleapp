@@ -1,0 +1,2207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PitchFirst — Voice-First Hiring Platform v4</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,900;1,700;1,900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0e0b07;--cream:#faf6f0;--gold:#c8860a;--gl:#f0a832;--gp:#fef3dc;
+  --voice:#1a0a2e;--vg:#7c3aed;--vs:#ede9fe;--slate:#4a4540;--bd:rgba(14,11,7,.10);
+  --sh:0 4px 24px rgba(14,11,7,.08);--green:#10b981;--gs:#d1fae5;--red:#ef4444;--rs:#fee2e2;
+  --blue:#2563eb;--bs:#dbeafe;--navy:#0f172a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);overflow-x:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:rgba(14,11,7,.15);border-radius:3px}
+button,input,select,textarea{font-family:'DM Sans',sans-serif}
+a{text-decoration:none;color:inherit}
+
+/* ─── NAV ─── */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:62px;border-bottom:1px solid var(--bd);background:rgba(250,246,240,.97);backdrop-filter:blur(16px);position:sticky;top:0;z-index:500}
+.logo{display:flex;align-items:center;gap:8px;cursor:pointer}
+.logo-tile{width:36px;height:36px;background:var(--voice);border-radius:9px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.logo-wf{display:flex;align-items:center;gap:2px;padding:0 5px;height:22px}
+.logo-wf span{width:2.5px;border-radius:1px;background:linear-gradient(to top,var(--vg),var(--gl));animation:lwf 1.6s ease-in-out infinite}
+.logo-wf span:nth-child(1){height:35%;animation-delay:0s}.logo-wf span:nth-child(2){height:65%;animation-delay:.12s}
+.logo-wf span:nth-child(3){height:100%;animation-delay:.24s}.logo-wf span:nth-child(4){height:55%;animation-delay:.36s}
+.logo-wf span:nth-child(5){height:80%;animation-delay:.48s}.logo-wf span:nth-child(6){height:40%;animation-delay:.6s}
+@keyframes lwf{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+.logo-text{font-family:'Fraunces',serif;font-size:20px;font-weight:900;letter-spacing:-.5px}
+.logo-text .p{color:var(--ink)}.logo-text .f{color:var(--gold)}
+.logo-beta{font-size:9px;background:var(--gp);color:var(--gold);padding:2px 7px;border-radius:10px;font-weight:700;border:1px solid rgba(200,134,10,.2)}
+.nav-tabs{display:flex;gap:2px;background:rgba(14,11,7,.06);padding:4px;border-radius:100px}
+.nav-tab{padding:6px 18px;border-radius:100px;border:none;background:transparent;font-size:13px;font-weight:500;color:rgba(14,11,7,.45);cursor:pointer;transition:all .2s}
+.nav-tab.active{background:var(--ink);color:var(--cream)}
+.nav-tab:hover:not(.active){color:var(--ink)}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.btn-signin{background:none;border:1.5px solid var(--bd);padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;color:var(--slate);transition:all .2s}
+.btn-signin:hover{border-color:var(--ink);color:var(--ink)}
+.btn-cta{background:var(--gold);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-cta:hover{background:#a36c08;transform:translateY(-1px)}
+.nav-user{display:none;align-items:center;gap:8px}
+.nav-user.show{display:flex}
+.nav-user-av{width:32px;height:32px;border-radius:50%;background:var(--vg);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;cursor:pointer}
+.nav-user-name{font-size:13px;font-weight:600;color:var(--ink)}
+.nav-user-role{font-size:10px;color:var(--slate)}
+
+/* ─── PAGES ─── */
+.page{display:none}.page.active{display:block}
+
+/* ─── MODALS ─── */
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(14,11,7,.6);z-index:900;align-items:center;justify-content:center;padding:20px}
+.modal-backdrop.open{display:flex}
+.modal{background:#fff;border-radius:20px;padding:32px;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;position:relative;animation:mIn .25s ease}
+@keyframes mIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-x{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;border:1px solid var(--bd);background:var(--cream);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--slate)}
+.modal-x:hover{background:var(--bd)}
+.modal-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;letter-spacing:-.3px;margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--slate);margin-bottom:22px}
+
+/* ─── TOAST ─── */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{padding:12px 18px;border-radius:10px;font-size:13px;font-weight:500;color:#fff;display:flex;align-items:center;gap:9px;animation:tIn .3s ease;box-shadow:0 6px 24px rgba(0,0,0,.15);pointer-events:all;min-width:260px}
+.toast.s{background:#0f6e56}.toast.i{background:var(--voice)}.toast.w{background:#854f0b}.toast.e{background:#a32d2d}
+@keyframes tIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+
+/* ─── FORMS ─── */
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;font-weight:600;color:var(--slate);letter-spacing:.2px;display:flex;align-items:center;gap:5px}
+.star{color:var(--gold)}.lbl-ai{font-size:9px;background:#fce7f3;color:#be185d;padding:1px 6px;border-radius:4px;font-weight:700}
+.lbl-new{font-size:9px;background:var(--vs);color:var(--vg);padding:1px 6px;border-radius:4px;font-weight:700}
+.finput{width:100%;padding:10px 13px;border-radius:9px;border:1.5px solid var(--bd);font-size:13.5px;color:var(--ink);background:#fff;outline:none;transition:border-color .2s}
+.finput:focus{border-color:var(--gold)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fcol{grid-column:1/-1}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.chip{padding:6px 13px;border-radius:20px;font-size:12.5px;border:1.5px solid var(--bd);cursor:pointer;background:#fff;color:var(--ink);transition:all .15s;user-select:none}
+.chip:hover{border-color:var(--gold);color:var(--gold)}.chip.on{background:var(--gold);color:#fff;border-color:var(--gold)}
+.chip.on-v{background:var(--vg);color:#fff;border-color:var(--vg)}
+.frange{display:flex;align-items:center;gap:10px;width:100%}
+.frange input[type=range]{flex:1;height:5px;border-radius:3px;accent-color:var(--gold);cursor:pointer}
+
+/* ─── BUTTONS ─── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.btn-gold{background:var(--gold);color:#fff}.btn-gold:hover{background:#a36c08;transform:translateY(-1px)}
+.btn-dark{background:var(--ink);color:var(--cream)}.btn-dark:hover{background:var(--vg)}
+.btn-purple{background:var(--vg);color:#fff}.btn-purple:hover{background:#6d28d9;transform:translateY(-1px)}
+.btn-ghost{background:none;border:1.5px solid var(--bd);color:var(--slate)}.btn-ghost:hover{border-color:var(--ink);color:var(--ink)}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#0d9668}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#c53030}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#1d4ed8}
+.btn-sm{padding:6px 14px;font-size:12px;border-radius:7px}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ──────────────────────────────────────────
+   LANDING
+────────────────────────────────────────── */
+.hero{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 62px)}
+.hero-l{padding:64px 52px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--bd)}
+.eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
+h1.hh{font-family:'Fraunces',serif;font-size:clamp(38px,4.5vw,58px);font-weight:900;line-height:1.05;letter-spacing:-2px;margin-bottom:20px}
+h1.hh em{font-style:italic;color:var(--gold)}
+.hero-sub{font-size:15px;color:var(--slate);line-height:1.75;max-width:420px;margin-bottom:32px}
+.hero-ctas{display:flex;gap:10px}
+.btn-emp{flex:1;background:var(--ink);color:var(--cream);border:none;padding:15px 18px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;text-align:left}
+.btn-emp:hover{background:var(--vg);transform:translateY(-2px)}
+.btn-cand{flex:1;background:var(--gp);color:var(--gold);border:1.5px solid rgba(200,134,10,.25);padding:15px 18px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;text-align:left}
+.btn-cand:hover{background:#fde9b6;transform:translateY(-2px)}
+.cta-sub{font-size:11px;font-weight:400;opacity:.6;display:block;margin-top:3px}
+.hero-r{display:flex;flex-direction:column}
+.hp{flex:1;padding:38px;display:flex;flex-direction:column;justify-content:center;gap:14px}
+.hp.dark{background:var(--voice);border-bottom:1px solid var(--bd)}.hp.light{background:var(--cream)}
+.hp-tag{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.hp-tag.d{color:rgba(237,233,254,.4)}.hp-tag.l{color:var(--gold)}
+.hp-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;line-height:1.2}
+.hp-title.d{color:#fff}.hp-title.l{color:var(--ink)}
+.hp-desc{font-size:13px;line-height:1.7}
+.hp-desc.d{color:rgba(237,233,254,.5)}.hp-desc.l{color:var(--slate)}
+.wrow{display:flex;align-items:center;gap:3px;height:30px}
+.wb{width:4px;border-radius:2px;background:rgba(124,58,237,.6);animation:wbA 1s ease-in-out infinite}
+@keyframes wbA{0%,100%{transform:scaleY(.2)}50%{transform:scaleY(1)}}
+.ip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid}
+.ip-r{background:#dbeafe;color:#1e40af;border-color:rgba(30,64,175,.2)}
+.ip-f{background:#dcfce7;color:#15803d;border-color:rgba(21,128,61,.2)}
+.ip-g{background:var(--gp);color:var(--gold);border-color:rgba(200,134,10,.2)}
+.ip-o{background:#f1f5f9;color:#475569;border-color:rgba(71,85,105,.2)}
+.trust-bar{display:flex;align-items:center;justify-content:center;gap:32px;padding:20px 40px;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);background:#fff}
+.tv{font-family:'Fraunces',serif;font-size:24px;font-weight:700}.tl{font-size:11px;color:var(--slate);margin-top:2px;font-weight:500}
+.tsep{width:1px;height:36px;background:var(--bd)}
+.hiw{padding:60px 52px}
+.hiw-title{font-family:'Fraunces',serif;font-size:30px;font-weight:700;letter-spacing:-.5px;text-align:center;margin-bottom:40px}
+.hiw-title em{font-style:italic;color:var(--gold)}
+.hiw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.hiw-card{background:#fff;border-radius:16px;padding:24px;border:1px solid var(--bd)}
+.hiw-icon{font-size:28px;margin-bottom:12px}
+.hiw-h{font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:6px}
+.hiw-p{font-size:13px;color:var(--slate);line-height:1.6}
+
+/* ──────────────────────────────────────────
+   PRICING SECTION
+────────────────────────────────────────── */
+.pricing-section{padding:60px 52px;background:#fff;border-top:1px solid var(--bd)}
+.pricing-title{font-family:'Fraunces',serif;font-size:30px;font-weight:700;text-align:center;letter-spacing:-.5px;margin-bottom:8px}
+.pricing-title em{font-style:italic;color:var(--gold)}
+.pricing-sub{text-align:center;color:var(--slate);font-size:14px;margin-bottom:40px}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:900px;margin:0 auto}
+.plan-card{border-radius:18px;padding:28px;border:2px solid var(--bd);position:relative;transition:all .2s}
+.plan-card:hover{transform:translateY(-3px);box-shadow:var(--sh)}
+.plan-card.pop{border-color:var(--vg);background:linear-gradient(to bottom,var(--vs),#fff)}
+.plan-popular{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--vg);color:#fff;font-size:10px;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap}
+.plan-who{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate);margin-bottom:8px}
+.plan-name{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:4px}
+.plan-price{font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:var(--ink);margin-bottom:2px}
+.plan-price span{font-size:14px;font-weight:400;color:var(--slate)}
+.plan-desc{font-size:12.5px;color:var(--slate);margin-bottom:20px;line-height:1.5}
+.plan-feat{font-size:13px;color:var(--slate);padding:4px 0;display:flex;align-items:center;gap:8px}
+.pf-check{color:var(--green);font-size:13px;flex-shrink:0}.pf-x{color:rgba(14,11,7,.2);font-size:13px;flex-shrink:0}
+.plan-btn{width:100%;padding:12px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:none;margin-top:20px;transition:all .2s}
+.plan-btn.gold{background:var(--gold);color:#fff}.plan-btn.gold:hover{background:#a36c08}
+.plan-btn.purple{background:var(--vg);color:#fff}.plan-btn.purple:hover{background:#6d28d9}
+.plan-btn.outline{background:none;border:1.5px solid var(--bd);color:var(--ink)}.plan-btn.outline:hover{border-color:var(--ink)}
+
+/* ──────────────────────────────────────────
+   EMPLOYER — LAYOUT
+────────────────────────────────────────── */
+.emp-layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 62px)}
+.emp-sb{background:var(--ink);padding:20px 14px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.emp-sbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(250,246,240,.25);padding:14px 8px 4px}
+.emp-sbi{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;color:rgba(250,246,240,.45);font-size:13px;font-weight:500;border:none;background:none;width:100%;text-align:left;transition:all .2s}
+.emp-sbi:hover{background:rgba(250,246,240,.06);color:rgba(250,246,240,.8)}
+.emp-sbi.active{background:rgba(124,58,237,.22);color:#fff;border-left:2px solid var(--vg)}
+.emp-cnt{margin-left:auto;background:var(--vg);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;font-family:'DM Mono',monospace}
+.emp-main{overflow-y:auto;max-height:calc(100vh - 62px);background:#f3f1ed}
+.emp-panel{padding:28px 30px;display:none}
+.emp-panel.active{display:block;animation:fadein .2s ease}
+.emp-ph{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.emp-ph-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;letter-spacing:-.3px}
+.emp-ph-sub{font-size:12.5px;color:var(--slate);margin-top:3px}
+.fbar{display:flex;gap:7px;margin-bottom:18px;flex-wrap:wrap}
+.fc{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;border:1.5px solid var(--bd);background:#fff;color:var(--slate);cursor:pointer;transition:all .15s}
+.fc:hover{border-color:var(--vg);color:var(--vg)}.fc.on{background:var(--vg);color:#fff;border-color:var(--vg)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.sc{background:#fff;border-radius:12px;padding:16px;border:1px solid var(--bd);cursor:pointer;transition:all .2s}
+.sc:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+.sc-lbl{font-size:11px;font-weight:600;color:var(--slate);text-transform:uppercase;letter-spacing:.7px}
+.sc-val{font-family:'Fraunces',serif;font-size:30px;font-weight:700;margin-top:4px}
+.sc-delta{font-size:12px;margin-top:3px;color:var(--green);font-weight:500}
+.cand-list{display:flex;flex-direction:column;gap:10px}
+.cc{background:#fff;border-radius:14px;padding:17px 20px;border:1px solid var(--bd);display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center;cursor:pointer;transition:all .2s}
+.cc:hover{box-shadow:var(--sh);transform:translateY(-1px);border-color:rgba(124,58,237,.2)}
+.cc-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:#fff;flex-shrink:0}
+.cc-name{font-weight:700;font-size:14px;margin-bottom:2px}.cc-role{font-size:12px;color:var(--slate);margin-bottom:5px}
+.cc-avail{font-size:11px;color:var(--slate);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.adot{width:6px;height:6px;border-radius:50%;flex-shrink:0}.adot-g{background:var(--green)}.adot-a{background:#f59e0b}
+.tr{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font-size:11px;padding:2px 8px;border-radius:5px;font-weight:500;border:1px solid}
+.t-res{background:var(--gp);color:var(--gold);border-color:rgba(200,134,10,.15)}
+.t-voice{background:var(--vs);color:var(--vg);border-color:rgba(124,58,237,.15)}
+.t-type{background:#f0fdf4;color:#15803d;border-color:rgba(21,128,61,.15)}
+.t-ai{background:#fce7f3;color:#be185d;border-color:rgba(190,24,93,.15)}
+.t-gray{background:rgba(14,11,7,.04);color:var(--slate);border-color:var(--bd)}
+.t-remote{background:#dbeafe;color:#1e40af;border-color:rgba(30,64,175,.15)}
+.t-field{background:#dcfce7;color:#15803d;border-color:rgba(21,128,61,.15)}
+.t-gig{background:var(--gp);color:var(--gold);border-color:rgba(200,134,10,.15)}
+.t-office{background:#f1f5f9;color:#475569;border-color:rgba(71,85,105,.15)}
+.cc-r{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex-shrink:0}
+.sr{width:46px;height:46px;border-radius:50%;border:2.5px solid;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:500}
+.sr-h{border-color:var(--green);color:var(--green)}.sr-m{border-color:var(--gold);color:var(--gold)}.sr-l{border-color:rgba(14,11,7,.2);color:var(--slate)}
+.role-card{background:#fff;border-radius:12px;padding:16px 18px;border:1px solid var(--bd);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;transition:all .2s}
+.role-card:hover{box-shadow:var(--sh)}
+.rc-apps{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--vg)}
+.int-card{background:#fff;border-radius:12px;padding:16px 18px;border:1px solid var(--bd);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.sb-conf{background:var(--gs);color:#0f6e56}.sb-pend{background:var(--gp);color:var(--gold)}.sb-done{background:rgba(14,11,7,.06);color:var(--slate)}
+.status-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
+
+/* COMPANY PROFILE */
+.cp-layout{display:grid;grid-template-columns:300px 1fr;gap:20px}
+.cp-left{display:flex;flex-direction:column;gap:14px}
+.cp-card{background:#fff;border-radius:14px;padding:20px;border:1px solid var(--bd)}
+.cp-logo-box{width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--vg),#4f46e5);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:#fff;margin-bottom:14px}
+.cp-company-name{font-family:'Fraunces',serif;font-size:20px;font-weight:700;letter-spacing:-.3px;margin-bottom:2px}
+.cp-tagline{font-size:13px;color:var(--slate);margin-bottom:12px}
+.cp-stat-row{display:flex;gap:12px;margin-bottom:12px}
+.cp-stat{flex:1;background:var(--cream);border-radius:10px;padding:10px;text-align:center;border:1px solid var(--bd)}
+.cp-stat-val{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--vg)}
+.cp-stat-lbl{font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.cp-badge-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.cp-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid}
+.cp-badge-active{background:var(--gs);color:#0f6e56;border-color:rgba(16,185,129,.25)}
+.cp-badge-verified{background:var(--bs);color:var(--blue);border-color:rgba(37,99,235,.2)}
+.cp-badge-plan{background:var(--vs);color:var(--vg);border-color:rgba(124,58,237,.2)}
+.cp-info-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--slate);padding:5px 0;border-bottom:1px solid var(--bd)}
+.cp-info-row:last-child{border-bottom:none}
+.cp-info-icon{font-size:14px;flex-shrink:0;width:20px}
+.cp-right{display:flex;flex-direction:column;gap:14px}
+.cp-section{background:#fff;border-radius:14px;padding:20px;border:1px solid var(--bd)}
+.cp-section-title{font-family:'Fraunces',serif;font-size:16px;font-weight:700;letter-spacing:-.2px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.cp-edit-btn{font-size:12px;color:var(--vg);background:none;border:none;cursor:pointer;font-weight:600;font-family:'DM Sans',sans-serif}
+.cp-edit-btn:hover{color:#6d28d9}
+.cp-desc{font-size:13.5px;color:var(--slate);line-height:1.7}
+.cp-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cp-kpi{background:var(--cream);border-radius:10px;padding:14px;text-align:center;border:1px solid var(--bd)}
+.cp-kpi-val{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--ink)}
+.cp-kpi-lbl{font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px;margin-top:3px}
+.cp-team-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cp-team-card{background:var(--cream);border-radius:10px;padding:12px;border:1px solid var(--bd);display:flex;align-items:center;gap:10px}
+.cp-team-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0}
+.cp-team-name{font-size:13px;font-weight:600}.cp-team-role{font-size:11px;color:var(--slate)}
+.cp-billing-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bd);font-size:13.5px}
+.cp-billing-row:last-child{border-bottom:none}
+.cp-billing-key{color:var(--slate);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.cp-billing-val{font-weight:600;color:var(--ink)}
+.activity-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--bd);font-size:13px;align-items:flex-start}
+.activity-row:last-child{border-bottom:none}
+.activity-icon{font-size:16px;flex-shrink:0}
+.activity-time{margin-left:auto;color:var(--slate);font-size:11px;white-space:nowrap;flex-shrink:0}
+
+/* ──────────────────────────────────────────
+   CANDIDATE PROFILE — STEPPER
+────────────────────────────────────────── */
+.cand-layout{max-width:840px;margin:0 auto;padding:32px 20px 80px}
+.pstrength{background:#fff;border-radius:16px;border:1px solid var(--bd);padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:20px}
+.ps-ring{width:64px;height:64px;flex-shrink:0;position:relative}
+.ps-ring svg{transform:rotate(-90deg)}
+.ps-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--gold)}
+.ps-info{flex:1}.ps-title{font-weight:700;font-size:14px;margin-bottom:3px}.ps-sub{font-size:12px;color:var(--slate)}
+.ps-bars{display:flex;flex-direction:column;gap:6px;min-width:200px}
+.psb{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--slate);font-weight:600}
+.psb-t{width:52px;text-transform:uppercase;letter-spacing:.4px}
+.psb-track{flex:1;height:5px;background:rgba(14,11,7,.07);border-radius:3px;overflow:hidden}
+.psb-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.stepper{display:flex;align-items:flex-start;margin-bottom:28px;position:relative}
+.stepper::before{content:'';position:absolute;top:14px;left:14px;right:14px;height:2px;background:rgba(14,11,7,.08);z-index:0}
+.step{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;cursor:pointer;position:relative;z-index:1}
+.step-c{width:28px;height:28px;border-radius:50%;border:2px solid rgba(14,11,7,.15);background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--slate);transition:all .3s;font-family:'DM Mono',monospace}
+.step.done .step-c{background:var(--green);border-color:var(--green);color:#fff}
+.step.active .step-c{background:var(--gold);border-color:var(--gold);color:#fff}
+.step-l{font-size:9px;color:var(--slate);font-weight:600;letter-spacing:.3px;text-align:center;white-space:nowrap}
+.step.active .step-l{color:var(--gold)}.step.done .step-l{color:var(--green)}
+.sec{background:#fff;border-radius:18px;border:1px solid var(--bd);padding:26px 28px;margin-bottom:14px;display:none}
+.sec.active{display:block;animation:fadein .22s ease}
+.sec-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+.sec-title{font-family:'Fraunces',serif;font-size:20px;font-weight:700;letter-spacing:-.3px}
+.sec-sub{font-size:12px;color:var(--slate);margin-top:2px}
+.sec-badge{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:4px 10px;border-radius:20px;white-space:nowrap}
+.sb-key{background:var(--gp);color:var(--gold);border:1px solid rgba(200,134,10,.2)}
+.sb-ai{background:#fce7f3;color:#be185d;border:1px solid rgba(190,24,93,.15)}
+.sb-new{background:var(--vs);color:var(--vg);border:1px solid rgba(124,58,237,.2)}
+.sb-type{background:#f0fdf4;color:#15803d;border:1px solid rgba(21,128,61,.2)}
+.step-nav{display:flex;justify-content:space-between;align-items:center;margin-top:22px;padding-top:18px;border-top:1px solid var(--bd)}
+.step-prog{font-family:'DM Mono',monospace;font-size:12px;color:var(--slate)}
+.sec-group{font-size:11px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.8px;margin:16px 0 10px;padding-left:2px}
+
+/* VOICE RECORDER */
+.vrec{background:var(--voice);border-radius:16px;padding:26px;position:relative;overflow:hidden;margin-top:4px}
+.vrec::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(124,58,237,.25) 0%,transparent 70%);pointer-events:none}
+.vrec-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.vrec-title{font-family:'Fraunces',serif;font-size:17px;font-weight:700;color:#fff}
+.vrec-sub{font-size:12px;color:rgba(237,233,254,.45);margin-top:2px}
+.vrec-status{display:flex;align-items:center;gap:6px;background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.3);padding:5px 12px;border-radius:100px;font-size:12px;color:#c4b5fd;white-space:nowrap}
+.vdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.waveform{display:flex;align-items:center;gap:3px;height:52px;margin-bottom:18px}
+.wvbar{flex:1;border-radius:2px;background:linear-gradient(to top,rgba(124,58,237,.7),rgba(196,181,253,.9));animation:wvA 1.4s ease-in-out infinite;min-height:4px}
+@keyframes wvA{0%,100%{transform:scaleY(.2);opacity:.5}50%{transform:scaleY(1);opacity:1}}
+.vrec-row{display:flex;align-items:center;gap:14px}
+.rec-btn{width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;transition:all .2s;flex-shrink:0}
+.rec-btn.idle{background:var(--vg);animation:rP 2s ease-in-out infinite}
+.rec-btn.recording{background:var(--red);animation:rP2 1s ease-in-out infinite}
+@keyframes rP{0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,.4)}50%{box-shadow:0 0 0 12px rgba(124,58,237,0)}}
+@keyframes rP2{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{box-shadow:0 0 0 12px rgba(239,68,68,0)}}
+.rec-time{font-family:'DM Mono',monospace;font-size:22px;color:#fff;letter-spacing:2px}
+.rec-limit{font-size:11px;color:rgba(237,233,254,.35);margin-top:2px}
+.ai-scores{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+.ai-score-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;text-align:center}
+.ai-score-val{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--gl)}
+.ai-score-lbl{font-size:10px;color:rgba(237,233,254,.45);text-transform:uppercase;letter-spacing:.8px;margin-top:3px}
+
+/* TYPING TEST */
+.tt-wrap{background:#fff;border-radius:14px;border:1px solid var(--bd);padding:24px;margin-top:4px}
+.att-badges{display:flex;gap:8px;margin-bottom:18px}
+.att{padding:5px 16px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--bd);color:var(--slate);font-family:'DM Mono',monospace;transition:all .2s}
+.att.cur{background:var(--vg);color:#fff;border-color:var(--vg)}.att.done{background:var(--gs);color:#0f6e56;border-color:rgba(16,185,129,.25)}
+.tt-passage{background:var(--cream);border-radius:10px;padding:16px 18px;font-size:13.5px;line-height:1.9;color:var(--ink);border:1px solid var(--bd);font-family:'DM Mono',monospace;letter-spacing:.2px;min-height:70px;margin-bottom:12px;user-select:none}
+.tc{transition:all .05s}.tc.ok{color:var(--green)}.tc.err{color:var(--red);text-decoration:underline;text-underline-offset:3px}.tc.cur{background:var(--gold);color:#fff;border-radius:2px;padding:0 1px}
+.tt-input{width:100%;padding:12px 15px;border-radius:9px;border:2px solid var(--bd);font-family:'DM Mono',monospace;font-size:13.5px;color:var(--ink);outline:none;transition:border-color .2s;resize:none;line-height:1.5}
+.tt-input:focus{border-color:var(--gold)}.tt-input.go{border-color:var(--vg)}
+.tt-livstats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.tt-ls{background:var(--cream);border-radius:9px;padding:11px;text-align:center;border:1px solid var(--bd)}
+.tt-ls-val{font-family:'DM Mono',monospace;font-size:20px;font-weight:500}
+.tt-ls-lbl{font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.7px;margin-top:2px}
+.tt-row{display:flex;align-items:center;gap:10px}
+.tt-cd{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;color:var(--slate);margin-left:auto;transition:color .2s}
+.tt-cd.low{color:var(--red)}
+.tt-results{background:linear-gradient(135deg,var(--voice),#2d1060);border-radius:14px;padding:22px;margin-top:16px;display:none}
+.tt-results.show{display:block;animation:fadein .3s ease}
+.tt-res-title{font-family:'Fraunces',serif;font-size:17px;font-weight:700;color:#fff;margin-bottom:14px}
+.tt-avg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.tt-avg-box{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px;text-align:center}
+.tt-avg-val{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;color:var(--gl)}
+.tt-avg-lbl{font-size:10px;color:rgba(237,233,254,.45);text-transform:uppercase;letter-spacing:.7px;margin-top:4px}
+.att-hist{display:flex;flex-direction:column;gap:5px}
+.att-hist-row{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.06);padding:8px 14px;border-radius:8px;font-size:12px;color:rgba(237,233,254,.7);font-family:'DM Mono',monospace}
+.final-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.25);padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;color:#34d399;margin-top:12px}
+
+/* INFRA / AVAIL PREVIEWS */
+.infra-preview{background:var(--ink);border-radius:14px;padding:18px 20px;margin-top:6px}
+.infra-p-title{font-size:12px;font-weight:700;color:var(--gl);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
+.infra-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12.5px}
+.infra-row:last-child{border-bottom:none}
+.infra-key{font-size:10px;color:rgba(250,246,240,.35);text-transform:uppercase;letter-spacing:.7px}
+.infra-val{color:#fff;font-weight:500}
+.smart-badges{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.sbadge{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:4px;border:1px solid}
+.sbadge-r{background:rgba(124,58,237,.2);color:#a78bfa;border-color:rgba(124,58,237,.3)}
+.sbadge-f{background:rgba(16,185,129,.15);color:#34d399;border-color:rgba(16,185,129,.25)}
+.sbadge-g{background:rgba(200,134,10,.15);color:var(--gl);border-color:rgba(200,134,10,.25)}
+.sbadge-o{background:rgba(71,85,105,.15);color:#94a3b8;border-color:rgba(71,85,105,.25)}
+.avail-preview{background:var(--gp);border:1px solid rgba(200,134,10,.15);border-radius:12px;padding:14px 18px;margin-top:8px}
+.avail-title{font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.avail-row{display:grid;grid-template-columns:110px 1fr auto;gap:8px;align-items:center;padding:4px 0;border-bottom:1px solid rgba(200,134,10,.08);font-size:12px}
+.avail-row:last-child{border-bottom:none}
+.avail-k{color:var(--gold);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+.avail-v{color:var(--ink);font-weight:500}.avail-c{font-size:10px;font-weight:700;color:var(--green)}
+.job-match-card{background:#fff;border-radius:12px;padding:14px 18px;border:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;cursor:pointer;transition:all .2s}
+.job-match-card:hover{box-shadow:var(--sh);border-color:rgba(200,134,10,.2);transform:translateY(-1px)}
+.match-pct{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--green)}
+
+/* ──────────────────────────────────────────
+   CANDIDATE DASHBOARD
+────────────────────────────────────────── */
+.cd-layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 62px)}
+.cd-sb{background:var(--voice);padding:20px 14px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.cd-sbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(237,233,254,.25);padding:14px 8px 4px}
+.cd-sbi{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;color:rgba(237,233,254,.45);font-size:13px;font-weight:500;border:none;background:none;width:100%;text-align:left;transition:all .2s}
+.cd-sbi:hover{background:rgba(237,233,254,.06);color:rgba(237,233,254,.8)}
+.cd-sbi.active{background:rgba(200,134,10,.18);color:#fff;border-left:2px solid var(--gold)}
+.cd-cnt{margin-left:auto;background:var(--gold);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;font-family:'DM Mono',monospace}
+.cd-profile-snap{background:linear-gradient(135deg,var(--voice),#2d1060);padding:18px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+.cd-av-lg{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--vg),var(--gold));display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:#fff;flex-shrink:0}
+.cd-snap-name{font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:#fff}
+.cd-snap-role{font-size:12px;color:rgba(237,233,254,.5);margin-top:2px}
+.cd-snap-badges{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.cd-badge{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.cd-badge-pro{background:var(--vg);color:#fff}
+.cd-badge-free{background:rgba(200,134,10,.3);color:var(--gl)}
+.cd-badge-remote{background:rgba(30,64,175,.3);color:#93c5fd}
+.cd-badge-field{background:rgba(16,185,129,.2);color:#6ee7b7}
+.cd-badge-gig{background:rgba(200,134,10,.2);color:var(--gl)}
+.cd-badge-office{background:rgba(71,85,105,.3);color:#cbd5e1}
+.cd-prog-bar{height:4px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:10px}
+.cd-prog-fill{height:100%;border-radius:2px;background:linear-gradient(to right,var(--gold),var(--gl));transition:width .5s ease}
+.cd-prog-lbl{font-size:10px;color:rgba(237,233,254,.4);margin-top:4px}
+.cd-main{overflow-y:auto;max-height:calc(100vh - 62px);background:#f3f1ed;display:flex;flex-direction:column}
+.cd-panel{padding:26px 28px;display:none;flex:1}
+.cd-panel.active{display:block;animation:fadein .2s ease}
+.cd-ph{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.cd-ph-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;letter-spacing:-.3px}
+.cd-ph-sub{font-size:12.5px;color:var(--slate);margin-top:3px}
+/* stat cards */
+.cd-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:18px}
+.cd-sc{background:#fff;border-radius:12px;padding:14px 15px;border:1px solid var(--bd);transition:all .2s;cursor:default}
+.cd-sc:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+.cd-sc-lbl{font-size:10.5px;color:var(--slate);text-transform:uppercase;letter-spacing:.7px;font-weight:600}
+.cd-sc-val{font-family:'Fraunces',serif;font-size:28px;font-weight:700;margin-top:3px}
+.cd-sc-delta{font-size:11.5px;margin-top:3px;font-weight:500}
+/* activity feed */
+.cd-activity{background:#fff;border-radius:14px;border:1px solid var(--bd);padding:18px 20px}
+.cd-activity-title{font-family:'Fraunces',serif;font-size:15px;font-weight:700;margin-bottom:14px}
+.cd-act-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--bd);font-size:13px}
+.cd-act-row:last-child{border-bottom:none}
+.cd-act-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.cd-act-g{background:var(--gs)}.cd-act-o{background:var(--gp)}.cd-act-v{background:var(--vs)}.cd-act-b{background:var(--bs)}
+.cd-act-time{margin-left:auto;color:var(--slate);font-size:11px;white-space:nowrap;flex-shrink:0}
+/* job cards in dashboard */
+.cd-job-card{background:#fff;border-radius:12px;padding:14px 16px;border:1px solid var(--bd);display:flex;align-items:center;gap:13px;margin-bottom:9px;cursor:pointer;transition:all .2s}
+.cd-job-card:hover{box-shadow:var(--sh);border-color:rgba(200,134,10,.2);transform:translateY(-1px)}
+.cd-jc-logo{width:38px;height:38px;border-radius:8px;background:var(--cream);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.cd-jc-title{font-size:13.5px;font-weight:600;color:var(--ink)}
+.cd-jc-co{font-size:12px;color:var(--slate);margin-top:1px}
+.cd-jc-r{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+/* application tracker */
+.app-track-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.app-track-row:last-child{border-bottom:none}
+.app-co{font-weight:700;font-size:13.5px}.app-role{font-size:12px;color:var(--slate);margin-top:1px}
+.app-pill{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;flex-shrink:0}
+.app-applied{background:var(--bs);color:var(--blue)}
+.app-viewed{background:var(--gp);color:var(--gold)}
+.app-shortlisted{background:var(--gs);color:#0f6e56}
+.app-contacted{background:var(--gp);color:var(--gold)}
+/* voice profile card */
+.voice-prof-card{background:var(--voice);border-radius:14px;padding:20px;margin-bottom:14px}
+.vpc-title{font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:14px}
+.vpc-scores{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.vpc-score-box{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;text-align:center}
+.vpc-val{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--gl)}
+.vpc-lbl{font-size:10px;color:rgba(237,233,254,.45);text-transform:uppercase;letter-spacing:.7px;margin-top:3px}
+/* profile completeness */
+.prof-complete-card{background:#fff;border-radius:14px;border:1px solid var(--bd);padding:18px 20px;margin-bottom:14px}
+.pcc-title{font-family:'Fraunces',serif;font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.pcc-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:13px}
+.pcc-item:last-child{border-bottom:none}
+.pcc-check{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.pcc-done{background:var(--gs);color:var(--green)}.pcc-todo{background:rgba(14,11,7,.06);color:var(--slate)}
+.pcc-lbl{flex:1}
+.pcc-action{font-size:12px;color:var(--vg);cursor:pointer;font-weight:600}
+.pcc-action:hover{text-decoration:underline}
+/* settings */
+.settings-section{background:#fff;border-radius:14px;border:1px solid var(--bd);padding:18px 20px;margin-bottom:14px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bd);font-size:13.5px}
+.settings-row:last-child{border-bottom:none}
+.settings-key{font-weight:600;color:var(--ink)}
+.settings-val{color:var(--slate);font-size:12.5px}
+.toggle-sw{width:42px;height:24px;border-radius:12px;background:var(--vg);position:relative;cursor:pointer;flex-shrink:0;transition:background .2s}
+.toggle-sw::after{content:'';width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;right:3px;transition:right .2s}
+.toggle-sw.off{background:rgba(14,11,7,.12)}.toggle-sw.off::after{right:21px}
+/* chatbot embedded in dashboard */
+.cd-chatbot-wrap{background:#fff;border-radius:14px;border:1px solid var(--bd);overflow:hidden;display:flex;flex-direction:column;height:520px}
+.cd-cb-head{background:linear-gradient(135deg,var(--voice),#2d1060);padding:16px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.cd-cb-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--vg),var(--gl));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.cd-cb-name{font-weight:700;font-size:14px;color:#fff}
+.cd-cb-status{font-size:11px;color:rgba(237,233,254,.45);margin-top:1px;display:flex;align-items:center;gap:4px}
+.cd-cb-online{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.cd-cb-quick{display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--bd);background:var(--cream);flex-shrink:0}
+.cd-cb-qchip{padding:5px 11px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--bd);background:#fff;color:var(--ink);cursor:pointer;transition:all .15s;white-space:nowrap}
+.cd-cb-qchip:hover{border-color:var(--vg);color:var(--vg);background:var(--vs)}
+.cd-cb-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.cd-cb-msg{display:flex;gap:8px;align-items:flex-start;animation:fadein .2s ease}
+.cd-cb-msg.user{flex-direction:row-reverse}
+.cd-cb-av2{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.cd-cb-av2.bot{background:linear-gradient(135deg,var(--vg),#4f46e5)}
+.cd-cb-av2.usr{background:var(--gold);font-weight:700;color:#fff}
+.cd-cb-bub{max-width:78%;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.55}
+.cd-cb-bub.bot{background:var(--cream);color:var(--ink);border:1px solid var(--bd);border-top-left-radius:4px}
+.cd-cb-bub.usr{background:var(--vg);color:#fff;border-top-right-radius:4px}
+.cd-cb-typing{display:flex;align-items:center;gap:4px;padding:10px 13px}
+.cd-cb-typing span{width:7px;height:7px;border-radius:50%;background:var(--slate);animation:cbDot .9s ease-in-out infinite}
+.cd-cb-typing span:nth-child(2){animation-delay:.2s}.cd-cb-typing span:nth-child(3){animation-delay:.4s}
+@keyframes cbDot{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+.cd-cb-input-row{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--bd);flex-shrink:0}
+.cd-cb-inp{flex:1;padding:9px 13px;border-radius:20px;border:1.5px solid var(--bd);font-size:13px;outline:none;transition:border-color .2s;background:#fff}
+.cd-cb-inp:focus{border-color:var(--vg)}
+.cd-cb-send{width:36px;height:36px;border-radius:50%;background:var(--vg);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .2s}
+.cd-cb-send:hover{background:#6d28d9}
+
+/* ──────────────────────────────────────────
+   AI MENTOR CHATBOT
+────────────────────────────────────────── */
+.chatbot-btn{position:fixed;bottom:28px;right:28px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--vg),#4f46e5);color:#fff;border:none;font-size:24px;cursor:pointer;z-index:800;box-shadow:0 6px 24px rgba(124,58,237,.4);transition:all .2s;display:none}
+.chatbot-btn.show{display:flex;align-items:center;justify-content:center}
+.chatbot-btn:hover{transform:scale(1.08);box-shadow:0 8px 32px rgba(124,58,237,.5)}
+.chatbot-btn .cb-notif{position:absolute;top:2px;right:2px;width:14px;height:14px;background:var(--red);border-radius:50%;border:2px solid #fff;font-size:8px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+.chatbot-panel{position:fixed;bottom:96px;right:28px;width:370px;height:520px;background:#fff;border-radius:20px;box-shadow:0 16px 60px rgba(0,0,0,.18);z-index:800;display:none;flex-direction:column;overflow:hidden;animation:cbIn .25s ease}
+@keyframes cbIn{from{opacity:0;transform:translateY(20px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+.chatbot-panel.show{display:flex}
+.cb-header{background:linear-gradient(135deg,var(--voice),#2d1060);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.cb-hdr-l{display:flex;align-items:center;gap:10px}
+.cb-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--vg),var(--gl));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.cb-name{font-weight:700;font-size:14px;color:#fff}
+.cb-status{font-size:11px;color:rgba(237,233,254,.5);margin-top:1px;display:flex;align-items:center;gap:4px}
+.cb-online{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.cb-close{background:rgba(255,255,255,.1);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.cb-close:hover{background:rgba(255,255,255,.2)}
+.cb-quick-chips{display:flex;gap:6px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--bd);flex-shrink:0;background:var(--cream)}
+.cb-quick{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--bd);background:#fff;color:var(--ink);cursor:pointer;transition:all .15s;white-space:nowrap}
+.cb-quick:hover{border-color:var(--vg);color:var(--vg);background:var(--vs)}
+.cb-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.cb-msg{display:flex;gap:8px;align-items:flex-start;animation:fadein .2s ease}
+.cb-msg.user{flex-direction:row-reverse}
+.cb-msg-av{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px}
+.cb-msg-av.bot{background:linear-gradient(135deg,var(--vg),#4f46e5)}
+.cb-msg-av.user{background:var(--gold)}
+.cb-bubble{max-width:260px;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.55}
+.cb-bubble.bot{background:var(--cream);color:var(--ink);border:1px solid var(--bd);border-top-left-radius:4px}
+.cb-bubble.user{background:var(--vg);color:#fff;border-top-right-radius:4px}
+.cb-typing{display:flex;align-items:center;gap:4px;padding:10px 13px}
+.cb-typing span{width:7px;height:7px;border-radius:50%;background:var(--slate);animation:cbDot .9s ease-in-out infinite}
+.cb-typing span:nth-child(2){animation-delay:.2s}.cb-typing span:nth-child(3){animation-delay:.4s}
+@keyframes cbDot{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+.cb-input-row{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--bd);flex-shrink:0}
+.cb-input{flex:1;padding:9px 13px;border-radius:20px;border:1.5px solid var(--bd);font-size:13px;outline:none;font-family:'DM Sans',sans-serif;transition:border-color .2s;background:#fff}
+.cb-input:focus{border-color:var(--vg)}
+.cb-send{width:36px;height:36px;border-radius:50%;background:var(--vg);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;transition:all .2s}
+.cb-send:hover{background:#6d28d9}
+</style>
+</head>
+<body>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- ════════════════ MODALS ════════════════ -->
+
+<!-- AUTH MODAL -->
+<div class="modal-backdrop" id="modal-auth">
+  <div class="modal" style="max-width:460px">
+    <button class="modal-x" onclick="closeModal('modal-auth')">✕</button>
+    <!-- Step 1: choose role -->
+    <div id="auth-step-1">
+      <div class="modal-title">Welcome to PitchFirst</div>
+      <div class="modal-sub">Choose how you're joining</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+        <div style="border:2px solid var(--bd);border-radius:14px;padding:20px;cursor:pointer;transition:all .2s;text-align:center" id="auth-emp-pick" onclick="pickAuthRole('employer')">
+          <div style="font-size:28px;margin-bottom:8px">🏢</div>
+          <div style="font-weight:700;font-size:15px;margin-bottom:4px">Employer</div>
+          <div style="font-size:12px;color:var(--slate)">Post roles & hire talent</div>
+          <div style="font-size:11px;color:var(--vg);font-weight:600;margin-top:8px">₹2,499 / month</div>
+        </div>
+        <div style="border:2px solid var(--bd);border-radius:14px;padding:20px;cursor:pointer;transition:all .2s;text-align:center" id="auth-cand-pick" onclick="pickAuthRole('candidate')">
+          <div style="font-size:28px;margin-bottom:8px">🎤</div>
+          <div style="font-weight:700;font-size:15px;margin-bottom:4px">Candidate</div>
+          <div style="font-size:12px;color:var(--slate)">Find your next role</div>
+          <div style="font-size:11px;color:var(--green);font-weight:600;margin-top:8px">Free or ₹199/mo</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--slate);text-align:center">Already have an account? <span style="color:var(--gold);font-weight:600;cursor:pointer" onclick="showAuthSignin()">Sign in instead →</span></div>
+    </div>
+    <!-- Step 2a: employer signup + pay -->
+    <div id="auth-step-emp" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+        <button style="background:none;border:none;cursor:pointer;color:var(--slate);font-size:18px" onclick="document.getElementById('auth-step-1').style.display='';document.getElementById('auth-step-emp').style.display='none'">←</button>
+        <div><div class="modal-title" style="font-size:18px;margin-bottom:0">Employer Sign Up</div><div style="font-size:12px;color:var(--slate)">Pay ₹2,499/month after sign up</div></div>
+      </div>
+      <div class="fgrid" style="margin-bottom:14px">
+        <div class="field"><label>Company Name</label><input class="finput" placeholder="e.g. FinTech Leads Pvt. Ltd."></div>
+        <div class="field"><label>Industry</label><select class="finput"><option>Banking & Finance</option><option>Insurance</option><option>EdTech</option><option>BPO / Call Centre</option><option>Healthcare</option><option>Real Estate</option><option>Telecom</option></select></div>
+        <div class="field"><label>Work Email</label><input class="finput" type="email" placeholder="hr@company.com"></div>
+        <div class="field"><label>Phone</label><input class="finput" placeholder="+91 98765 43210"></div>
+        <div class="field fcol"><label>Password</label><input class="finput" type="password" placeholder="Create a strong password"></div>
+      </div>
+      <div style="background:var(--vs);border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid rgba(124,58,237,.15)">
+        <div style="font-weight:700;font-size:14px;color:var(--vg);margin-bottom:8px">💳 Platform Subscription — ₹2,499/month</div>
+        <div style="font-size:12.5px;color:var(--slate);line-height:1.6">Unlimited role postings · Full candidate access · Voice pitch playback · Contact unlocks · Analytics dashboard · Priority support</div>
+        <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="field"><label style="font-size:11px">Card Number</label><input class="finput" style="font-size:13px" placeholder="4242 4242 4242 4242"></div>
+          <div class="field"><label style="font-size:11px">Expiry / CVV</label><div style="display:flex;gap:6px"><input class="finput" style="font-size:13px;flex:1" placeholder="MM/YY"><input class="finput" style="font-size:13px;width:70px" placeholder="CVV"></div></div>
+        </div>
+      </div>
+      <button class="btn btn-purple" style="width:100%;justify-content:center" onclick="completeEmpSignup()">Pay ₹2,499 & Create Account →</button>
+    </div>
+    <!-- Step 2b: candidate signup -->
+    <div id="auth-step-cand" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+        <button style="background:none;border:none;cursor:pointer;color:var(--slate);font-size:18px" onclick="document.getElementById('auth-step-1').style.display='';document.getElementById('auth-step-cand').style.display='none'">←</button>
+        <div><div class="modal-title" style="font-size:18px;margin-bottom:0">Candidate Sign Up</div></div>
+      </div>
+      <!-- Candidate type -->
+      <div style="background:var(--gp);border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid rgba(200,134,10,.15)">
+        <div style="font-weight:700;font-size:13px;color:var(--gold);margin-bottom:8px">Choose your plan</div>
+        <div id="cand-plan-sel" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="border:2px solid var(--bd);border-radius:10px;padding:12px;cursor:pointer;background:#fff;transition:all .2s" id="plan-free-card" onclick="selectCandPlan('free')">
+            <div style="font-weight:700;font-size:13px">🎓 Fresher / Student</div>
+            <div style="font-size:11px;color:var(--slate);margin-top:2px">0–12 months exp</div>
+            <div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--green);margin-top:6px">FREE</div>
+          </div>
+          <div style="border:2px solid var(--bd);border-radius:10px;padding:12px;cursor:pointer;background:#fff;transition:all .2s" id="plan-pro-card" onclick="selectCandPlan('pro')">
+            <div style="font-weight:700;font-size:13px">💼 Experienced</div>
+            <div style="font-size:11px;color:var(--slate);margin-top:2px">1+ years experience</div>
+            <div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--vg);margin-top:6px">₹199/mo</div>
+          </div>
+        </div>
+      </div>
+      <div class="fgrid" style="margin-bottom:14px">
+        <div class="field"><label>Full Name</label><input class="finput" placeholder="First + last name"></div>
+        <div class="field"><label>Mobile (OTP login)</label><input class="finput" placeholder="+91 XXXXX XXXXX"></div>
+        <div class="field"><label>Email</label><input class="finput" type="email" placeholder="you@email.com"></div>
+        <div class="field"><label>Password</label><input class="finput" type="password" placeholder="Create password"></div>
+      </div>
+      <div id="cand-payment-block" style="display:none;background:var(--vs);border-radius:12px;padding:14px;margin-bottom:14px;border:1px solid rgba(124,58,237,.15)">
+        <div style="font-weight:700;font-size:13px;color:var(--vg);margin-bottom:8px">💳 Pro Plan — ₹199/month</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="field"><label style="font-size:11px">Card Number</label><input class="finput" style="font-size:13px" placeholder="4242 4242 4242 4242"></div>
+          <div class="field"><label style="font-size:11px">Expiry / CVV</label><div style="display:flex;gap:6px"><input class="finput" style="font-size:13px;flex:1" placeholder="MM/YY"><input class="finput" style="font-size:13px;width:70px" placeholder="CVV"></div></div>
+        </div>
+      </div>
+      <button class="btn btn-gold" style="width:100%;justify-content:center" id="cand-signup-btn" onclick="completeCandSignup()">Create Free Account →</button>
+    </div>
+    <!-- Sign in form -->
+    <div id="auth-step-signin" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+        <button style="background:none;border:none;cursor:pointer;color:var(--slate);font-size:18px" onclick="document.getElementById('auth-step-1').style.display='';document.getElementById('auth-step-signin').style.display='none'">←</button>
+        <div class="modal-title" style="font-size:18px;margin-bottom:0">Sign In</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px">
+        <button id="si-emp-btn" onclick="siPickRole('employer')" style="padding:10px;border-radius:9px;border:1.5px solid var(--bd);background:#fff;cursor:pointer;font-weight:600;font-size:13px;transition:all .2s">🏢 Employer</button>
+        <button id="si-cand-btn" onclick="siPickRole('candidate')" style="padding:10px;border-radius:9px;border:1.5px solid var(--bd);background:#fff;cursor:pointer;font-weight:600;font-size:13px;transition:all .2s">🎤 Candidate</button>
+      </div>
+      <div class="field" style="margin-bottom:12px"><label>Email / Mobile</label><input class="finput" placeholder="Email or +91 mobile"></div>
+      <div class="field" style="margin-bottom:20px"><label>Password</label><input class="finput" type="password" placeholder="••••••••"></div>
+      <button class="btn btn-gold" style="width:100%;justify-content:center" id="si-btn" onclick="completeSignin()">Sign In →</button>
+      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--slate)">New here? <span style="color:var(--vg);font-weight:600;cursor:pointer" onclick="document.getElementById('auth-step-signin').style.display='none';document.getElementById('auth-step-1').style.display=''">Create account →</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- POST ROLE MODAL -->
+<div class="modal-backdrop" id="modal-post">
+  <div class="modal" style="max-width:580px">
+    <button class="modal-x" onclick="closeModal('modal-post')">✕</button>
+    <div class="modal-title">Post a New Role</div>
+    <div class="modal-sub">Goes live immediately to all matching candidates</div>
+    <div class="fgrid" style="margin-bottom:14px">
+      <div class="field"><label><span class="star">★</span> Job Title</label>
+        <select class="finput"><option>Telesales Executive</option><option>Phone Banking Officer</option><option>Customer Relationship Executive</option><option>Insurance Advisor</option><option>Academic Counsellor</option><option>Inside Sales Executive</option><option>Customer Support Executive</option><option>Collections Executive</option><option>Business Development Representative</option></select>
+      </div>
+      <div class="field"><label><span class="star">★</span> Industry</label>
+        <select class="finput"><option>Banking & Finance</option><option>Insurance</option><option>EdTech & Education</option><option>Healthcare</option><option>BPO / Call Centre</option><option>Real Estate</option><option>E-Commerce & Retail</option><option>Telecom</option></select>
+      </div>
+      <div class="field"><label><span class="star">★</span> City</label>
+        <select class="finput"><option>Mumbai</option><option>Delhi</option><option>Bangalore</option><option>Pune</option><option>Hyderabad</option><option>Chennai</option><option>Remote</option></select>
+      </div>
+      <div class="field"><label><span class="star">★</span> Experience</label>
+        <select class="finput"><option>Freshers welcome</option><option>1–2 years</option><option>2–4 years</option><option>4+ years</option></select>
+      </div>
+      <div class="field"><label>Salary Range (LPA)</label>
+        <div class="frange"><input class="finput" placeholder="Min" type="number" style="flex:1"><span style="color:var(--slate)">to</span><input class="finput" placeholder="Max" type="number" style="flex:1"></div>
+      </div>
+      <div class="field"><label>Work Mode</label>
+        <div class="chips" id="pm-chips">
+          <div class="chip on" onclick="sc(this,'pm-chips')">Remote</div>
+          <div class="chip" onclick="sc(this,'pm-chips')">Hybrid</div>
+          <div class="chip" onclick="sc(this,'pm-chips')">On-site / In-office</div>
+        </div>
+      </div>
+      <div class="field fcol"><label>Job Description</label><textarea class="finput" rows="4" placeholder="Describe the role, responsibilities, and ideal candidate..."></textarea></div>
+      <div class="field"><label>Require Voice Pitch?</label>
+        <div class="chips" id="pv-chips">
+          <div class="chip on" onclick="sc(this,'pv-chips')">Yes — required</div>
+          <div class="chip" onclick="sc(this,'pv-chips')">Preferred</div>
+          <div class="chip" onclick="sc(this,'pv-chips')">Optional</div>
+        </div>
+      </div>
+      <div class="field"><label>Typing Test Minimum?</label>
+        <div class="chips" id="pt-chips">
+          <div class="chip" onclick="sc(this,'pt-chips')">30+ WPM</div>
+          <div class="chip on" onclick="sc(this,'pt-chips')">40+ WPM</div>
+          <div class="chip" onclick="sc(this,'pt-chips')">50+ WPM</div>
+          <div class="chip" onclick="sc(this,'pt-chips')">Not required</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-purple" style="width:100%;justify-content:center" onclick="postRole()">Post Role →</button>
+  </div>
+</div>
+
+<!-- CANDIDATE DETAIL MODAL (employer view) -->
+<div class="modal-backdrop" id="modal-cand">
+  <div class="modal" style="max-width:560px"><button class="modal-x" onclick="closeModal('modal-cand')">✕</button><div id="modal-cand-content"></div></div>
+</div>
+
+<!-- APPLY MODAL (candidate) -->
+<div class="modal-backdrop" id="modal-apply">
+  <div class="modal" style="max-width:500px">
+    <button class="modal-x" onclick="closeModal('modal-apply')">✕</button>
+    <div class="modal-title">Apply to <span id="apply-job-title">this role</span></div>
+    <div class="modal-sub" id="apply-job-meta">Company · City · Salary</div>
+    <!-- Share resume -->
+    <div style="background:var(--gp);border-radius:12px;padding:14px;border:1px solid rgba(200,134,10,.15);margin-bottom:16px">
+      <div style="font-weight:700;font-size:13px;color:var(--gold);margin-bottom:8px">📄 Share Resume</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:8px;padding:10px 13px;border:1px solid var(--bd)">
+        <span style="font-size:13px;color:var(--slate)">aanya_sharma_resume.pdf</span>
+        <span style="font-size:11px;font-weight:600;color:var(--green)">✓ Ready to share</span>
+      </div>
+      <div style="font-size:11px;color:var(--slate);margin-top:6px">Your voice pitch will also be included automatically</div>
+    </div>
+    <!-- Cover letter -->
+    <div style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-weight:700;font-size:13px;color:var(--ink)">✍️ Cover Letter <span style="font-size:11px;color:var(--slate);font-weight:400">(optional)</span></div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" onclick="generateCoverLetter()">✨ AI Generate</button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('cl-toggle').checked=!document.getElementById('cl-toggle').checked;document.getElementById('cl-area').style.display=document.getElementById('cl-toggle').checked?'block':'none'">Write manually</button>
+        </div>
+      </div>
+      <input type="checkbox" id="cl-toggle" style="display:none" onchange="document.getElementById('cl-area').style.display=this.checked?'block':'none'">
+      <textarea id="cl-area" class="finput" rows="5" style="display:none;resize:vertical" placeholder="Dear Hiring Manager,&#10;&#10;I am writing to express my interest in the Telesales Executive position at your company..."></textarea>
+    </div>
+    <!-- Pitch confirm -->
+    <div style="background:var(--vs);border-radius:10px;padding:12px;margin-bottom:16px;border:1px solid rgba(124,58,237,.15);display:flex;align-items:center;gap:10px">
+      <span style="font-size:18px">🎤</span>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--vg)">Voice pitch included</div><div style="font-size:11px;color:var(--slate)">0:42 · Clarity 82 · Confidence 78 · Relevance 91 · Energy 85</div></div>
+    </div>
+    <button class="btn btn-gold" style="width:100%;justify-content:center" onclick="submitApplication()">Submit Application →</button>
+  </div>
+</div>
+
+<!-- COMPANY PROFILE EDIT MODAL -->
+<div class="modal-backdrop" id="modal-cp-edit">
+  <div class="modal" style="max-width:520px">
+    <button class="modal-x" onclick="closeModal('modal-cp-edit')">✕</button>
+    <div class="modal-title" id="cp-edit-title">Edit Company Info</div>
+    <div class="modal-sub">Changes save instantly to your profile</div>
+    <div id="cp-edit-body"></div>
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:18px" onclick="saveCpEdit()">Save Changes</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="logo" onclick="navTo('landing')">
+    <div class="logo-tile"><div class="logo-wf"><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
+    <span class="logo-text"><span class="p">Pitch</span><span class="f">First</span></span>
+    <span class="logo-beta">BETA</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="tab-landing" onclick="navTo('landing')">Home</button>
+    <button class="nav-tab" id="tab-employer" onclick="requireAuth('employer')">For Employers</button>
+    <button class="nav-tab" id="tab-candidate" onclick="requireAuth('candidate')">For Candidates</button>
+  </div>
+  <div class="nav-actions" id="nav-actions-guest">
+    <button class="btn-signin" onclick="openModal('modal-auth');showAuthSignin()">Sign in</button>
+    <button class="btn-cta" onclick="openModal('modal-auth')">Get Started Free</button>
+  </div>
+  <div class="nav-user" id="nav-user-bar">
+    <div class="nav-user-av" id="nav-user-av" onclick="toast('My Account — coming soon','i')">A</div>
+    <div><div class="nav-user-name" id="nav-user-name">Aanya</div><div class="nav-user-role" id="nav-user-role">Candidate · Pro</div></div>
+    <button class="btn-ghost btn-sm" onclick="signOut()" style="margin-left:8px">Sign out</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════
+  LANDING
+══════════════════════════════════════════════ -->
+<div id="page-landing" class="page active">
+  <div class="hero">
+    <div class="hero-l">
+      <div class="eyebrow">🎤 Voice-First Hiring · India Launch 2026</div>
+      <h1 class="hh">Résumés get you<br/>in the room.<br/><em>Your voice</em><br/>gets you the job.</h1>
+      <p class="hero-sub">PitchFirst combines a structured résumé, a 90-second voice pitch, and a live typing test — so candidates shine and employers decide in minutes, not weeks.</p>
+      <div class="hero-ctas">
+        <button class="btn-emp" onclick="openModal('modal-auth')">I'm Hiring<span class="cta-sub">Post roles &amp; screen talent with voice</span></button>
+        <button class="btn-cand" onclick="openModal('modal-auth')">I'm Job Hunting<span class="cta-sub">Build your voice profile — free or ₹199/mo</span></button>
+      </div>
+    </div>
+    <div class="hero-r">
+      <div class="hp dark">
+        <div class="hp-tag d">For Employers</div>
+        <div class="hp-title d">Hear the hire before you make it</div>
+        <div class="hp-desc d">Every applicant arrives with a résumé, 90-second voice pitch, AI scores, typing speed, and readiness badges. Shortlist in minutes.</div>
+        <div class="wrow" id="landing-wave"></div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <span class="ip ip-r">🌐 Remote Ready</span>
+          <span class="ip ip-f">🏍 Field Ready</span>
+          <span class="ip ip-g">⚡ Gig Ready</span>
+          <span class="ip ip-o">🏢 In-Office Ready</span>
+        </div>
+        <button class="btn btn-purple btn-sm" onclick="openModal('modal-auth')" style="width:fit-content">Start Hiring →</button>
+      </div>
+      <div class="hp light">
+        <div class="hp-tag l">For Candidates</div>
+        <div class="hp-title l">Don't just apply. Pitch.</div>
+        <div class="hp-desc l">Upload your résumé, record your 90-second pitch, and complete your typing test. Let your voice do what paper never could.</div>
+        <div style="display:inline-flex;align-items:center;gap:7px;background:var(--gp);border:1px solid rgba(200,134,10,.15);padding:7px 13px;border-radius:8px;font-size:12px;color:var(--gold);font-weight:500;width:fit-content">📄 Resume &nbsp;+&nbsp; 🎤 Voice &nbsp;+&nbsp; ⌨️ Typing Test</div>
+        <button class="btn btn-gold btn-sm" onclick="openModal('modal-auth')" style="width:fit-content">Build Profile Free →</button>
+      </div>
+    </div>
+  </div>
+  <div class="trust-bar">
+    <div><div class="tv">5M+</div><div class="tl">Telecallers in India</div></div><div class="tsep"></div>
+    <div><div class="tv">40%</div><div class="tl">Annual Attrition Rate</div></div><div class="tsep"></div>
+    <div><div class="tv">90s</div><div class="tl">Voice Pitch Maximum</div></div><div class="tsep"></div>
+    <div><div class="tv">65</div><div class="tl">Profile Fields (10 Sections)</div></div><div class="tsep"></div>
+    <div><div class="tv">4</div><div class="tl">AI Voice Score Dimensions</div></div>
+  </div>
+  <div class="hiw">
+    <div class="hiw-title">How <em>PitchFirst</em> works</div>
+    <div class="hiw-grid">
+      <div class="hiw-card"><div class="hiw-icon">📋</div><div class="hiw-h">Build your profile</div><div class="hiw-p">10-section profile with 65 fields: identity, skills, resume, voice pitch, availability, infrastructure readiness, and a live typing test averaged across 3 attempts.</div></div>
+      <div class="hiw-card"><div class="hiw-icon">🎤</div><div class="hiw-h">Voice pitch goes live</div><div class="hiw-p">A 90-second recording is AI-scored across Clarity, Confidence, Relevance, and Energy. Employers hear it before unlocking contact details.</div></div>
+      <div class="hiw-card"><div class="hiw-icon">✅</div><div class="hiw-h">Get hired faster</div><div class="hiw-p">Smart employer filters by city, language, badges, WPM, and AI score. One-tap apply with resume share + optional cover letter.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+  EMPLOYER PAGE
+══════════════════════════════════════════════ -->
+<div id="page-employer" class="page">
+  <div class="emp-layout">
+    <div class="emp-sb">
+      <div class="emp-sbl">Dashboard</div>
+      <button class="emp-sbi active" onclick="showEP('overview',this)">📊 Overview</button>
+      <button class="emp-sbi" onclick="showEP('candidates',this)">👥 Candidates <span class="emp-cnt">28</span></button>
+      <button class="emp-sbi" onclick="showEP('roles',this)">📋 Active Roles <span class="emp-cnt">5</span></button>
+      <button class="emp-sbi" onclick="showEP('interviews',this)">📅 Interviews <span class="emp-cnt">3</span></button>
+      <button class="emp-sbi" onclick="showEP('shortlisted',this)">⭐ Shortlisted <span class="emp-cnt" id="sl-cnt">7</span></button>
+      <div class="emp-sbl" style="margin-top:6px">Smart Filters</div>
+      <button class="emp-sbi" onclick="filterBadge('Remote Ready',this)">🌐 Remote Ready</button>
+      <button class="emp-sbi" onclick="filterBadge('Field Ready',this)">🏍 Field Ready</button>
+      <button class="emp-sbi" onclick="filterBadge('Gig Ready',this)">⚡ Gig Ready</button>
+      <button class="emp-sbi" onclick="filterBadge('In-Office Ready',this)">🏢 In-Office Ready</button>
+      <div class="emp-sbl" style="margin-top:6px">Company</div>
+      <button class="emp-sbi" onclick="showEP('company-profile',this)">🏢 Company Profile</button>
+      <button class="emp-sbi" onclick="showEP('analytics',this)">📈 Analytics</button>
+      <button class="emp-sbi" onclick="showEP('billing',this)">💳 Billing</button>
+      <button class="emp-sbi" onclick="toast('Team settings — coming soon','i')">👤 Team</button>
+      <button class="emp-sbi" onclick="signOut()">← Sign Out</button>
+    </div>
+    <div class="emp-main">
+
+      <!-- OVERVIEW -->
+      <div class="emp-panel active" id="ep-overview">
+        <div class="emp-ph">
+          <div><div class="emp-ph-title">Dashboard Overview</div><div class="emp-ph-sub">FinTech Leads Pvt. Ltd. · Active subscription</div></div>
+          <button class="btn btn-purple" onclick="openModal('modal-post')">+ Post New Role</button>
+        </div>
+        <div class="stats-grid">
+          <div class="sc" onclick="showEP('candidates',document.querySelectorAll('.emp-sbi')[1])"><div class="sc-lbl">Total Applicants</div><div class="sc-val">28</div><div class="sc-delta">↑ +6 this week</div></div>
+          <div class="sc" onclick="showEP('roles',document.querySelectorAll('.emp-sbi')[2])"><div class="sc-lbl">Active Roles</div><div class="sc-val">5</div><div class="sc-delta">↑ 2 new this month</div></div>
+          <div class="sc" onclick="showEP('shortlisted',document.querySelectorAll('.emp-sbi')[4])"><div class="sc-lbl">Shortlisted</div><div class="sc-val" id="ov-sl">7</div><div class="sc-delta">↑ 3 this week</div></div>
+          <div class="sc" onclick="showEP('interviews',document.querySelectorAll('.emp-sbi')[3])"><div class="sc-lbl">Interviews</div><div class="sc-val">3</div><div class="sc-delta" style="color:var(--gold)">Next: Tomorrow 10am</div></div>
+        </div>
+        <div style="background:#fff;border-radius:14px;border:1px solid var(--bd);padding:20px 22px">
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Recent Activity</div>
+          <div class="activity-row"><span class="activity-icon">🎤</span><span><strong>Aanya Sharma</strong> submitted a voice pitch for Telesales Executive</span><span class="activity-time">2h ago</span></div>
+          <div class="activity-row"><span class="activity-icon">✓</span><span><strong>Rohan Mehta</strong> accepted your interview invite</span><span class="activity-time">4h ago</span></div>
+          <div class="activity-row"><span class="activity-icon">📋</span><span><strong>Sneha Kulkarni</strong> applied for Customer Support Executive</span><span class="activity-time">6h ago</span></div>
+          <div class="activity-row"><span class="activity-icon">⌨️</span><span><strong>Karan Desai</strong> completed typing test — 33 WPM avg</span><span class="activity-time">1d ago</span></div>
+        </div>
+      </div>
+
+      <!-- CANDIDATES -->
+      <div class="emp-panel" id="ep-candidates">
+        <div class="emp-ph">
+          <div><div class="emp-ph-title">Candidate Pool</div><div class="emp-ph-sub" id="pool-sub">28 applicants · Sorted by AI match score</div></div>
+          <button class="btn btn-purple" onclick="openModal('modal-post')">+ Post Role</button>
+        </div>
+        <div class="fbar" id="cand-fbar">
+          <div class="fc on" onclick="filterCands('all',this)">All (28)</div>
+          <div class="fc" onclick="filterCands('voice',this)">🎤 Has Voice Pitch</div>
+          <div class="fc" onclick="filterCands('remote',this)">🌐 Remote Ready</div>
+          <div class="fc" onclick="filterCands('field',this)">🏍 Field Ready</div>
+          <div class="fc" onclick="filterCands('gig',this)">⚡ Gig Ready</div>
+          <div class="fc" onclick="filterCands('office',this)">🏢 In-Office Ready</div>
+          <div class="fc" onclick="filterCands('typing',this)">⌨️ 40+ WPM</div>
+          <div class="fc" onclick="filterCands('verified',this)">✓ AI Verified</div>
+        </div>
+        <div class="cand-list" id="cand-list"></div>
+      </div>
+
+      <!-- ROLES -->
+      <div class="emp-panel" id="ep-roles">
+        <div class="emp-ph">
+          <div><div class="emp-ph-title">Active Roles</div><div class="emp-ph-sub">5 open positions</div></div>
+          <button class="btn btn-purple" onclick="openModal('modal-post')">+ Post New Role</button>
+        </div>
+        <div id="roles-list"></div>
+      </div>
+
+      <!-- INTERVIEWS -->
+      <div class="emp-panel" id="ep-interviews">
+        <div class="emp-ph">
+          <div><div class="emp-ph-title">Interviews</div><div class="emp-ph-sub">Scheduled &amp; upcoming</div></div>
+          <button class="btn btn-ghost" onclick="toast('Calendar sync — coming soon','i')">📅 Calendar View</button>
+        </div>
+        <div id="interviews-list"></div>
+      </div>
+
+      <!-- SHORTLISTED -->
+      <div class="emp-panel" id="ep-shortlisted">
+        <div class="emp-ph"><div><div class="emp-ph-title">Shortlisted</div><div class="emp-ph-sub" id="sl-sub">7 candidates shortlisted</div></div></div>
+        <div class="cand-list" id="sl-list"></div>
+      </div>
+
+      <!-- COMPANY PROFILE -->
+      <div class="emp-panel" id="ep-company-profile">
+        <div class="emp-ph">
+          <div><div class="emp-ph-title">Company Profile</div><div class="emp-ph-sub">Your public employer brand on PitchFirst</div></div>
+          <button class="btn btn-gold" onclick="cpEdit('header')">Edit Profile</button>
+        </div>
+        <div class="cp-layout">
+          <div class="cp-left">
+            <div class="cp-card">
+              <div class="cp-logo-box">FL</div>
+              <div class="cp-company-name">FinTech Leads Pvt. Ltd.</div>
+              <div class="cp-tagline">India's fastest-growing outbound BFSI sales company</div>
+              <div class="cp-badge-row">
+                <span class="cp-badge cp-badge-active">● Active</span>
+                <span class="cp-badge cp-badge-verified">✓ Verified</span>
+                <span class="cp-badge cp-badge-plan">Pro Employer</span>
+              </div>
+              <div class="cp-stat-row">
+                <div class="cp-stat"><div class="cp-stat-val">12</div><div class="cp-stat-lbl">Hires</div></div>
+                <div class="cp-stat"><div class="cp-stat-val">34</div><div class="cp-stat-lbl">Unlocked</div></div>
+                <div class="cp-stat"><div class="cp-stat-val">4.3★</div><div class="cp-stat-lbl">Rating</div></div>
+              </div>
+              <div class="cp-info-row"><span class="cp-info-icon">🏭</span><span>Banking &amp; Finance</span></div>
+              <div class="cp-info-row"><span class="cp-info-icon">📍</span><span>Mumbai, Maharashtra</span></div>
+              <div class="cp-info-row"><span class="cp-info-icon">👥</span><span>51–200 employees</span></div>
+              <div class="cp-info-row"><span class="cp-info-icon">🌐</span><span>www.fintechleads.in</span></div>
+              <div class="cp-info-row"><span class="cp-info-icon">📅</span><span>Founded 2019</span></div>
+              <div class="cp-info-row"><span class="cp-info-icon">📧</span><span>hr@fintechleads.in</span></div>
+            </div>
+            <div class="cp-card">
+              <div style="font-size:13px;font-weight:700;color:var(--slate);margin-bottom:10px;text-transform:uppercase;letter-spacing:.7px;font-size:11px">Currently Hiring</div>
+              <div style="display:flex;flex-direction:column;gap:6px" id="currently-hiring"></div>
+            </div>
+          </div>
+          <div class="cp-right">
+            <div class="cp-section">
+              <div class="cp-section-title">About Us <button class="cp-edit-btn" onclick="cpEdit('about')">Edit</button></div>
+              <div class="cp-desc">FinTech Leads is a leading outbound telecalling firm specialising in BFSI client acquisition across India. We operate 3 centres in Mumbai and Pune, with a team of 150+ skilled telecallers delivering consistent results for banks, NBFCs, and insurance companies. We offer competitive packages, structured growth paths, and a culture of performance-driven rewards.</div>
+            </div>
+            <div class="cp-section">
+              <div class="cp-section-title">Hiring Performance <button class="cp-edit-btn" onclick="toast('Analytics data refreshed','s')">Refresh</button></div>
+              <div class="cp-kpi-grid">
+                <div class="cp-kpi"><div class="cp-kpi-val">28</div><div class="cp-kpi-lbl">Applications</div></div>
+                <div class="cp-kpi"><div class="cp-kpi-val">7</div><div class="cp-kpi-lbl">Shortlisted</div></div>
+                <div class="cp-kpi"><div class="cp-kpi-val">12</div><div class="cp-kpi-lbl">Hires made</div></div>
+                <div class="cp-kpi"><div class="cp-kpi-val">4.2</div><div class="cp-kpi-lbl">Avg days to hire</div></div>
+                <div class="cp-kpi"><div class="cp-kpi-val">43%</div><div class="cp-kpi-lbl">Voice pitch rate</div></div>
+                <div class="cp-kpi"><div class="cp-kpi-val">92%</div><div class="cp-kpi-lbl">Offer acceptance</div></div>
+              </div>
+            </div>
+            <div class="cp-section">
+              <div class="cp-section-title">Work Environment <button class="cp-edit-btn" onclick="cpEdit('work-env')">Edit</button></div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+                <span class="ip ip-o">🏢 In-office</span>
+                <span class="ip ip-r" style="background:#f0fdf4;color:#15803d;border-color:rgba(21,128,61,.2)">⏰ Flexible hours</span>
+                <span class="ip ip-r">📈 Performance bonus</span>
+                <span class="ip ip-r" style="background:#fce7f3;color:#be185d;border-color:rgba(190,24,93,.15)">🏥 Health insurance</span>
+                <span class="ip ip-g">📚 Training provided</span>
+              </div>
+              <div style="font-size:13px;color:var(--slate);line-height:1.6">Our telecallers work from our offices in Mumbai (Andheri) and Pune (Hinjewadi). We provide structured training, daily coaching, and a competitive incentive structure with no cap on earnings.</div>
+            </div>
+            <div class="cp-section">
+              <div class="cp-section-title">Hiring Team <button class="cp-edit-btn" onclick="cpEdit('team')">Edit</button></div>
+              <div class="cp-team-grid">
+                <div class="cp-team-card"><div class="cp-team-av" style="background:linear-gradient(135deg,var(--vg),#4f46e5)">PS</div><div><div class="cp-team-name">Priya Sharma</div><div class="cp-team-role">HR Head</div></div></div>
+                <div class="cp-team-card"><div class="cp-team-av" style="background:linear-gradient(135deg,var(--gold),var(--gl))">AK</div><div><div class="cp-team-name">Amit Kumar</div><div class="cp-team-role">Talent Acquisition</div></div></div>
+                <div class="cp-team-card"><div class="cp-team-av" style="background:linear-gradient(135deg,#0891b2,#22d3ee)">RS</div><div><div class="cp-team-name">Rahul Singh</div><div class="cp-team-role">Operations Lead</div></div></div>
+                <div class="cp-team-card" style="cursor:pointer;border:1.5px dashed var(--bd)" onclick="toast('Invite team member — email sent','s')"><div style="width:36px;height:36px;border-radius:50%;border:2px dashed var(--bd);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">+</div><div><div class="cp-team-name" style="font-size:12px;color:var(--slate)">Invite member</div></div></div>
+              </div>
+            </div>
+            <div class="cp-section">
+              <div class="cp-section-title">Company Reviews <button class="cp-edit-btn" onclick="toast('Review management — coming soon','i')">Manage</button></div>
+              <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+                <div style="font-family:'Fraunces',serif;font-size:40px;font-weight:700;color:var(--gold)">4.3</div>
+                <div>
+                  <div style="color:var(--gold);font-size:20px;letter-spacing:2px">★★★★☆</div>
+                  <div style="font-size:12px;color:var(--slate);margin-top:2px">Based on 24 candidate reviews</div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="background:var(--cream);border-radius:10px;padding:12px;border:1px solid var(--bd)">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-weight:600;font-size:13px">Meena Rajput</span><span style="color:var(--gold);font-size:13px">★★★★★</span></div>
+                  <div style="font-size:12.5px;color:var(--slate)">Great company culture, strong training program and the incentives are real — I hit 150% of target in my first month.</div>
+                </div>
+                <div style="background:var(--cream);border-radius:10px;padding:12px;border:1px solid var(--bd)">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-weight:600;font-size:13px">Arjun Patil</span><span style="color:var(--gold);font-size:13px">★★★★☆</span></div>
+                  <div style="font-size:12.5px;color:var(--slate)">Good environment, supportive managers. Would appreciate more flexible timing options for evening shifts.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANALYTICS -->
+      <div class="emp-panel" id="ep-analytics">
+        <div class="emp-ph"><div><div class="emp-ph-title">Analytics</div><div class="emp-ph-sub">Last 30 days · FinTech Leads Pvt. Ltd.</div></div></div>
+        <div class="stats-grid">
+          <div class="sc"><div class="sc-lbl">Profile Views</div><div class="sc-val">342</div><div class="sc-delta">↑ +18% vs last month</div></div>
+          <div class="sc"><div class="sc-lbl">Voice Pitches Heard</div><div class="sc-val">89</div><div class="sc-delta">↑ +43% vs last month</div></div>
+          <div class="sc"><div class="sc-lbl">Contacts Unlocked</div><div class="sc-val">34</div><div class="sc-delta">↑ +12 this month</div></div>
+          <div class="sc"><div class="sc-lbl">Offers Made</div><div class="sc-val">12</div><div class="sc-delta" style="color:var(--gold)">Offer acceptance: 92%</div></div>
+        </div>
+        <div style="background:#fff;border-radius:14px;border:1px solid var(--bd);padding:20px;margin-bottom:14px">
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Application Funnel</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;gap:12px"><div style="width:110px;font-size:12px;color:var(--slate);font-weight:600">Viewed profiles</div><div style="flex:1;height:12px;background:var(--vs);border-radius:6px;overflow:hidden"><div style="height:100%;width:100%;background:var(--vg);border-radius:6px"></div></div><span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;width:40px;text-align:right">342</span></div>
+            <div style="display:flex;align-items:center;gap:12px"><div style="width:110px;font-size:12px;color:var(--slate);font-weight:600">Played pitches</div><div style="flex:1;height:12px;background:var(--vs);border-radius:6px;overflow:hidden"><div style="height:100%;width:26%;background:var(--vg);border-radius:6px"></div></div><span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;width:40px;text-align:right">89</span></div>
+            <div style="display:flex;align-items:center;gap:12px"><div style="width:110px;font-size:12px;color:var(--slate);font-weight:600">Shortlisted</div><div style="flex:1;height:12px;background:var(--gs);border-radius:6px;overflow:hidden"><div style="height:100%;width:20%;background:var(--green);border-radius:6px"></div></div><span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;width:40px;text-align:right">34</span></div>
+            <div style="display:flex;align-items:center;gap:12px"><div style="width:110px;font-size:12px;color:var(--slate);font-weight:600">Hired</div><div style="flex:1;height:12px;background:var(--gp);border-radius:6px;overflow:hidden"><div style="height:100%;width:3.5%;background:var(--gold);border-radius:6px"></div></div><span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;width:40px;text-align:right">12</span></div>
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:14px;border:1px solid var(--bd);padding:20px">
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Top Performing Roles</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd);font-size:13px"><span>Telesales Executive</span><span style="font-weight:600;color:var(--vg)">12 applicants · 4 shortlisted</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd);font-size:13px"><span>Phone Banking Officer</span><span style="font-weight:600;color:var(--vg)">8 applicants · 2 shortlisted</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px"><span>Academic Counsellor</span><span style="font-weight:600;color:var(--vg)">6 applicants · 1 shortlisted</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BILLING -->
+      <div class="emp-panel" id="ep-billing">
+        <div class="emp-ph"><div><div class="emp-ph-title">Billing &amp; Subscription</div><div class="emp-ph-sub">Manage your employer plan</div></div></div>
+        <div style="background:#fff;border-radius:14px;border:1px solid var(--bd);padding:22px;margin-bottom:14px">
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Current Plan</div>
+          <div style="background:linear-gradient(135deg,var(--voice),#2d1060);border-radius:12px;padding:20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:#fff">Employer Pro Plan</div><div style="font-size:13px;color:rgba(237,233,254,.5);margin-top:3px">All features · Unlimited access</div></div>
+            <div style="text-align:right"><div style="font-family:'DM Mono',monospace;font-size:26px;font-weight:500;color:var(--gl)">₹2,499</div><div style="font-size:11px;color:rgba(237,233,254,.4)">per month</div></div>
+          </div>
+          <div class="cp-billing-row"><span class="cp-billing-key">Status</span><span class="cp-billing-val" style="color:var(--green)">● Active</span></div>
+          <div class="cp-billing-row"><span class="cp-billing-key">Next billing</span><span class="cp-billing-val">13 June 2026</span></div>
+          <div class="cp-billing-row"><span class="cp-billing-key">Payment method</span><span class="cp-billing-val">Visa •••• 4242</span></div>
+          <div class="cp-billing-row"><span class="cp-billing-key">Billing email</span><span class="cp-billing-val">hr@fintechleads.in</span></div>
+          <div style="display:flex;gap:10px;margin-top:16px">
+            <button class="btn btn-ghost btn-sm" onclick="toast('Payment method updated','s')">Update Card</button>
+            <button class="btn btn-ghost btn-sm" onclick="toast('Invoice downloaded as PDF','s')">Download Invoice</button>
+            <button class="btn btn-red btn-sm" onclick="toast('Cancellation requested. Your access continues until 13 June.','w')" style="margin-left:auto">Cancel Plan</button>
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:14px;border:1px solid var(--bd);padding:22px">
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Payment History</div>
+          <div style="display:flex;flex-direction:column;gap:0">
+            <div class="cp-billing-row"><span class="cp-billing-key">13 May 2026</span><span class="cp-billing-val">₹2,499 · Visa 4242 <span style="color:var(--green);font-size:11px;font-weight:600">Paid</span></span></div>
+            <div class="cp-billing-row"><span class="cp-billing-key">13 Apr 2026</span><span class="cp-billing-val">₹2,499 · Visa 4242 <span style="color:var(--green);font-size:11px;font-weight:600">Paid</span></span></div>
+            <div class="cp-billing-row"><span class="cp-billing-key">13 Mar 2026</span><span class="cp-billing-val">₹2,499 · Visa 4242 <span style="color:var(--green);font-size:11px;font-weight:600">Paid</span></span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /emp-main -->
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+  CANDIDATE PAGE
+══════════════════════════════════════════════ -->
+<div id="page-candidate" class="page">
+  <div class="cand-layout">
+    <div class="pstrength">
+      <div class="ps-ring">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(14,11,7,.08)" stroke-width="5"/>
+          <circle cx="32" cy="32" r="28" fill="none" stroke="var(--gold)" stroke-width="5" stroke-linecap="round" id="ps-arc" stroke-dasharray="175.9" stroke-dashoffset="44"/>
+        </svg>
+        <div class="ps-pct" id="ps-pct-lbl">75%</div>
+      </div>
+      <div class="ps-info"><div class="ps-title">Profile Strength</div><div class="ps-sub">Complete all 10 sections for maximum employer visibility</div></div>
+      <div class="ps-bars">
+        <div class="psb"><span class="psb-t">Resume</span><div class="psb-track"><div class="psb-fill" style="width:100%;background:linear-gradient(to right,var(--gold),var(--gl))"></div></div></div>
+        <div class="psb"><span class="psb-t">Voice</span><div class="psb-track"><div class="psb-fill" id="pbar-voice" style="width:0%;background:linear-gradient(to right,var(--vg),#a78bfa)"></div></div></div>
+        <div class="psb"><span class="psb-t">Typing</span><div class="psb-track"><div class="psb-fill" id="pbar-typing" style="width:0%;background:linear-gradient(to right,var(--green),#34d399)"></div></div></div>
+        <div class="psb"><span class="psb-t">Infra</span><div class="psb-track"><div class="psb-fill" id="pbar-infra" style="width:60%;background:linear-gradient(to right,#0891b2,#22d3ee)"></div></div></div>
+      </div>
+    </div>
+    <div class="stepper" id="main-stepper"></div>
+
+    <!-- SECTION 1 -->
+    <div class="sec" id="sec-0"><div class="sec-hdr"><div><div class="sec-title">1. Basic Identity</div><div class="sec-sub">All 5 fields required before proceeding</div></div><span class="sec-badge sb-key">★ Key</span></div>
+      <div class="fgrid">
+        <div class="field"><label><span class="star">★</span> Full Name</label><input class="finput" value="Aanya Sharma"></div>
+        <div class="field"><label><span class="star">★</span> Mobile Number</label><input class="finput" value="+91 98765 43210"></div>
+        <div class="field"><label><span class="star">★</span> City & State</label><select class="finput"><option>Mumbai, Maharashtra</option><option>Delhi, Delhi</option><option>Bangalore, Karnataka</option><option>Pune, Maharashtra</option><option>Hyderabad, Telangana</option></select></div>
+        <div class="field"><label><span class="star">★</span> Email Address</label><input class="finput" type="email" value="aanya.sharma@email.com"></div>
+        <div class="field fcol"><label>Profile Photo</label><input class="finput" placeholder="Upload headshot · JPG or PNG · Min 200×200px"></div>
+      </div>
+      <div class="step-nav"><div class="step-prog">1 of 10</div><button class="btn btn-gold" onclick="goSec(1)">Next →</button></div>
+    </div>
+
+    <!-- SECTION 2 -->
+    <div class="sec" id="sec-1"><div class="sec-hdr"><div><div class="sec-title">2. Professional Summary</div><div class="sec-sub">Freshers allowed · 0 years accepted</div></div><span class="sec-badge sb-key">★ Key</span></div>
+      <div class="fgrid">
+        <div class="field"><label><span class="star">★</span> Current Job Title</label><select class="finput"><option>Telesales Executive</option><option>Phone Banking Officer</option><option>Customer Relationship Executive</option><option>Loan Sales Officer</option><option>Insurance Advisor</option><option>Academic Counsellor</option><option>Inside Sales Executive</option><option>Customer Support Executive</option><option>Collections Executive</option><option>Fresher / Student</option></select></div>
+        <div class="field"><label><span class="star">★</span> Industry</label><select class="finput"><option>Banking & Finance</option><option>Insurance</option><option>EdTech & Education</option><option>Healthcare</option><option>Real Estate</option><option>E-Commerce & Retail</option><option>Telecom</option><option>IT & SaaS</option><option>BPO / Call Centre</option></select></div>
+        <div class="field"><label><span class="star">★</span> Years of Experience</label><input class="finput" type="number" value="4" min="0"></div>
+        <div class="field"><label>Current CTC (LPA)</label><input class="finput" type="number" placeholder="0 for freshers"></div>
+        <div class="field"><label><span class="star">★</span> Expected CTC Range (LPA)</label><div class="frange"><input class="finput" placeholder="Min" type="number" style="flex:1"><span style="color:var(--slate)">to</span><input class="finput" placeholder="Max" type="number" style="flex:1"></div></div>
+        <div class="field"><label><span class="star">★</span> Work Preference</label><div class="chips" id="wp-c"><div class="chip on" onclick="sc(this,'wp-c')">Remote</div><div class="chip" onclick="sc(this,'wp-c')">Hybrid</div><div class="chip" onclick="sc(this,'wp-c')">On-site / In-office</div></div></div>
+      </div>
+      <div class="step-nav"><button class="btn btn-ghost" onclick="goSec(0)">← Back</button><div class="step-prog">2 of 10</div><button class="btn btn-gold" onclick="goSec(2)">Next →</button></div>
+    </div>
+
+    <!-- SECTION 3: VOICE -->
+    <div class="sec" id="sec-2"><div class="sec-hdr"><div><div class="sec-title">3. Voice Pitch</div><div class="sec-sub">Core differentiator — candidates without a pitch rank lower</div></div><span class="sec-badge sb-ai">AI Scored</span></div>
+      <div class="fgrid" style="margin-bottom:16px">
+        <div class="field"><label><span class="star">★</span> Pitch Headline (10 words max)</label><input class="finput" placeholder="e.g. Experienced telesales exec driving BFSI revenue"></div>
+        <div class="field"><label><span class="star">★</span> Pitch Language</label><div class="chips" id="pl-c"><div class="chip on-v chip" onclick="scv(this,'pl-c')">English</div><div class="chip" onclick="scv(this,'pl-c')">Hindi</div><div class="chip" onclick="scv(this,'pl-c')">Marathi</div><div class="chip" onclick="scv(this,'pl-c')">Tamil</div><div class="chip" onclick="scv(this,'pl-c')">Telugu</div></div></div>
+        <div class="field fcol"><label>Pitch Transcript <span class="lbl-ai">Auto-generated</span></label><textarea class="finput" rows="2" placeholder="Auto-filled after you record..."></textarea></div>
+      </div>
+      <div class="vrec">
+        <div class="vrec-hdr">
+          <div><div class="vrec-title">Record Your 90-Second Pitch</div><div class="vrec-sub">Re-record allowed · This is what sets you apart</div></div>
+          <div class="vrec-status" id="vrec-status"><div class="vdot" id="vrec-dot" style="background:rgba(124,58,237,.6)"></div><span id="vrec-txt">Ready to record</span></div>
+        </div>
+        <div class="waveform" id="waveform-el"></div>
+        <div class="vrec-row">
+          <button class="rec-btn idle" id="rec-btn" onclick="toggleRec()">🎤</button>
+          <div><div class="rec-time" id="rec-time">0:00</div><div class="rec-limit">max 1:30</div></div>
+          <button class="btn btn-gold" style="margin-left:auto" onclick="submitPitch()">Submit Pitch →</button>
+        </div>
+        <div class="ai-scores" id="ai-scores" style="display:none">
+          <div class="ai-score-box"><div class="ai-score-val" id="sc-clar">—</div><div class="ai-score-lbl">Clarity</div></div>
+          <div class="ai-score-box"><div class="ai-score-val" id="sc-conf">—</div><div class="ai-score-lbl">Confidence</div></div>
+          <div class="ai-score-box"><div class="ai-score-val" id="sc-rel">—</div><div class="ai-score-lbl">Relevance</div></div>
+          <div class="ai-score-box"><div class="ai-score-val" id="sc-ene">—</div><div class="ai-score-lbl">Energy</div></div>
+        </div>
+      </div>
+      <div style="margin-top:14px"><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" checked style="accent-color:var(--gold);width:15px;height:15px"> ★ I consent to AI analysis of my voice pitch</label></div>
+      <div class="step-nav"><button class="btn btn-ghost" onclick="goSec(1)">← Back</button><div class="step-prog">3 of 10</div><button class="btn btn-gold" onclick="goSec(3)">Next →</button></div>
+    </div>
+
+    <!-- SECTION 4 -->
+    <div class="sec" id="sec-3"><div class="sec-hdr"><div><div class="sec-title">4. Resume & Documents</div><div class="sec-sub">AI parses and extracts key fields</div></div><span class="sec-badge sb-ai">AI Parsed</span></div>
+      <div class="fgrid">
+        <div class="field"><label><span class="star">★</span> Resume Upload <span class="lbl-ai">AI scored</span></label><input class="finput" value="aanya_sharma_resume.pdf"></div>
+        <div class="field"><label>Last Updated</label><input class="finput" type="date" value="2025-11-01"></div>
+        <div class="field"><label><span class="star">★</span> Notice Period</label><select class="finput"><option>Immediate</option><option>15 days</option><option>30 days</option><option>60 days</option><option>90 days</option></select></div>
+        <div class="field"><label><span class="star">★</span> Work Preference</label><div class="chips" id="rwp-c"><div class="chip on" onclick="sc(this,'rwp-c')">Remote</div><div class="chip" onclick="sc(this,'rwp-c')">Hybrid</div><div class="chip" onclick="sc(this,'rwp-c')">On-site / In-office</div></div></div>
+      </div>
+      <div class="step-nav"><button class="btn btn-ghost" onclick="goSec(2)">← Back</button><div class="step-prog">4 of 10</div><button class="btn btn-gold" onclick="goSec(4)">Next →</button></div>
+    </div>
+
+    <!-- SECTION 5 -->
+    <div class="sec" id="sec-4"><div class="sec-hdr"><div><div class="sec-title">5. Education</div><div class="sec-sub">All 4 fields required</div></div><span class="sec-badge sb-key">★ Required</span></div>
+      <div class="fgrid">
+        <div class="field"><label><span class="star">★</span> Highest Qualification</label><select class="finput"><option>10th</option><option>12th / HSC</option><option>Diploma</option><option>Under Graduate (UG)</option><option>Post Graduate (PG)</option><option>PhD</option></select></div>
+        <div class="field"><label><span class="star">★</span> Degree & Stream</label><input class="finput" value="B.Com Finance"></div>
+        <div class="field"><label><span class="star">★</span> College / Institution</label><input class="finput" value="St. Xavier's College, Mumbai"></div>
+        <div class="field"><label><span class="star">★</span> Year of Passing</label><input class="finput" type="number" value="2021"></div>
+      </div>
+      <div class="step-nav"><button class="btn btn-ghost" onclick="goSec(3)">← Back</button><div class="step-prog">5 of 10</div><button class="btn btn-gold" onclick="goSec(5)">Next →</button></div>
+    </div>
+
+    <!-- SECTION 6 -->
+    <div class="sec" id="sec-5"><div class="sec-hdr"><div><div class="sec-title">6. Skills & Languages</div><div class="sec-sub">Min 3 skills · Max 20</div></div><span class="sec-badge sb-ai">AI Scored</span></div>
+      <div class="fgrid">
+        <div class="field fcol"><label><span class="star">★</span> Top Skills <span class="lbl-ai">AI scored</span></label>
+          <div class="chips"><div class="chip on" onclick="toggleChip(this)">Outbound Calling</div><div class="chip on" onclick="toggleChip(this)">CRM Tools</div><div class="chip on" onclick="toggleChip(this)">Lead Generation</div><div class="chip on" onclick="toggleChip(this)">Collections</div><div class="chip" onclick="toggleChip(this)">Inbound Support</div><div class="chip" onclick="toggleChip(this)">Cold Calling</div><div class="chip" onclick="toggleChip(this)">Upselling</div><div class="chip" onclick="toggleChip(this)">Policy Renewal</div><div class="chip" onclick="toggleChip(this)">Script Adherence</div></div>
+        </div>
+        <div class="field"><label><span class="star">★</span> Job Function</label><select class="finput"><option>Telesales / Inside Sales</option><option>Customer Support</option><option>Collections / Recovery</option><option>Academic Counselling</option><option>BPO / Process Associate</option></select></div>
+        <div class="field"><label><span class="star">★</span> Languages Known</label>
+          <div class="chips"><div class="chip on" onclick="toggleChip(this)">Hindi</div><div class="chip on" onclick="toggleChip(this)">English</div><div class="chip" onclick="toggleChip(this)">Marathi</div><div class="chip" onclick="toggleChip(this)">Tamil</div><div class="chip" onclick="toggleChip(this)">Telugu</div><div class="chip" onclick="toggleChip(this)">Kannada</div></div>
+        </div>
+      </div>
+      <div class="step-nav"><button class="btn btn-ghost" onclick="goSec(4)">← Back</button><div class="step-prog">6 of 10</div><button class="btn btn-gold" onclick="goSec(6)">Next →</button></div>
+    </div>
+
+    <!-- SECTION 7 -->
+    <div class="sec" id="sec-6"><div class="sec-hdr"><div><div class="sec-title">7. Job Preferences</div><div class="sec-sub">Helps employers filter the right candidates</div></div></div>
+      <div class="fgrid">
+        <div class="field"><label><span class="star">★</span> Job Type</label><div class="chips" id="jt-c"><div class="chip on" onclick="sc(this,'jt-c')">Full-time</div><div class="chip" onclick="sc(this,'jt-c')">Part-time</div><div class="chip" onclick="sc(this,'jt-c')">Contract</div><div class="chip" onclick="sc(this,'jt-c')">Internship</div></div></div>
+        <div class="field"><label><span class="star">★</span> Open to Relocation</label><div class="chips" id="rl-c"><div class="chip" onclick="sc(this,'rl-c')">Yes</div><div class="chip on" onclick="sc(this,'rl-c')">No</div><div class="chip" onclick="sc(this,'rl-c')">Negotiable</div></div></div>
+        <div class="field"><label><span class="star">★</span> Preferred Cities</label><div class="chips"><div class="chip on" onclick="toggleChip(this)">Mumbai</div><div class="chip on" onclick="toggleChip(this)">Pune</div><div class="chip" onclick="toggleChip(this)">Delhi</div><div class="chip" onclick="toggleChip(this)">Bangalore</div><div class="chip" onclick="toggleChip(this)">Remote</div></div></div>
+        <div class="field"><label>Preferred Industries</label><div class="chips"><div class="chip on" onclick="toggleChip(this)">Banking & Finance</div><div class="chip on" onclick="toggleChip(this)">Insurance</div><div class="chip" onclick="toggleChip(this)">EdTech</div><div class="chip" onclick="toggleChip(this)">BPO</div></div></div>
+      </div>
+      <div class="step-nav"><button class="btn btn-ghost" onclick="goSec(5)">← Back</button><div class="step-prog">7 of 10</div><button class="btn btn-gold" onclick="goSec(7)">Next →</button></div>
+    </div>
+
+    <!-- SECTION 8: AVAILABILITY -->
+    <div class="sec" id="sec-7"><div class="sec-hdr"><div><div class="sec-title">8. Availability</div><div class="sec-sub">Covers freelancers, consultants, part-timers, project-based workers</div></div><span class="sec-badge sb-new">New</span></div>
+      <div class="fgrid">
+        <div class="field"><label><span class="star">★</span> Availability Mode</label><select class="finput" id="av-mode" onchange="updateAP()"><option>Full-time</option><option>Part-time</option><option>Freelance</option><option>Contract</option><option>Project-based</option></select></div>
+        <div class="field"><label><span class="star">★</span> Current Status</label><div class="chips" id="as-c"><div class="chip on" onclick="sc(this,'as-c')">Actively looking</div><div class="chip" onclick="sc(this,'as-c')">Open to offers</div><div class="chip" onclick="sc(this,'as-c')">Not looking</div></div></div>
+        <div class="field"><label><span class="star">★</span> Available From</label><input class="finput" type="date" value="2026-06-01" id="av-from" onchange="updateAP()"></div>
+        <div class="field"><label>Available Until <span class="lbl-new">New</span></label><input class="finput" type="date" id="av-to" onchange="updateAP()"></div>
+        <div class="field"><label><span class="star">★</span> Hours/Week <span class="lbl-new">New</span></label><input type="range" style="accent-color:var(--gold);width:100%;cursor:pointer;margin-top:6px" min="5" max="40" value="20" oninput="document.getElementById('hrs-v').textContent=this.value+' hrs/week';updateAP()"><span id="hrs-v" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--gold);font-weight:500">20 hrs/week</span></div>
+        <div class="field"><label>Days <span class="lbl-new">New</span></label><div class="chips" id="days-c"><div class="chip on" onclick="sc(this,'days-c')">Weekdays</div><div class="chip" onclick="sc(this,'days-c')">Weekends</div><div class="chip" onclick="sc(this,'days-c')">Both</div></div></div>
+        <div class="field"><label>Preferred Hours <span class="lbl-new">New</span></label><div class="chips" id="hrs-c"><div class="chip on" onclick="sc(this,'hrs-c')">Morning</div><div class="chip" onclick="sc(this,'hrs-c')">Afternoon</div><div class="chip" onclick="sc(this,'hrs-c')">Evening</div><div class="chip" onclick="sc(this,'hrs-c')">Night shift</div></div></div>
+        <div class="field"><label><span class="star">★</span> Rate Expectation <span class="lbl-new">New</span></label><div class="frange"><input class="finput" placeholder="Amount in ₹" style="flex:1" id="rate-in" oninput="updateAP()"><select class="finput" style="width:130px;flex-shrink:0" id="rate-p" onchange="updateAP()"><option>Per hour</option><option>Per day</option><option>Per month</option><option>Per project</option></select></div></div>
+        <div class="field fcol"><label class="checkbox-row" style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" style="accent-color:var(--gold)"> Currently working elsewhere (moonlighting)</label></div>
+      </div>
+      <div class="avail-preview">
+        <div class="avail-title">Preview on your candidate card</div>
+        <div class="avail-row"><span class="avail-k">Availability</span><span class="avail-v" id="ap-mode">Freelance</span><span class="avail-c">Available now</span></div>
+        <div class="avail-row"><span class="avail-k">Window</span><span class="avail-v" id="ap-window">Jun 2026 onwards</span><span class="avail-c">Active</span></div>
+        <div class="avail-row"><span class="avail-k">Hours</span><span class="avail-v">20 hrs/week · Weekdays · Morning</span><span class="avail-c">Confirmed</span></div>
+        <div class="avail-row"><span class="avail-k">Rate</span><span class="avail-v" id="ap-rate">₹800/hr</span><span class="avail-c">Visible</span></div>
+      </div>
+      <div class="step-nav"><button class="btn btn-ghost" onclick="goSec(6)">← Back</button><div class="step-prog">8 of 10</div><button class="btn btn-gold" onclick="goSec(8)">Next →</button></div>
+    </div>
+
+    <!-- SECTION 9: INFRASTRUCTURE -->
+    <div class="sec" id="sec-8"><div class="sec-hdr"><div><div class="sec-title">9. Work Infrastructure</div><div class="sec-sub">Unlocks Remote Ready, Field Ready, Gig Ready, In-Office Ready badges</div></div><span class="sec-badge sb-new">New</span></div>
+      <div class="sec-group">Connectivity</div>
+      <div class="fgrid">
+        <div class="field"><label><span class="star">★</span> Internet Connection</label><div class="chips" id="net-c"><div class="chip on" onclick="sc(this,'net-c')">Fiber</div><div class="chip" onclick="sc(this,'net-c')">Broadband</div><div class="chip" onclick="sc(this,'net-c')">4G/5G</div><div class="chip" onclick="sc(this,'net-c')">None</div></div></div>
+        <div class="field"><label>Speed <span class="lbl-new">Remote</span></label><div class="chips" id="spd-c"><div class="chip" onclick="sc(this,'spd-c')">Below 10 Mbps</div><div class="chip" onclick="sc(this,'spd-c')">10–50 Mbps</div><div class="chip on" onclick="sc(this,'spd-c')">50 Mbps+</div></div></div>
+        <div class="field"><label>Power Backup <span class="lbl-new">New</span></label><div class="chips"><div class="chip on" onclick="toggleChip(this)">UPS</div><div class="chip" onclick="toggleChip(this)">Inverter</div><div class="chip" onclick="toggleChip(this)">None</div></div></div>
+        <div class="field"><label>Dedicated Workspace <span class="lbl-new">New</span></label><div class="chips" id="ws-c"><div class="chip on" onclick="sc(this,'ws-c')">Private room</div><div class="chip" onclick="sc(this,'ws-c')">Shared space</div><div class="chip" onclick="sc(this,'ws-c')">None</div></div></div>
+      </div>
+      <div class="sec-group">Tech Assets</div>
+      <div class="fgrid">
+        <div class="field"><label><span class="star">★</span> Laptop / Desktop</label><div class="chips" id="lap-c"><div class="chip on" onclick="sc(this,'lap-c')">Own</div><div class="chip" onclick="sc(this,'lap-c')">Company-provided</div><div class="chip" onclick="sc(this,'lap-c')">None</div></div></div>
+        <div class="field"><label>Webcam <span class="lbl-new">Remote</span></label><div class="chips" id="cam-c"><div class="chip" onclick="sc(this,'cam-c')">Built-in</div><div class="chip on" onclick="sc(this,'cam-c')">External</div><div class="chip" onclick="sc(this,'cam-c')">None</div></div></div>
+        <div class="field"><label>Headset / Mic <span class="lbl-new">Remote</span></label><div class="chips"><div class="chip on" onclick="toggleChip(this)">USB headset</div><div class="chip" onclick="toggleChip(this)">Earphones</div><div class="chip" onclick="toggleChip(this)">None</div></div></div>
+        <div class="field"><label>OS</label><div class="chips" id="os-c"><div class="chip" onclick="sc(this,'os-c')">Windows</div><div class="chip on" onclick="sc(this,'os-c')">macOS</div><div class="chip" onclick="sc(this,'os-c')">Linux</div></div></div>
+      </div>
+      <div class="sec-group">Physical Assets & In-Office</div>
+      <div class="fgrid">
+        <div class="field"><label><span class="star">★</span> Own Vehicle</label><div class="chips"><div class="chip on" onclick="toggleChip(this)">Two-wheeler</div><div class="chip" onclick="toggleChip(this)">Four-wheeler</div><div class="chip" onclick="toggleChip(this)">None</div></div></div>
+        <div class="field"><label>Commute Willingness <span class="lbl-new">In-office</span></label><div class="chips" id="com-c"><div class="chip on" onclick="sc(this,'com-c')">Within 10 km</div><div class="chip" onclick="sc(this,'com-c')">Within 20 km</div><div class="chip" onclick="sc(this,'com-c')">Any distance</div></div></div>
+        <div class="field"><label>Willing to Travel</label><div class="chips"><div class="chip on" onclick="toggleChip(this)">Local city</div><div class="chip" onclick="toggleChip(this)">Within state</div><div class="chip" onclick="toggleChip(this)">Pan India</div></div></div>
+        <div class="field"><label><span class="star">★</span> Bank & UPI <span class="lbl-new">Gig</span></label><div class="chips"><div class="chip on" onclick="toggleChip(this)">UPI enabled ✓</div><div class="chip on" onclick="toggleChip(this)">Bank verified ✓</div></div></div>
+      </div>
+      <div class="infra-preview">
+        <div class="infra-p-title">Your Smart Readiness Badges</div>
+        <div class="infra-row"><span class="infra-key">Internet</span><span class="infra-val">Fiber · 50 Mbps+ · UPS backup</span></div>
+        <div class="infra-row"><span class="infra-key">Devices</span><span class="infra-val">MacBook · External webcam · USB headset</span></div>
+        <div class="infra-row"><span class="infra-key">Workspace</span><span class="infra-val">Private dedicated room</span></div>
+        <div class="infra-row"><span class="infra-key">Vehicle</span><span class="infra-val">Two-wheeler · Commutes within 10 km</span></div>
+        <div class="infra-row"><span class="infra-key">Payment</span><span class="infra-val">UPI enabled · Bank verified</span></div>
+        <div class="smart-badges">
+          <span class="sbadge sbadge-r">🌐 Remote Ready</span>
+          <span class="sbadge sbadge-f">🏍 Field Ready</span>
+          <span class="sbadge sbadge-g">⚡ Gig Ready</span>
+          <span class="sbadge sbadge-o">🏢 In-Office Ready</span>
+        </div>
+      </div>
+      <div class="step-nav"><button class="btn btn-ghost" onclick="goSec(7)">← Back</button><div class="step-prog">9 of 10</div><button class="btn btn-gold" onclick="goSec(9)">Next →</button></div>
+    </div>
+
+    <!-- SECTION 10: TYPING TEST -->
+    <div class="sec" id="sec-9"><div class="sec-hdr"><div><div class="sec-title">10. Typing Speed Test</div><div class="sec-sub">3 attempts averaged · Exactly how telecaller interviews test it</div></div><span class="sec-badge sb-type">⌨️ Averaged</span></div>
+      <div class="tt-wrap">
+        <div class="att-badges"><div class="att cur" id="att1">Attempt 1</div><div class="att" id="att2">Attempt 2</div><div class="att" id="att3">Attempt 3</div></div>
+        <div class="tt-passage" id="tt-pas"></div>
+        <textarea class="tt-input" id="tt-inp" rows="3" placeholder="Click Start Test, then type the passage above..." disabled oninput="ttType()"></textarea>
+        <div class="tt-livstats">
+          <div class="tt-ls"><div class="tt-ls-val" id="tt-wpm">—</div><div class="tt-ls-lbl">WPM</div></div>
+          <div class="tt-ls"><div class="tt-ls-val" id="tt-acc">—</div><div class="tt-ls-lbl">Accuracy</div></div>
+          <div class="tt-ls"><div class="tt-ls-val" id="tt-chars">0</div><div class="tt-ls-lbl">Chars</div></div>
+          <div class="tt-ls"><div class="tt-ls-val" id="tt-errs">0</div><div class="tt-ls-lbl">Errors</div></div>
+        </div>
+        <div class="tt-row">
+          <button class="btn btn-purple" id="tt-btn" onclick="ttStart()">▶ Start Test</button>
+          <button class="btn btn-ghost" onclick="ttReset()">↺ Reset</button>
+          <div class="tt-cd" id="tt-cd">60s</div>
+        </div>
+        <div class="tt-results" id="tt-res">
+          <div class="tt-res-title">✓ All 3 Attempts Complete — Your Average Score</div>
+          <div class="tt-avg-grid">
+            <div class="tt-avg-box"><div class="tt-avg-val" id="avg-wpm">—</div><div class="tt-avg-lbl">Avg WPM</div></div>
+            <div class="tt-avg-box"><div class="tt-avg-val" id="avg-acc">—</div><div class="tt-avg-lbl">Avg Accuracy</div></div>
+            <div class="tt-avg-box"><div class="tt-avg-val" id="avg-grade" style="font-size:18px">—</div><div class="tt-avg-lbl">Grade</div></div>
+          </div>
+          <div class="att-hist" id="att-hist"></div>
+          <div id="final-badge"></div>
+        </div>
+      </div>
+      <div class="step-nav" style="margin-top:20px">
+        <button class="btn btn-ghost" onclick="goSec(8)">← Back</button>
+        <div class="step-prog">10 of 10</div>
+        <button class="btn btn-green" onclick="finishProfile()">Submit Profile ✓</button>
+      </div>
+    </div>
+
+    <!-- Job matches (after submit) -->
+    <div id="jobs-after" style="display:none;margin-top:24px">
+      <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;letter-spacing:-.3px;margin-bottom:14px">Roles matching your profile</div>
+      <div class="job-match-card" onclick="openApply('Phone Banking Officer','Axis Bank · Mumbai · ₹3.5–5 LPA')">
+        <div><div style="font-weight:700;font-size:14px">Axis Bank</div><div style="font-size:12px;color:var(--slate);margin:2px 0 6px">Phone Banking Officer · Mumbai · ₹3.5–5 LPA · In-office</div><div class="tr"><span class="tag t-res">Banking</span><span class="tag t-remote">Hindi + English</span><span class="tag t-office">🏢 In-office</span></div></div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div class="match-pct">97% match</div><button class="btn btn-gold btn-sm" onclick="event.stopPropagation();openApply('Phone Banking Officer','Axis Bank · Mumbai · ₹3.5–5 LPA')">Apply + Share Resume →</button></div>
+      </div>
+      <div class="job-match-card" onclick="openApply('Telemarketing Executive','HDFC Life Insurance · Mumbai · ₹3–4.5 LPA')">
+        <div><div style="font-weight:700;font-size:14px">HDFC Life Insurance</div><div style="font-size:12px;color:var(--slate);margin:2px 0 6px">Telemarketing Executive · Mumbai · ₹3–4.5 LPA · Hybrid</div><div class="tr"><span class="tag t-res">Insurance</span><span class="tag t-remote">Hindi + English</span><span class="tag t-remote">Hybrid</span></div></div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div class="match-pct">91% match</div><button class="btn btn-gold btn-sm" onclick="event.stopPropagation();openApply('Telemarketing Executive','HDFC Life Insurance · Mumbai · ₹3–4.5 LPA')">Apply + Share Resume →</button></div>
+      </div>
+      <div class="job-match-card" onclick="openApply('Academic Counsellor','Byju\'s · Pune · ₹4–6 LPA')">
+        <div><div style="font-weight:700;font-size:14px">Byju's</div><div style="font-size:12px;color:var(--slate);margin:2px 0 6px">Academic Counsellor · Pune · ₹4–6 LPA · Remote</div><div class="tr"><span class="tag t-res">EdTech</span><span class="tag t-remote">English</span><span class="tag t-voice">🌐 Remote</span></div></div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div class="match-pct">83% match</div><button class="btn btn-gold btn-sm" onclick="event.stopPropagation();openApply('Academic Counsellor','Byju\'s · Pune · ₹4–6 LPA')">Apply + Share Resume →</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+  CANDIDATE DASHBOARD
+══════════════════════════════════════════════ -->
+<div id="page-cdash" class="page">
+  <div class="cd-layout">
+    <!-- sidebar -->
+    <div class="cd-sb">
+      <div class="cd-profile-snap">
+        <div class="cd-av-lg" id="cdash-av">AS</div>
+        <div style="flex:1;min-width:0">
+          <div class="cd-snap-name" id="cdash-name">Aanya Sharma</div>
+          <div class="cd-snap-role" id="cdash-role">Telesales Executive · Mumbai</div>
+          <div class="cd-snap-badges" id="cdash-badges">
+            <span class="cd-badge cd-badge-pro">Pro</span>
+            <span class="cd-badge cd-badge-remote">🌐 Remote</span>
+            <span class="cd-badge cd-badge-gig">⚡ Gig</span>
+          </div>
+          <div class="cd-prog-bar"><div class="cd-prog-fill" style="width:75%" id="cdash-prog"></div></div>
+          <div class="cd-prog-lbl" id="cdash-prog-lbl">Profile 75% complete</div>
+        </div>
+      </div>
+      <div style="padding:12px 0">
+        <div class="cd-sbl">Dashboard</div>
+        <button class="cd-sbi active" onclick="showCD('overview',this)">📊 Overview</button>
+        <button class="cd-sbi" onclick="showCD('jobs',this)">💼 Browse Jobs <span class="cd-cnt">18</span></button>
+        <button class="cd-sbi" onclick="showCD('applications',this)">📋 My Applications <span class="cd-cnt" id="cd-app-cnt">5</span></button>
+        <button class="cd-sbi" onclick="showCD('profile',this)">👤 My Profile</button>
+        <button class="cd-sbi" onclick="showCD('voice',this)">🎤 Voice Pitch</button>
+        <button class="cd-sbi" onclick="showCD('typing',this)">⌨️ Typing Test</button>
+        <div class="cd-sbl">Career Tools</div>
+        <button class="cd-sbi" onclick="showCD('mentor',this)">🤖 AI Career Mentor</button>
+        <button class="cd-sbi" onclick="showCD('settings',this)">⚙️ Settings & Plan</button>
+        <div class="cd-sbl">Account</div>
+        <button class="cd-sbi" onclick="navTo('candidate')">✏️ Edit Full Profile</button>
+        <button class="cd-sbi" onclick="signOut()">← Sign Out</button>
+      </div>
+    </div>
+
+    <!-- main -->
+    <div class="cd-main">
+
+      <!-- OVERVIEW -->
+      <div class="cd-panel active" id="cdp-overview">
+        <div class="cd-ph">
+          <div>
+            <div class="cd-ph-title">Good morning, <span id="cdash-greeting-name">Aanya</span> 👋</div>
+            <div class="cd-ph-sub">3 employers viewed your profile today · Your voice pitch is getting attention</div>
+          </div>
+          <button class="btn btn-gold btn-sm" onclick="showCD('jobs',document.querySelectorAll('.cd-sbi')[1])">Browse Jobs →</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="cd-stats">
+          <div class="cd-sc">
+            <div class="cd-sc-lbl">Profile Views</div>
+            <div class="cd-sc-val" style="color:var(--vg)">47</div>
+            <div class="cd-sc-delta" style="color:var(--green)">↑ +8 today</div>
+          </div>
+          <div class="cd-sc">
+            <div class="cd-sc-lbl">Applications</div>
+            <div class="cd-sc-val" style="color:var(--gold)">5</div>
+            <div class="cd-sc-delta" style="color:var(--green)">↑ +1 this week</div>
+          </div>
+          <div class="cd-sc">
+            <div class="cd-sc-lbl">Shortlisted</div>
+            <div class="cd-sc-val" style="color:var(--green)">2</div>
+            <div class="cd-sc-delta" style="color:var(--green)">↑ 1 new today</div>
+          </div>
+          <div class="cd-sc">
+            <div class="cd-sc-lbl">Pitch Plays</div>
+            <div class="cd-sc-val" style="color:var(--ink)">12</div>
+            <div class="cd-sc-delta" style="color:var(--slate)">Since upload</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+          <!-- Recent activity -->
+          <div class="cd-activity">
+            <div class="cd-activity-title">Recent Activity</div>
+            <div class="cd-act-row">
+              <div class="cd-act-ico cd-act-o">👁</div>
+              <div style="flex:1"><strong>Axis Bank BPO</strong> viewed your profile</div>
+              <div class="cd-act-time">1h ago</div>
+            </div>
+            <div class="cd-act-row">
+              <div class="cd-act-ico cd-act-g">✓</div>
+              <div style="flex:1"><strong>FinTech Leads</strong> shortlisted you for Telesales Executive</div>
+              <div class="cd-act-time">3h ago</div>
+            </div>
+            <div class="cd-act-row">
+              <div class="cd-act-ico cd-act-v">🎤</div>
+              <div style="flex:1"><strong>HDFC Life</strong> played your voice pitch</div>
+              <div class="cd-act-time">5h ago</div>
+            </div>
+            <div class="cd-act-row">
+              <div class="cd-act-ico cd-act-b">💼</div>
+              <div style="flex:1">3 new roles match your profile in Mumbai</div>
+              <div class="cd-act-time">Yesterday</div>
+            </div>
+          </div>
+
+          <!-- Profile completeness -->
+          <div class="prof-complete-card" style="margin-bottom:0">
+            <div class="pcc-title">
+              Profile Completeness
+              <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--gold)">75%</span>
+            </div>
+            <div class="pcc-item"><div class="pcc-check pcc-done">✓</div><span class="pcc-lbl">Basic Identity</span></div>
+            <div class="pcc-item"><div class="pcc-check pcc-done">✓</div><span class="pcc-lbl">Professional Summary</span></div>
+            <div class="pcc-item"><div class="pcc-check pcc-done">✓</div><span class="pcc-lbl">Resume Uploaded</span></div>
+            <div class="pcc-item"><div class="pcc-check pcc-done">✓</div><span class="pcc-lbl">Skills & Languages</span></div>
+            <div class="pcc-item"><div class="pcc-check pcc-todo">○</div><span class="pcc-lbl" style="color:var(--slate)">Voice Pitch</span><span class="pcc-action" onclick="showCD('voice',document.querySelectorAll('.cd-sbi')[4])">Record now →</span></div>
+            <div class="pcc-item"><div class="pcc-check pcc-todo">○</div><span class="pcc-lbl" style="color:var(--slate)">Typing Test</span><span class="pcc-action" onclick="showCD('typing',document.querySelectorAll('.cd-sbi')[5])">Take test →</span></div>
+            <div class="pcc-item"><div class="pcc-check pcc-todo">○</div><span class="pcc-lbl" style="color:var(--slate)">Infrastructure Details</span><span class="pcc-action" onclick="navTo('candidate');goSec(8)">Add now →</span></div>
+          </div>
+        </div>
+
+        <!-- Recommended jobs -->
+        <div style="background:#fff;border-radius:14px;border:1px solid var(--bd);padding:18px 20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700">Recommended for You</div>
+            <button class="btn btn-ghost btn-sm" onclick="showCD('jobs',document.querySelectorAll('.cd-sbi')[1])">See all jobs →</button>
+          </div>
+          <div class="cd-job-card" onclick="openApply('Phone Banking Officer','Axis Bank · Mumbai · ₹3.5–5 LPA')">
+            <div class="cd-jc-logo">🏦</div>
+            <div style="flex:1">
+              <div class="cd-jc-title">Phone Banking Officer</div>
+              <div class="cd-jc-co">Axis Bank · Mumbai · ₹3.5–5 LPA</div>
+              <div class="tr" style="margin-top:5px"><span class="tag t-res">Banking</span><span class="tag t-remote">Remote</span></div>
+            </div>
+            <div class="cd-jc-r">
+              <div class="match-pct">97% match</div>
+              <button class="btn btn-gold btn-sm" onclick="event.stopPropagation();openApply('Phone Banking Officer','Axis Bank · Mumbai · ₹3.5–5 LPA')">Apply →</button>
+            </div>
+          </div>
+          <div class="cd-job-card" onclick="openApply('Telemarketing Executive','HDFC Life · Mumbai · ₹3–4.5 LPA')">
+            <div class="cd-jc-logo">🛡</div>
+            <div style="flex:1">
+              <div class="cd-jc-title">Telemarketing Executive</div>
+              <div class="cd-jc-co">HDFC Life Insurance · Mumbai · ₹3–4.5 LPA</div>
+              <div class="tr" style="margin-top:5px"><span class="tag t-res">Insurance</span><span class="tag t-remote">Hybrid</span></div>
+            </div>
+            <div class="cd-jc-r">
+              <div class="match-pct">91% match</div>
+              <button class="btn btn-gold btn-sm" onclick="event.stopPropagation();openApply('Telemarketing Executive','HDFC Life · Mumbai · ₹3–4.5 LPA')">Apply →</button>
+            </div>
+          </div>
+          <div class="cd-job-card" onclick="openApply('Inside Sales Executive','Byju\'s · Pune · ₹4–6 LPA')">
+            <div class="cd-jc-logo">📚</div>
+            <div style="flex:1">
+              <div class="cd-jc-title">Academic Counsellor</div>
+              <div class="cd-jc-co">Byju's · Pune · ₹4–6 LPA</div>
+              <div class="tr" style="margin-top:5px"><span class="tag t-res">EdTech</span><span class="tag t-voice">🌐 Remote</span></div>
+            </div>
+            <div class="cd-jc-r">
+              <div class="match-pct">83% match</div>
+              <button class="btn btn-gold btn-sm" onclick="event.stopPropagation();openApply('Academic Counsellor','Byju\'s · Pune · ₹4–6 LPA')">Apply →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BROWSE JOBS -->
+      <div class="cd-panel" id="cdp-jobs">
+        <div class="cd-ph">
+          <div><div class="cd-ph-title">Browse Jobs</div><div class="cd-ph-sub">18 roles match your profile today</div></div>
+          <input class="finput" placeholder="🔍  Search by title, company, city..." style="width:220px;font-size:13px">
+        </div>
+        <div class="fbar">
+          <div class="fc on" onclick="cdToggleF(this)">All</div>
+          <div class="fc" onclick="cdToggleF(this)">Banking & Finance</div>
+          <div class="fc" onclick="cdToggleF(this)">Insurance</div>
+          <div class="fc" onclick="cdToggleF(this)">EdTech</div>
+          <div class="fc" onclick="cdToggleF(this)">Remote</div>
+          <div class="fc" onclick="cdToggleF(this)">Hybrid</div>
+          <div class="fc" onclick="cdToggleF(this)">In-office</div>
+        </div>
+        <div id="cd-jobs-list"></div>
+      </div>
+
+      <!-- MY APPLICATIONS -->
+      <div class="cd-panel" id="cdp-applications">
+        <div class="cd-ph"><div><div class="cd-ph-title">My Applications</div><div class="cd-ph-sub">Live status tracker · Updated in real time</div></div></div>
+        <div style="background:#fff;border-radius:14px;border:1px solid var(--bd);padding:18px 20px" id="cd-apps-list"></div>
+      </div>
+
+      <!-- MY PROFILE -->
+      <div class="cd-panel" id="cdp-profile">
+        <div class="cd-ph">
+          <div><div class="cd-ph-title">My Profile</div><div class="cd-ph-sub">How employers see you on PitchFirst</div></div>
+          <button class="btn btn-gold btn-sm" onclick="navTo('candidate')">Edit Full Profile →</button>
+        </div>
+        <!-- profile hero -->
+        <div style="background:var(--voice);border-radius:14px;padding:24px;margin-bottom:14px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(124,58,237,.2) 0%,transparent 70%);pointer-events:none"></div>
+          <div style="position:relative">
+            <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--vg),var(--gold));display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:12px">AS</div>
+            <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:#fff">Aanya Sharma</div>
+            <div style="font-size:13px;color:rgba(237,233,254,.5);margin-top:3px">📍 Mumbai NCR &nbsp;·&nbsp; +91 98765 43210</div>
+            <div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap">
+              <span class="cd-badge cd-badge-pro" style="padding:4px 10px">● Pro</span>
+              <span class="cd-badge" style="background:rgba(16,185,129,.2);color:#6ee7b7;padding:4px 10px">✓ References Added</span>
+              <span class="cd-badge" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);padding:4px 10px">✓ Verified</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+          <div style="background:#fff;border:1px solid var(--bd);border-radius:10px;padding:12px"><div style="font-size:10.5px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px">Experience</div><div style="font-size:14px;font-weight:600;margin-top:3px">4 Years · Banking & Finance</div></div>
+          <div style="background:#fff;border:1px solid var(--bd);border-radius:10px;padding:12px"><div style="font-size:10.5px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px">Expected Salary</div><div style="font-size:14px;font-weight:600;margin-top:3px">₹18,000 – ₹22,000 / mo</div></div>
+          <div style="background:#fff;border:1px solid var(--bd);border-radius:10px;padding:12px"><div style="font-size:10.5px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px">Languages</div><div style="font-size:14px;font-weight:600;margin-top:3px">Hindi, English</div></div>
+          <div style="background:#fff;border:1px solid var(--bd);border-radius:10px;padding:12px"><div style="font-size:10.5px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px">Availability</div><div style="font-size:14px;font-weight:600;margin-top:3px;color:var(--green)">● Immediate</div></div>
+        </div>
+        <div style="background:#fff;border-radius:14px;border:1px solid var(--bd);padding:18px 20px;margin-bottom:14px">
+          <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;margin-bottom:12px">Top Skills</div>
+          <div class="chips"><span class="chip on" style="cursor:default">Outbound Calling</span><span class="chip on" style="cursor:default">CRM Tools</span><span class="chip on" style="cursor:default">Lead Generation</span><span class="chip on" style="cursor:default">Collections</span><span class="chip on" style="cursor:default">BFSI</span></div>
+        </div>
+        <div style="background:#fff;border-radius:14px;border:1px solid var(--bd);padding:18px 20px">
+          <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;margin-bottom:12px">Smart Badges</div>
+          <div class="smart-badges">
+            <span class="sbadge sbadge-r">🌐 Remote Ready</span>
+            <span class="sbadge sbadge-f">🏍 Field Ready</span>
+            <span class="sbadge sbadge-g">⚡ Gig Ready</span>
+            <span class="sbadge sbadge-o">🏢 In-Office Ready</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- VOICE PITCH -->
+      <div class="cd-panel" id="cdp-voice">
+        <div class="cd-ph"><div><div class="cd-ph-title">Voice Pitch</div><div class="cd-ph-sub">Your 90-second pitch — the most powerful part of your profile</div></div></div>
+        <div class="voice-prof-card">
+          <div class="vpc-title">AI Score Breakdown · Last recorded pitch (0:42)</div>
+          <div class="vpc-scores">
+            <div class="vpc-score-box"><div class="vpc-val">82</div><div class="vpc-lbl">Clarity</div></div>
+            <div class="vpc-score-box"><div class="vpc-val">78</div><div class="vpc-lbl">Confidence</div></div>
+            <div class="vpc-score-box"><div class="vpc-val">91</div><div class="vpc-lbl">Relevance</div></div>
+            <div class="vpc-score-box"><div class="vpc-val">85</div><div class="vpc-lbl">Energy</div></div>
+          </div>
+          <div style="margin-top:14px;display:flex;align-items:center;gap:10px">
+            <button class="btn btn-gold btn-sm" onclick="toast('▶ Playing your voice pitch...','i');setTimeout(()=>toast('Pitch playback complete ✓','s'),3500)">▶ Preview My Pitch</button>
+            <button class="btn btn-ghost btn-sm" onclick="navTo('candidate');goSec(2);toast('Re-record your pitch anytime','i')">↺ Re-record</button>
+            <div style="margin-left:auto;font-size:12px;color:rgba(237,233,254,.4)">Played 12 times by employers</div>
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:14px;border:1px solid var(--bd);padding:18px 20px">
+          <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;margin-bottom:12px">Tips to improve your pitch score</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;gap:10px;font-size:13.5px"><span>🎯</span><span><strong>Clarity (82):</strong> Speak slightly slower. Pause after key points. Avoid rushing — employers want to hear you think.</span></div>
+            <div style="display:flex;gap:10px;font-size:13.5px"><span>💪</span><span><strong>Confidence (78):</strong> Start with a strong statement, not "Umm, so..." — lead with your strongest achievement.</span></div>
+            <div style="display:flex;gap:10px;font-size:13.5px"><span>⚡</span><span><strong>Energy (85):</strong> Great energy! Keep this consistent throughout. Smile while you speak — it comes through in your voice.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TYPING TEST -->
+      <div class="cd-panel" id="cdp-typing">
+        <div class="cd-ph"><div><div class="cd-ph-title">Typing Speed Test</div><div class="cd-ph-sub">Complete 3 attempts — your average is displayed to employers</div></div></div>
+        <div style="background:#fff;border-radius:14px;border:1px solid var(--bd);padding:20px;margin-bottom:14px">
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:4px">Current Score</div>
+          <div style="font-size:13px;color:var(--slate);margin-bottom:16px">Last test taken — 3 attempts averaged</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+            <div style="background:var(--cream);border-radius:10px;padding:14px;text-align:center;border:1px solid var(--bd)"><div style="font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--vg)">52</div><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.7px;margin-top:4px">Avg WPM</div></div>
+            <div style="background:var(--cream);border-radius:10px;padding:14px;text-align:center;border:1px solid var(--bd)"><div style="font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--green)">97%</div><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.7px;margin-top:4px">Avg Accuracy</div></div>
+            <div style="background:var(--cream);border-radius:10px;padding:14px;text-align:center;border:1px solid var(--bd)"><div style="font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--gold)">Good</div><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.7px;margin-top:4px">Grade</div></div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-purple" onclick="navTo('candidate');goSec(9)">Retake Test →</button>
+            <div style="font-size:12px;color:var(--slate);align-self:center">52 WPM is above average for telecalling roles (40+ WPM required)</div>
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:14px;border:1px solid var(--bd);padding:18px 20px">
+          <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;margin-bottom:12px">How you compare</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px;font-size:13px"><div style="width:90px;color:var(--slate);font-weight:600">Your score</div><div style="flex:1;height:10px;background:var(--vs);border-radius:5px;overflow:hidden"><div style="height:100%;width:65%;background:var(--vg);border-radius:5px"></div></div><span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500">52 WPM</span></div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13px"><div style="width:90px;color:var(--slate);font-weight:600">Role avg</div><div style="flex:1;height:10px;background:rgba(14,11,7,.06);border-radius:5px;overflow:hidden"><div style="height:100%;width:50%;background:rgba(14,11,7,.18);border-radius:5px"></div></div><span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500">40 WPM</span></div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13px"><div style="width:90px;color:var(--slate);font-weight:600">Top 10%</div><div style="flex:1;height:10px;background:rgba(14,11,7,.06);border-radius:5px;overflow:hidden"><div style="height:100%;width:90%;background:var(--gold);border-radius:5px;opacity:.4"></div></div><span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500">72 WPM</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI CAREER MENTOR (embedded, full panel) -->
+      <div class="cd-panel" id="cdp-mentor">
+        <div class="cd-ph">
+          <div><div class="cd-ph-title">🤖 AI Career Mentor — Aria</div><div class="cd-ph-sub">Your personal guide for job decisions, industry shifts, and interview prep</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 320px;gap:14px;align-items:start">
+          <div class="cd-chatbot-wrap">
+            <div class="cd-cb-head">
+              <div class="cd-cb-av">🤖</div>
+              <div>
+                <div class="cd-cb-name">Aria — AI Career Mentor</div>
+                <div class="cd-cb-status"><span class="cd-cb-online"></span>Always available · Powered by PitchFirst AI</div>
+              </div>
+            </div>
+            <div class="cd-cb-quick">
+              <div class="cd-cb-qchip" onclick="cdSendQ('Explain this job description in simple terms')">📋 Explain JD</div>
+              <div class="cd-cb-qchip" onclick="cdSendQ('Which company suits me best?')">🏢 Best match</div>
+              <div class="cd-cb-qchip" onclick="cdSendQ('Can I shift from BPO to Banking?')">🔄 Industry shift</div>
+              <div class="cd-cb-qchip" onclick="cdSendQ('How do I ace a telecaller interview?')">🎯 Interview prep</div>
+              <div class="cd-cb-qchip" onclick="cdSendQ('What salary should I ask for?')">💰 Salary advice</div>
+              <div class="cd-cb-qchip" onclick="cdSendQ('How to improve my voice pitch score?')">🎤 Pitch tips</div>
+            </div>
+            <div class="cd-cb-msgs" id="cd-cb-messages">
+              <div class="cd-cb-msg">
+                <div class="cd-cb-av2 bot">🤖</div>
+                <div class="cd-cb-bub bot">Hi Aanya! 👋 I'm Aria, your AI Career Mentor on PitchFirst.<br><br>I can help you with:<br>• 📋 Understanding complex job descriptions in plain language<br>• 🏢 Finding which company aligns best with your experience<br>• 🔄 Industry transitions — is it feasible, and which industry to target<br>• 🎯 Interview preparation, salary negotiation, and career strategy<br><br>What would you like to explore today?</div>
+              </div>
+            </div>
+            <div id="cd-cb-typing-row" style="display:none;padding:0 14px 6px">
+              <div class="cd-cb-msg">
+                <div class="cd-cb-av2 bot">🤖</div>
+                <div class="cd-cb-bub bot"><div class="cd-cb-typing"><span></span><span></span><span></span></div></div>
+              </div>
+            </div>
+            <div class="cd-cb-input-row">
+              <input class="cd-cb-inp" id="cd-cb-input" placeholder="Ask Aria anything about your career..." onkeydown="if(event.key==='Enter')cdSendMsg()">
+              <button class="cd-cb-send" onclick="cdSendMsg()">➤</button>
+            </div>
+          </div>
+          <!-- Aria quick guide -->
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="background:#fff;border-radius:14px;border:1px solid var(--bd);padding:18px">
+              <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;margin-bottom:12px">What Aria can do</div>
+              <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--slate)">
+                <div style="display:flex;gap:8px"><span>📋</span><span><strong style="color:var(--ink)">Decode JDs</strong> — Turns confusing job descriptions into plain language so you know exactly what they want</span></div>
+                <div style="display:flex;gap:8px"><span>🏢</span><span><strong style="color:var(--ink)">Company matching</strong> — Recommends companies that align with your experience, city, and work style</span></div>
+                <div style="display:flex;gap:8px"><span>🔄</span><span><strong style="color:var(--ink)">Industry shift analysis</strong> — Tells you if a career change is feasible and the best path to take</span></div>
+                <div style="display:flex;gap:8px"><span>🎯</span><span><strong style="color:var(--ink)">Interview coaching</strong> — Prepares you for role plays, HR rounds, and common objection questions</span></div>
+                <div style="display:flex;gap:8px"><span>💰</span><span><strong style="color:var(--ink)">Salary guidance</strong> — Helps you understand realistic salary bands for your experience level</span></div>
+              </div>
+            </div>
+            <div style="background:var(--gp);border-radius:14px;border:1px solid rgba(200,134,10,.15);padding:16px">
+              <div style="font-family:'Fraunces',serif;font-size:14px;font-weight:700;color:var(--gold);margin-bottom:8px">Your Profile Summary</div>
+              <div style="font-size:12.5px;color:var(--slate);line-height:1.6">Aanya · 4 yrs · Telesales · Mumbai · Hindi + English · 52 WPM · Remote Ready · Voice Score: 84 avg</div>
+              <div style="font-size:12px;color:var(--gold);margin-top:8px;font-weight:600">Aria uses this to personalise every answer for you.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS & PLAN -->
+      <div class="cd-panel" id="cdp-settings">
+        <div class="cd-ph"><div><div class="cd-ph-title">Settings & Plan</div><div class="cd-ph-sub">Manage your account, subscription, and notifications</div></div></div>
+        <!-- Current plan -->
+        <div class="settings-section" style="margin-bottom:14px">
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Current Plan</div>
+          <div id="cdash-plan-display"></div>
+        </div>
+        <!-- Notifications -->
+        <div class="settings-section" style="margin-bottom:14px">
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Notifications</div>
+          <div class="settings-row"><div><div class="settings-key">Profile viewed alerts</div><div class="settings-val">Get notified when an employer views your profile</div></div><div class="toggle-sw" onclick="this.classList.toggle('off');toast('Notification preference saved','s')"></div></div>
+          <div class="settings-row"><div><div class="settings-key">Shortlist notifications</div><div class="settings-val">Instant alert when you get shortlisted</div></div><div class="toggle-sw" onclick="this.classList.toggle('off');toast('Notification preference saved','s')"></div></div>
+          <div class="settings-row"><div><div class="settings-key">New job matches</div><div class="settings-val">Daily digest of roles matching your profile</div></div><div class="toggle-sw" onclick="this.classList.toggle('off');toast('Notification preference saved','s')"></div></div>
+          <div class="settings-row"><div><div class="settings-key">Pitch played alerts</div><div class="settings-val">Know when an employer plays your voice pitch</div></div><div class="toggle-sw off" onclick="this.classList.toggle('off');toast('Notification preference saved','s')"></div></div>
+        </div>
+        <!-- Account -->
+        <div class="settings-section">
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Account</div>
+          <div class="settings-row"><div class="settings-key">Email</div><div style="display:flex;align-items:center;gap:10px"><span class="settings-val">aanya.sharma@email.com</span><button class="btn btn-ghost btn-sm" onclick="toast('Email updated','s')">Change</button></div></div>
+          <div class="settings-row"><div class="settings-key">Mobile</div><div style="display:flex;align-items:center;gap:10px"><span class="settings-val">+91 98765 43210 (OTP verified)</span></div></div>
+          <div class="settings-row"><div class="settings-key">Profile visibility</div>
+            <div class="chips" id="vis-chips">
+              <div class="chip on" onclick="sc(this,'vis-chips');toast('Visibility updated','s')">Public</div>
+              <div class="chip" onclick="sc(this,'vis-chips');toast('Visibility updated','s')">Employers only</div>
+              <div class="chip" onclick="sc(this,'vis-chips');toast('Visibility updated','s')">Hidden</div>
+            </div>
+          </div>
+          <div class="settings-row"><div class="settings-key">Danger zone</div><div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="toast('Account data exported as JSON','s')">Export Data</button><button class="btn btn-red btn-sm" onclick="if(confirm('Are you sure? This cannot be undone.'))signOut()">Delete Account</button></div></div>
+        </div>
+      </div>
+
+    </div><!-- /cd-main -->
+  </div>
+</div>
+
+<!-- AI MENTOR CHATBOT (floating, for non-dashboard pages) -->
+<button class="chatbot-btn" id="chatbot-btn" onclick="toggleChatbot()">
+  🤖<span class="cb-notif">1</span>
+</button>
+<div class="chatbot-panel" id="chatbot-panel">
+  <div class="cb-header">
+    <div class="cb-hdr-l">
+      <div class="cb-av">🤖</div>
+      <div>
+        <div class="cb-name">Aria — AI Career Mentor</div>
+        <div class="cb-status"><span class="cb-online"></span>Always online · PitchFirst AI</div>
+      </div>
+    </div>
+    <button class="cb-close" onclick="toggleChatbot()">✕</button>
+  </div>
+  <div class="cb-quick-chips">
+    <div class="cb-quick" onclick="sendQuick('Explain this job description in simple language')">📋 Explain JD</div>
+    <div class="cb-quick" onclick="sendQuick('Which company suits me best based on my profile?')">🏢 Best match</div>
+    <div class="cb-quick" onclick="sendQuick('Can I shift from BPO to Banking? Is it feasible?')">🔄 Industry shift</div>
+    <div class="cb-quick" onclick="sendQuick('How do I prepare for a telecaller interview?')">🎯 Interview prep</div>
+  </div>
+  <div class="cb-messages" id="cb-messages">
+    <div class="cb-msg">
+      <div class="cb-msg-av bot">🤖</div>
+      <div class="cb-bubble bot">Hi Aanya! 👋 I'm Aria, your AI Career Mentor. I can help you understand job descriptions, find the best company fit for your experience, and guide you through career transitions.<br><br>What would you like help with today?</div>
+    </div>
+  </div>
+  <div style="padding:0 14px 6px;display:flex;flex-direction:column;gap:6px" id="cb-typing-indicator" style="display:none">
+    <div class="cb-msg" id="cb-typing-row" style="display:none">
+      <div class="cb-msg-av bot">🤖</div>
+      <div class="cb-bubble bot"><div class="cb-typing"><span></span><span></span><span></span></div></div>
+    </div>
+  </div>
+  <div class="cb-input-row">
+    <input class="cb-input" id="cb-input" placeholder="Ask Aria anything about your career..." onkeydown="if(event.key==='Enter')sendChatMsg()">
+    <button class="cb-send" onclick="sendChatMsg()">➤</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════
+//  DATA
+// ══════════════════════════
+const CANDS=[
+  {id:1,name:'Aanya Sharma',ini:'AS',col:'linear-gradient(135deg,#7c3aed,#a78bfa)',role:'Telesales Executive',exp:'4 yrs',city:'Mumbai',lang:'Hindi + English',avail:'Available now · Freelance · 20 hrs/week',ac:'g',score:96,sc:'sr-h',hasVoice:true,wpm:52,acc:97,tags:['t-res:📄 Resume','t-voice:🎤 Voice Pitch','t-type:⌨️ 52 WPM 97%','t-ai:✓ AI Verified','t-remote:🌐 Remote Ready'],badges:['Remote Ready','Gig Ready'],sl:false,pitch:"Hi, I'm Aanya Sharma, Telesales Executive with 4 years in BFSI. I consistently exceed targets — 140% of quota in outbound calling. Fluent Hindi and English, strong CRM skills, ready to join immediately."},
+  {id:2,name:'Rohan Mehta',ini:'RM',col:'linear-gradient(135deg,#c8860a,#f0a832)',role:'Phone Banking Officer',exp:'6 yrs',city:'Bangalore',lang:'English',avail:'Open to offers · Full-time · Immediate',ac:'g',score:91,sc:'sr-h',hasVoice:true,wpm:48,acc:95,tags:['t-res:📄 Resume','t-voice:🎤 Voice Pitch','t-type:⌨️ 48 WPM 95%','t-remote:🌐 Remote Ready','t-gig:⚡ Gig Ready'],badges:['Remote Ready','Gig Ready'],sl:false,pitch:"Rohan Mehta, Phone Banking Officer 6 years. Specialised in high-value relationships and upselling premium banking products. 96% CSAT, zero escalations last 18 months."},
+  {id:3,name:'Priya Nair',ini:'PN',col:'linear-gradient(135deg,#0891b2,#22d3ee)',role:'Insurance Advisor',exp:'2 yrs',city:'Pune',lang:'Marathi + Hindi',avail:'Actively looking · Contract · Jun–Sep',ac:'g',score:84,sc:'sr-m',hasVoice:true,wpm:38,acc:93,tags:['t-res:📄 Resume','t-voice:🎤 Voice Pitch','t-type:⌨️ 38 WPM 93%','t-field:🏍 Field Ready'],badges:['Field Ready'],sl:false,pitch:"Priya Nair, Insurance Advisor 2 years. Sold 400+ policies, 78% renewal rate. Fluent Marathi, Hindi. Available for contract June 2026."},
+  {id:4,name:'Karan Desai',ini:'KD',col:'linear-gradient(135deg,#be185d,#f472b6)',role:'Inside Sales Executive',exp:'3 yrs',city:'Delhi',lang:'Hindi',avail:'Open to offers · Part-time · 15 hrs/week',ac:'a',score:71,sc:'sr-l',hasVoice:false,wpm:33,acc:90,tags:['t-res:📄 Resume','t-gray:No Voice Pitch','t-type:⌨️ 33 WPM 90%','t-gig:⚡ Gig Ready','t-office:🏢 In-Office Ready'],badges:['Gig Ready','In-Office Ready'],sl:false,pitch:null},
+  {id:5,name:'Sneha Kulkarni',ini:'SK',col:'linear-gradient(135deg,#16a34a,#4ade80)',role:'Academic Counsellor',exp:'Fresher',city:'Hyderabad',lang:'Telugu + English',avail:'Actively looking · Full-time · Immediate',ac:'g',score:88,sc:'sr-h',hasVoice:true,wpm:44,acc:96,tags:['t-res:📄 Resume','t-voice:🎤 Voice Pitch','t-type:⌨️ 44 WPM 96%','t-ai:✓ AI Verified','t-remote:🌐 Remote Ready'],badges:['Remote Ready'],sl:false,pitch:"Sneha Kulkarni, fresher from Hyderabad. Counselled 120 students during internship, 43% conversion to paid courses. Passionate about accessible education."},
+  {id:6,name:'Vikram Singh',ini:'VS',col:'linear-gradient(135deg,#dc2626,#f87171)',role:'Collections Executive',exp:'5 yrs',city:'Mumbai',lang:'Hindi + Marathi',avail:'Available now · Full-time · In-office',ac:'g',score:79,sc:'sr-m',hasVoice:true,wpm:41,acc:91,tags:['t-res:📄 Resume','t-voice:🎤 Voice Pitch','t-type:⌨️ 41 WPM 91%','t-field:🏍 Field Ready','t-office:🏢 In-Office Ready'],badges:['Field Ready','In-Office Ready'],sl:false,pitch:"Vikram Singh, Collections Executive 5 years. 94% recovery rate early bucket accounts. Professional, dignity-first approach. Ready for a new challenge."},
+];
+const ROLES_DATA=[
+  {title:'Telesales Executive',ind:'Banking & Finance',city:'Mumbai',exp:'1–3 yrs',apps:12},
+  {title:'Phone Banking Officer',ind:'Banking & Finance',city:'Bangalore',exp:'2–4 yrs',apps:8},
+  {title:'Academic Counsellor',ind:'EdTech',city:'Pune',exp:'Freshers OK',apps:6},
+  {title:'Customer Support Executive',ind:'E-Commerce',city:'Hyderabad',exp:'1–2 yrs',apps:5},
+  {title:'Collections Executive',ind:'Banking & Finance',city:'Delhi',exp:'3+ yrs',apps:3},
+];
+const INTERVIEWS_DATA=[
+  {cand:'Aanya Sharma',role:'Telesales Executive',date:'Tomorrow',slot:'10:00 AM – 10:30 AM',st:'conf'},
+  {cand:'Rohan Mehta',role:'Phone Banking Officer',date:'Thu, 15 May',slot:'2:00 PM – 2:30 PM',st:'pend'},
+  {cand:'Sneha Kulkarni',role:'Academic Counsellor',date:'Fri, 16 May',slot:'11:00 AM – 11:30 AM',st:'conf'},
+];
+const PASSAGES=[
+  "Good communication is the bridge between confusion and clarity. A telecaller must speak with confidence, listen actively, and resolve queries with empathy. Every call is an opportunity to build trust and deliver lasting value.",
+  "The ability to handle objections professionally is a key skill in outbound sales. When a prospect says no, an experienced telecaller sees it as the start of a conversation, not the end. Patience and persistence drive results.",
+  "Customer satisfaction is the ultimate goal of every support interaction. A skilled telecaller understands the product deeply, communicates clearly, and follows up diligently to ensure the customer issue is fully resolved."
+];
+
+// ══════════════════════════
+//  AUTH STATE
+// ══════════════════════════
+let authState={loggedIn:false,role:null,plan:null,name:''};
+function requireAuth(page){
+  if(authState.loggedIn){
+    if(authState.role===page||true) navTo(page);
+  } else {
+    openModal('modal-auth');
+    document.getElementById('auth-step-1').style.display='';
+  }
+}
+function pickAuthRole(r){
+  document.getElementById('auth-step-1').style.display='none';
+  if(r==='employer') document.getElementById('auth-step-emp').style.display='';
+  else document.getElementById('auth-step-cand').style.display='';
+}
+function showAuthSignin(){
+  document.getElementById('auth-step-1').style.display='none';
+  ['auth-step-emp','auth-step-cand'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('auth-step-signin').style.display='';
+}
+let selectedAuthRole='candidate';
+function siPickRole(r){
+  selectedAuthRole=r;
+  document.getElementById('si-emp-btn').style.background=r==='employer'?'var(--vs)':'#fff';
+  document.getElementById('si-emp-btn').style.borderColor=r==='employer'?'var(--vg)':'var(--bd)';
+  document.getElementById('si-emp-btn').style.color=r==='employer'?'var(--vg)':'var(--ink)';
+  document.getElementById('si-cand-btn').style.background=r==='candidate'?'var(--gp)':'#fff';
+  document.getElementById('si-cand-btn').style.borderColor=r==='candidate'?'var(--gold)':'var(--bd)';
+  document.getElementById('si-cand-btn').style.color=r==='candidate'?'var(--gold)':'var(--ink)';
+}
+function completeEmpSignup(){
+  authState={loggedIn:true,role:'employer',plan:'pro',name:'FinTech Leads'};
+  closeModal('modal-auth');setLoggedIn();navTo('employer');
+  toast('Welcome! Employer account created. Subscription active ✓','s');
+  setTimeout(()=>renderAll(),300);
+}
+let candPlan='free';
+function selectCandPlan(p){
+  candPlan=p;
+  document.getElementById('plan-free-card').style.borderColor=p==='free'?'var(--green)':'var(--bd)';
+  document.getElementById('plan-pro-card').style.borderColor=p==='pro'?'var(--vg)':'var(--bd)';
+  document.getElementById('cand-payment-block').style.display=p==='pro'?'block':'none';
+  document.getElementById('cand-signup-btn').textContent=p==='pro'?'Pay ₹199 & Create Account →':'Create Free Account →';
+}
+function completeCandSignup(){
+  authState={loggedIn:true,role:'candidate',plan:candPlan,name:'Aanya'};
+  closeModal('modal-auth');setLoggedIn();navTo('candidate');
+  const msg=candPlan==='free'?'Fresher free account created! Let\'s build your profile.':'Pro account active! Voice pitch & priority search unlocked.';
+  toast(msg,'s');document.getElementById('chatbot-btn').classList.add('show');
+}
+function completeSignin(){
+  authState={loggedIn:true,role:selectedAuthRole,plan:'pro',name:selectedAuthRole==='employer'?'FinTech Leads':'Aanya'};
+  closeModal('modal-auth');setLoggedIn();navTo(selectedAuthRole);
+  toast('Welcome back! Signed in successfully.','s');
+  if(selectedAuthRole==='candidate') document.getElementById('chatbot-btn').classList.add('show');
+  if(selectedAuthRole==='employer') setTimeout(()=>renderAll(),300);
+}
+function setLoggedIn(){
+  document.getElementById('nav-actions-guest').style.display='none';
+  const ub=document.getElementById('nav-user-bar');ub.classList.add('show');
+  const initials=authState.name.substring(0,2).toUpperCase();
+  document.getElementById('nav-user-av').textContent=initials;
+  document.getElementById('nav-user-name').textContent=authState.name;
+  document.getElementById('nav-user-role').textContent=authState.role==='employer'?'Employer · Pro':'Candidate · '+(authState.plan==='pro'?'Pro':'Fresher Free');
+}
+function signOut(){
+  authState={loggedIn:false,role:null,plan:null,name:''};
+  document.getElementById('nav-actions-guest').style.display='flex';
+  document.getElementById('nav-user-bar').classList.remove('show');
+  document.getElementById('chatbot-btn').classList.remove('show');
+  document.getElementById('chatbot-panel').classList.remove('show');
+  navTo('landing');toast('Signed out successfully','i');
+}
+
+// ══════════════════════════
+//  NAV & MODAL
+// ══════════════════════════
+function navTo(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+p)?.classList.add('active');
+  window.scrollTo(0,0);
+}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-backdrop').forEach(mb=>mb.addEventListener('click',e=>{if(e.target===mb)mb.classList.remove('open')}));
+
+// ══════════════════════════
+//  TOAST
+// ══════════════════════════
+function toast(msg,type='s',dur=3200){
+  const icons={s:'✓',i:'ℹ',w:'⚠',e:'✕'};
+  const el=document.createElement('div');el.className=`toast ${type}`;
+  el.innerHTML=`<span>${icons[type]||'•'}</span>${msg}`;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(()=>{el.style.cssText='opacity:0;transform:translateX(24px);transition:all .3s';setTimeout(()=>el.remove(),300)},dur);
+}
+
+// ══════════════════════════
+//  CHIP HELPERS
+// ══════════════════════════
+function toggleChip(el){el.classList.toggle('on')}
+function sc(el,gid){document.getElementById(gid)?.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on')}
+function scv(el,gid){document.getElementById(gid)?.querySelectorAll('.chip').forEach(c=>c.classList.remove('on-v'));el.classList.add('on-v')}
+
+// ══════════════════════════
+//  WAVEFORMS
+// ══════════════════════════
+const wEl=document.getElementById('waveform-el');
+for(let i=0;i<28;i++){const b=document.createElement('div');b.className='wvbar';b.style.animationDelay=(i*.06)+'s';wEl.appendChild(b);}
+const lEl=document.getElementById('landing-wave');
+for(let i=0;i<14;i++){const b=document.createElement('div');b.className='wb';b.style.animationDelay=(i*.1)+'s';lEl.appendChild(b);}
+
+// ══════════════════════════
+//  EMPLOYER PANELS
+// ══════════════════════════
+function showEP(id,el){
+  document.querySelectorAll('.emp-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('ep-'+id).classList.add('active');
+  document.querySelectorAll('.emp-sbi').forEach(s=>s.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(id==='candidates') renderCands();
+  if(id==='roles') renderRoles();
+  if(id==='interviews') renderInterviews();
+  if(id==='shortlisted') renderSL();
+  if(id==='company-profile') renderHiring();
+}
+function filterBadge(badge,el){
+  showEP('candidates',document.querySelectorAll('.emp-sbi')[1]);
+  const map={'Remote Ready':'remote','Field Ready':'field','Gig Ready':'gig','In-Office Ready':'office'};
+  document.querySelectorAll('.fc').forEach(c=>c.classList.remove('on'));
+  filterCands(map[badge]||'all',document.querySelector(`[onclick="filterCands('${map[badge]}',this)"]`));
+}
+let curFilter='all';
+function filterCands(f,el){
+  curFilter=f;
+  document.querySelectorAll('.fc').forEach(c=>c.classList.remove('on'));
+  if(el) el.classList.add('on');
+  renderCands();
+}
+function renderCands(){
+  let list=CANDS.filter(c=>{
+    if(curFilter==='all') return true;
+    if(curFilter==='voice') return c.hasVoice;
+    if(curFilter==='remote') return c.badges.includes('Remote Ready');
+    if(curFilter==='field') return c.badges.includes('Field Ready');
+    if(curFilter==='gig') return c.badges.includes('Gig Ready');
+    if(curFilter==='office') return c.badges.includes('In-Office Ready');
+    if(curFilter==='typing') return c.wpm>=40;
+    if(curFilter==='verified') return c.score>=85;
+    return true;
+  });
+  document.getElementById('pool-sub').textContent=`${list.length} applicants · Sorted by AI match score`;
+  document.getElementById('cand-list').innerHTML=list.map(c=>`
+    <div class="cc" onclick="openCandModal(${c.id})">
+      <div class="cc-av" style="background:${c.col}">${c.ini}</div>
+      <div>
+        <div class="cc-name">${c.name}</div>
+        <div class="cc-role">${c.role} · ${c.exp} · ${c.city} · ${c.lang}</div>
+        <div class="cc-avail"><span class="adot adot-${c.ac}"></span>${c.avail}</div>
+        <div class="tr">${c.tags.map(t=>{const[cl,lb]=t.split(':');return`<span class="tag ${cl}">${lb}</span>`;}).join('')}</div>
+      </div>
+      <div class="cc-r">
+        <div class="sr ${c.sc}">${c.score}</div>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();${c.hasVoice?`playP('${c.name}')`:`toast('No voice pitch from ${c.name}','w')`}">${c.hasVoice?'▶ Play Pitch':'No Pitch'}</button>
+        <button class="btn ${c.sl?'btn-green':'btn-ghost'} btn-sm" onclick="event.stopPropagation();toggleSL(${c.id})">${c.sl?'✓ Shortlisted':'⭐ Shortlist'}</button>
+      </div>
+    </div>`).join('');
+}
+function playP(name){toast(`▶ Playing ${name}'s voice pitch...`,'i');setTimeout(()=>toast(`✓ Pitch complete for ${name}`,'s'),3500);}
+function toggleSL(id){
+  const c=CANDS.find(x=>x.id===id);if(!c)return;
+  c.sl=!c.sl;
+  const sl=CANDS.filter(x=>x.sl).length;
+  document.getElementById('sl-cnt').textContent=sl;document.getElementById('ov-sl').textContent=sl;
+  renderCands();toast(c.sl?`${c.name} shortlisted! ⭐`:`${c.name} removed`,'s');
+}
+function openCandModal(id){
+  const c=CANDS.find(x=>x.id===id);if(!c)return;
+  document.getElementById('modal-cand-content').innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+      <div style="width:56px;height:56px;border-radius:50%;background:${c.col};display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:#fff;flex-shrink:0">${c.ini}</div>
+      <div style="flex:1">
+        <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;letter-spacing:-.3px">${c.name}</div>
+        <div style="font-size:13px;color:var(--slate);margin-top:1px">${c.role} · ${c.city}</div>
+        <div class="tr" style="margin-top:6px">${c.tags.map(t=>{const[cl,lb]=t.split(':');return`<span class="tag ${cl}" style="font-size:10px">${lb}</span>`;}).join('')}</div>
+      </div>
+      <div style="text-align:center"><div class="sr ${c.sc}" style="width:52px;height:52px;font-size:16px;border-width:3px">${c.score}</div><div style="font-size:10px;color:var(--slate);margin-top:4px">AI Score</div></div>
+    </div>
+    ${c.hasVoice?`<div style="background:var(--voice);border-radius:12px;padding:16px;margin-bottom:16px"><div style="font-size:11px;font-weight:700;color:rgba(237,233,254,.4);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Voice Pitch Transcript</div><div style="font-size:13.5px;color:#fff;line-height:1.7">${c.pitch}</div><button class="btn btn-purple btn-sm" style="margin-top:12px" onclick="playP('${c.name}')">▶ Play Audio Pitch</button></div>`:`<div style="background:rgba(14,11,7,.04);border-radius:10px;padding:14px;margin-bottom:16px;text-align:center;font-size:13px;color:var(--slate)">No voice pitch submitted</div>`}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="background:var(--cream);border-radius:10px;padding:12px;border:1px solid var(--bd);text-align:center"><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.7px">Typing Speed</div><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500;margin-top:4px">${c.wpm} WPM</div></div>
+      <div style="background:var(--cream);border-radius:10px;padding:12px;border:1px solid var(--bd);text-align:center"><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.7px">Accuracy</div><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500;margin-top:4px">${c.acc}%</div></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn ${c.sl?'btn-green':'btn-gold'} btn-sm" style="flex:1;justify-content:center" onclick="toggleSL(${c.id});closeModal('modal-cand')">${c.sl?'✓ Shortlisted':'⭐ Shortlist'}</button>
+      <button class="btn btn-purple btn-sm" style="flex:1;justify-content:center" onclick="closeModal('modal-cand');toast('Interview invite sent to ${c.name}! 📅','s')">📅 Schedule Interview</button>
+      <button class="btn btn-dark btn-sm" style="flex:1;justify-content:center" onclick="closeModal('modal-cand');toast('Contact unlocked for ${c.name} ✓','s')">🔓 Unlock Contact</button>
+    </div>`;
+  openModal('modal-cand');
+}
+function renderRoles(){
+  document.getElementById('roles-list').innerHTML=ROLES_DATA.map((r,i)=>`
+    <div class="role-card">
+      <div><div style="font-weight:700;font-size:14px;margin-bottom:3px">${r.title}</div><div style="font-size:12px;color:var(--slate)">${r.ind} · ${r.city} · ${r.exp}</div><div class="tr" style="margin-top:6px"><span class="tag t-voice">🎤 Voice required</span><span class="tag t-type">⌨️ 40+ WPM</span><span class="status-badge sb-conf" style="font-size:10px">Active</span></div></div>
+      <div style="text-align:center"><div class="rc-apps">${r.apps}</div><div style="font-size:10px;color:var(--slate)">applicants</div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <button class="btn btn-ghost btn-sm" onclick="showEP('candidates',document.querySelectorAll('.emp-sbi')[1]);toast('Showing applicants for ${r.title}','i')">View All</button>
+        <button class="btn btn-red btn-sm" onclick="this.closest('.role-card').style.opacity='.35';toast('Role closed','w')">Close</button>
+      </div></div>
+    </div>`).join('');
+}
+function renderInterviews(){
+  const sc2={conf:'sb-conf',pend:'sb-pend',done:'sb-done'},sl2={conf:'Confirmed',pend:'Pending',done:'Done'};
+  document.getElementById('interviews-list').innerHTML=INTERVIEWS_DATA.map((iv,i)=>`
+    <div class="int-card">
+      <div><div style="font-weight:700;font-size:14px">${iv.cand}</div><div style="font-size:12px;color:var(--slate);margin-top:2px">${iv.role}</div></div>
+      <div style="text-align:right"><div style="font-weight:600;font-size:13px">${iv.date}</div><div style="font-size:12px;color:var(--slate);margin-top:1px">${iv.slot}</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <span class="status-badge ${sc2[iv.st]}">${sl2[iv.st]}</span>
+        <div style="display:flex;gap:6px">
+          ${iv.st==='pend'?`<button class="btn btn-green btn-sm" onclick="this.closest('.int-card').querySelector('.status-badge').className='status-badge sb-conf';this.closest('.int-card').querySelector('.status-badge').textContent='Confirmed';this.style.display='none';toast('Interview confirmed for ${iv.cand}','s')">Confirm</button>`:''}
+          <button class="btn btn-ghost btn-sm" onclick="toast('Reschedule for ${iv.cand} — coming soon','i')">Reschedule</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function renderSL(){
+  const sl=CANDS.filter(c=>c.sl);
+  document.getElementById('sl-sub').textContent=`${sl.length} candidates shortlisted`;
+  document.getElementById('sl-list').innerHTML=sl.length?sl.map(c=>`
+    <div class="cc" onclick="openCandModal(${c.id})">
+      <div class="cc-av" style="background:${c.col}">${c.ini}</div>
+      <div><div class="cc-name">${c.name}</div><div class="cc-role">${c.role} · ${c.city}</div><div class="tr">${c.tags.map(t=>{const[cl,lb]=t.split(':');return`<span class="tag ${cl}">${lb}</span>`;}).join('')}</div></div>
+      <div class="cc-r"><div class="sr ${c.sc}">${c.score}</div><button class="btn btn-purple btn-sm" onclick="event.stopPropagation();toast('Interview invite sent to ${c.name}!','s')">📅 Interview</button><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();toggleSL(${c.id})">Remove</button></div>
+    </div>`).join(''):`<div style="text-align:center;padding:40px;color:var(--slate);font-size:14px">No candidates shortlisted yet.<br><br><button class="btn btn-gold btn-sm" onclick="showEP('candidates',document.querySelectorAll('.emp-sbi')[1])">Browse Candidates →</button></div>`;
+}
+function renderHiring(){
+  const roles=['Telesales Executive','Phone Banking Officer','Academic Counsellor'];
+  document.getElementById('currently-hiring').innerHTML=roles.map(r=>`<div style="background:var(--cream);border-radius:8px;padding:8px 12px;border:1px solid var(--bd);font-size:12.5px;font-weight:500;color:var(--ink)">${r}</div>`).join('');
+}
+function renderAll(){renderCands();renderRoles();renderInterviews();renderSL();renderHiring();}
+function postRole(){
+  closeModal('modal-post');
+  ROLES_DATA.unshift({title:'New Role',ind:'Banking & Finance',city:'Mumbai',exp:'1–3 yrs',apps:0});
+  toast('Role posted! Going live now 🚀','s');setTimeout(()=>toast('2 candidates already match!','i'),2000);
+  if(document.getElementById('ep-roles').classList.contains('active')) renderRoles();
+}
+function cpEdit(section){
+  const titles={header:'Edit Company Info',about:'Edit About Us',team:'Edit Team Members','work-env':'Edit Work Environment'};
+  const bodies={
+    header:`<div class="fgrid"><div class="field"><label>Company Name</label><input class="finput" value="FinTech Leads Pvt. Ltd."></div><div class="field"><label>Tagline</label><input class="finput" value="India's fastest-growing outbound BFSI sales company"></div><div class="field"><label>Industry</label><select class="finput"><option>Banking & Finance</option></select></div><div class="field"><label>City</label><input class="finput" value="Mumbai, Maharashtra"></div><div class="field"><label>Website</label><input class="finput" value="www.fintechleads.in"></div><div class="field"><label>Company Size</label><select class="finput"><option>51–200 employees</option><option>1–50</option><option>201–500</option><option>500+</option></select></div></div>`,
+    about:`<div class="field"><label>About Your Company</label><textarea class="finput" rows="6">FinTech Leads is a leading outbound telecalling firm specialising in BFSI client acquisition across India. We operate 3 centres in Mumbai and Pune, with a team of 150+ skilled telecallers delivering consistent results for banks, NBFCs, and insurance companies.</textarea></div>`,
+    team:`<div class="field"><label>HR Head Name</label><input class="finput" value="Priya Sharma"></div><div class="field" style="margin-top:12px"><label>Talent Acquisition</label><input class="finput" value="Amit Kumar"></div><div class="field" style="margin-top:12px"><label>Invite new member email</label><input class="finput" type="email" placeholder="colleague@company.com"></div>`,
+    'work-env':`<div class="field"><label>Work Mode</label><div class="chips" id="we-c"><div class="chip on" onclick="sc(this,'we-c')">In-office</div><div class="chip" onclick="sc(this,'we-c')">Hybrid</div><div class="chip" onclick="sc(this,'we-c')">Remote</div></div></div><div class="field" style="margin-top:12px"><label>Benefits</label><div class="chips"><div class="chip on" onclick="toggleChip(this)">Flexible hours</div><div class="chip on" onclick="toggleChip(this)">Health insurance</div><div class="chip on" onclick="toggleChip(this)">Performance bonus</div><div class="chip" onclick="toggleChip(this)">WFH allowance</div><div class="chip on" onclick="toggleChip(this)">Training provided</div></div></div>`
+  };
+  document.getElementById('cp-edit-title').textContent=titles[section]||'Edit';
+  document.getElementById('cp-edit-body').innerHTML=bodies[section]||'';
+  openModal('modal-cp-edit');
+}
+function saveCpEdit(){closeModal('modal-cp-edit');toast('Changes saved to your company profile ✓','s');}
+
+// ══════════════════════════
+//  STEPPER
+// ══════════════════════════
+const STEP_LABELS=['Identity','Summary','Voice Pitch','Resume','Education','Skills','Preferences','Availability','Infrastructure','Typing Test'];
+let curSec=0;
+function buildStepper(){
+  document.getElementById('main-stepper').innerHTML=STEP_LABELS.map((l,i)=>`
+    <div class="step ${i<curSec?'done':i===curSec?'active':''}" onclick="goSec(${i})">
+      <div class="step-c">${i<curSec?'✓':i+1}</div>
+      <div class="step-l">${l}</div>
+    </div>`).join('');
+}
+function goSec(n){
+  curSec=n;
+  document.querySelectorAll('.sec').forEach((s,i)=>s.classList.toggle('active',i===n));
+  buildStepper();
+  const pct=Math.min(100,Math.round(30+(n/9)*65));
+  document.getElementById('ps-pct-lbl').textContent=pct+'%';
+  const arc=document.getElementById('ps-arc');
+  const full=175.9;arc.style.strokeDashoffset=full-(full*pct/100);
+  window.scrollTo({top:120,behavior:'smooth'});
+}
+buildStepper();document.getElementById('sec-0').classList.add('active');
+
+// ══════════════════════════
+//  VOICE RECORDER
+// ══════════════════════════
+let recRun=false,recSec=0,recTmr=null;
+function toggleRec(){
+  recRun=!recRun;
+  const btn=document.getElementById('rec-btn'),dot=document.getElementById('vrec-dot'),txt=document.getElementById('vrec-txt');
+  if(recRun){btn.className='rec-btn recording';btn.textContent='⏹';dot.style.background='var(--red)';txt.textContent='Recording...';
+    recTmr=setInterval(()=>{recSec++;const m=Math.floor(recSec/60),s=recSec%60;document.getElementById('rec-time').textContent=`${m}:${s.toString().padStart(2,'0')}`;if(recSec>=90)toggleRec();},1000);
+  }else{clearInterval(recTmr);btn.className='rec-btn idle';btn.textContent='🎤';dot.style.background=recSec>0?'var(--green)':'rgba(124,58,237,.6)';txt.textContent=recSec>0?`Recorded ${recSec}s — submit below`:'Ready to record';}
+}
+function submitPitch(){
+  if(recSec<3){toast('Record at least a few seconds first!','w');return;}
+  clearInterval(recTmr);recRun=false;
+  document.getElementById('rec-btn').className='rec-btn idle';document.getElementById('rec-btn').textContent='✓';
+  document.getElementById('vrec-txt').textContent='Processing AI scores...';document.getElementById('vrec-dot').style.background=var_gold();
+  setTimeout(()=>{
+    const scEl=document.getElementById('ai-scores');scEl.style.display='grid';
+    const vals=[82,78,91,85],ids=['sc-clar','sc-conf','sc-rel','sc-ene'];
+    ids.forEach((id,i)=>{let v=0;const iv=setInterval(()=>{v+=4;if(v>=vals[i]){v=vals[i];clearInterval(iv);}document.getElementById(id).textContent=v;},30);});
+    document.getElementById('vrec-txt').textContent='AI scores ready ✓';document.getElementById('vrec-dot').style.background='var(--green)';
+    document.getElementById('pbar-voice').style.width='84%';
+    toast('Voice pitch submitted! AI scored ✓','s');
+  },1800);
+}
+function var_gold(){return getComputedStyle(document.documentElement).getPropertyValue('--gold').trim()||'#c8860a';}
+
+// ══════════════════════════
+//  AVAILABILITY PREVIEW
+// ══════════════════════════
+function updateAP(){
+  const m=document.getElementById('av-mode').value,f=document.getElementById('av-from').value,r=document.getElementById('rate-in').value,rp=document.getElementById('rate-p').value;
+  document.getElementById('ap-mode').textContent=m;
+  if(f){const d=new Date(f);document.getElementById('ap-window').textContent=d.toLocaleDateString('en-IN',{month:'short',year:'numeric'})+' onwards';}
+  if(r) document.getElementById('ap-rate').textContent=`₹${r} ${rp.toLowerCase()}`;
+}
+
+// ══════════════════════════
+//  APPLY MODAL
+// ══════════════════════════
+function openApply(title,meta){
+  document.getElementById('apply-job-title').textContent=title;
+  document.getElementById('apply-job-meta').textContent=meta;
+  document.getElementById('cl-toggle').checked=false;
+  document.getElementById('cl-area').style.display='none';
+  openModal('modal-apply');
+}
+function generateCoverLetter(){
+  const ta=document.getElementById('cl-area');ta.style.display='block';document.getElementById('cl-toggle').checked=true;
+  ta.value='Generating...';ta.disabled=true;
+  setTimeout(()=>{
+    ta.value=`Dear Hiring Manager,\n\nI am writing to express my strong interest in the ${document.getElementById('apply-job-title').textContent} position. With 4 years of experience in outbound telesales and BFSI client acquisition, I am confident I can make an immediate impact on your team.\n\nIn my current role, I consistently achieve 140% of quarterly targets, maintaining a 96% customer satisfaction score. I am fluent in both Hindi and English, with hands-on experience using CRM tools and structured calling scripts.\n\nI believe PitchFirst's voice-first approach aligns perfectly with how I communicate — I let my voice do the talking.\n\nWarm regards,\nAanya Sharma\n+91 98765 43210`;
+    ta.disabled=false;toast('AI cover letter generated! Feel free to edit it.','s');
+  },1800);
+}
+function submitApplication(){
+  closeModal('modal-apply');
+  toast('Application submitted with resume + voice pitch 🎉','s');
+  setTimeout(()=>toast('FinTech Leads has been notified of your application','i'),2000);
+}
+
+// ══════════════════════════
+//  TYPING TEST
+// ══════════════════════════
+let ttS={att:0,res:[],run:false,tl:60,tmr:null,st:null,pass:'',typed:''};
+function ttInitPass(){
+  const p=PASSAGES[Math.min(ttS.att,PASSAGES.length-1)];ttS.pass=p;
+  const el=document.getElementById('tt-pas');
+  el.innerHTML=p.split('').map((c,i)=>`<span class="tc" id="tc${i}">${c===' '?'&nbsp;':c}</span>`).join('');
+  document.getElementById('tc0')?.classList.add('cur');
+}
+function ttStart(){
+  if(ttS.att>=3){toast('All 3 attempts done!','i');return;}
+  ttInitPass();ttS.run=true;ttS.typed='';ttS.tl=60;ttS.st=Date.now();
+  const inp=document.getElementById('tt-inp');inp.disabled=false;inp.value='';inp.className='tt-input go';inp.focus();
+  document.getElementById('tt-btn').textContent='Running...';document.getElementById('tt-btn').disabled=true;
+  document.getElementById('tt-cd').textContent='60s';document.getElementById('tt-cd').className='tt-cd';
+  ttS.tmr=setInterval(()=>{ttS.tl--;document.getElementById('tt-cd').textContent=ttS.tl+'s';if(ttS.tl<=10)document.getElementById('tt-cd').className='tt-cd low';ttStats();if(ttS.tl<=0)ttEnd();},1000);
+}
+function ttType(){if(!ttS.run)return;ttS.typed=document.getElementById('tt-inp').value;ttStats();ttHL();if(ttS.typed.length>=ttS.pass.length)ttEnd();}
+function ttHL(){const p=ttS.pass,t=ttS.typed;p.split('').forEach((c,i)=>{const el=document.getElementById('tc'+i);if(!el)return;el.className='tc';if(i<t.length)el.classList.add(t[i]===c?'ok':'err');else if(i===t.length)el.classList.add('cur');});}
+function ttStats(){const el=(Date.now()-ttS.st)/60000||.01;const w=ttS.typed.trim().split(/\s+/).filter(Boolean).length;const wpm=Math.round(w/el);let ok=0,er=0;ttS.typed.split('').forEach((c,i)=>{c===ttS.pass[i]?ok++:er++;});const acc=ttS.typed.length>0?Math.round(ok/ttS.typed.length*100):0;document.getElementById('tt-wpm').textContent=wpm||'—';document.getElementById('tt-acc').textContent=ttS.typed.length?acc+'%':'—';document.getElementById('tt-chars').textContent=ttS.typed.length;document.getElementById('tt-errs').textContent=er;}
+function ttEnd(){
+  clearInterval(ttS.tmr);ttS.run=false;
+  const el=Math.max((60-ttS.tl)/60,.1);const w=ttS.typed.trim().split(/\s+/).filter(Boolean).length;const wpm=Math.max(Math.round(w/el),0);
+  let ok=0;ttS.typed.split('').forEach((c,i)=>{if(c===ttS.pass[i])ok++;});const acc=ttS.typed.length?Math.round(ok/ttS.typed.length*100):0;
+  ttS.res.push({wpm,acc,att:ttS.att+1});const n=ttS.att+1;
+  const b=document.getElementById(`att${n}`);if(b)b.className='att done';
+  document.getElementById('tt-inp').disabled=true;document.getElementById('tt-inp').className='tt-input';
+  ttS.att++;
+  if(ttS.att<3){
+    const nb=document.getElementById(`att${ttS.att+1}`);if(nb)nb.className='att cur';
+    document.getElementById('tt-btn').textContent=`▶ Start Attempt ${ttS.att+1}`;document.getElementById('tt-btn').disabled=false;
+    document.getElementById('tt-cd').textContent='60s';document.getElementById('tt-cd').className='tt-cd';
+    toast(`Attempt ${n} complete! ${wpm} WPM · ${acc}% accuracy`,'i');
+  }else{document.getElementById('tt-btn').textContent='All Done ✓';document.getElementById('tt-btn').disabled=true;ttResults();}
+}
+function ttResults(){
+  const r=ttS.res;const aw=Math.round(r.reduce((a,x)=>a+x.wpm,0)/r.length);const aa=Math.round(r.reduce((a,x)=>a+x.acc,0)/r.length);
+  let grade,gc;if(aw>=60&&aa>=95){grade='Excellent';gc='var(--green)';}else if(aw>=45&&aa>=90){grade='Good';gc='var(--gold)';}else if(aw>=30&&aa>=85){grade='Average';gc='#0891b2';}else{grade='Needs Practice';gc='var(--red)';}
+  document.getElementById('avg-wpm').textContent=aw;document.getElementById('avg-acc').textContent=aa+'%';
+  document.getElementById('avg-grade').textContent=grade;document.getElementById('avg-grade').style.color=gc;
+  document.getElementById('att-hist').innerHTML=r.map(x=>`<div class="att-hist-row"><span>Attempt ${x.att}</span><span>${x.wpm} WPM</span><span>${x.acc}% accuracy</span></div>`).join('');
+  document.getElementById('final-badge').innerHTML=`<div class="final-badge">⌨️ ${aw} WPM avg · ${aa}% · Grade: ${grade}</div>`;
+  document.getElementById('tt-res').classList.add('show');
+  document.getElementById('pbar-typing').style.width=Math.min(aw/80*100,100)+'%';
+  toast(`Typing test done! ${aw} WPM average · Grade: ${grade}`,'s');
+}
+function ttReset(){
+  clearInterval(ttS.tmr);ttS={att:0,res:[],run:false,tl:60,tmr:null,st:null,pass:'',typed:''};
+  ['att1','att2','att3'].forEach((id,i)=>{const b=document.getElementById(id);if(b)b.className='att'+(i===0?' cur':'');});
+  ['tt-wpm','tt-acc'].forEach(id=>document.getElementById(id).textContent='—');
+  ['tt-chars','tt-errs'].forEach(id=>document.getElementById(id).textContent='0');
+  document.getElementById('tt-cd').textContent='60s';document.getElementById('tt-cd').className='tt-cd';
+  document.getElementById('tt-inp').value='';document.getElementById('tt-inp').disabled=true;document.getElementById('tt-inp').className='tt-input';
+  document.getElementById('tt-btn').textContent='▶ Start Test';document.getElementById('tt-btn').disabled=false;
+  document.getElementById('tt-res').classList.remove('show');
+  document.getElementById('tt-pas').innerHTML='<span style="color:var(--slate);font-size:13px">Click Start Test to load your passage...</span>';
+}
+function finishProfile(){
+  toast('Profile submitted! You are now live on PitchFirst 🎉','s');
+  setTimeout(()=>toast('🔥 3 employers already matched your profile!','i'),2000);
+  setTimeout(()=>{document.getElementById('jobs-after').style.display='block';window.scrollTo({top:9999,behavior:'smooth'});},2500);
+}
+
+// ══════════════════════════
+//  AI MENTOR CHATBOT
+// ══════════════════════════
+let cbOpen=false;
+function toggleChatbot(){cbOpen=!cbOpen;document.getElementById('chatbot-panel').classList.toggle('show',cbOpen);document.querySelector('.cb-notif').style.display='none';}
+const CB_RESPONSES={
+  'Explain this job description in simple language':'Great question! A <strong>Telesales Executive</strong> basically means you\'ll be making calls to potential customers and trying to sell them banking products like credit cards, loans, or insurance. Simple breakdown:<br><br>📞 <strong>What you\'ll do:</strong> Make 80–100 calls per day, follow a script, handle rejections politely, and meet monthly sales targets.<br><br>✅ <strong>Skills needed:</strong> Good spoken Hindi/English, confidence on the phone, basic computer skills.<br><br>💰 <strong>Salary:</strong> Usually ₹15k–25k fixed + incentives. Good performers can earn 2–3x their base.',
+  'Which company suits me best based on my profile?':'Based on your profile — 4 years in BFSI telesales, fluent Hindi + English, Mumbai-based, 52 WPM typing — here\'s my honest assessment:<br><br>🥇 <strong>Axis Bank BPO:</strong> 97% match. Your BFSI background is exactly what they need. Structured growth path, decent incentives.<br><br>🥈 <strong>HDFC Life Insurance:</strong> 91% match. Strong brand, better salary ceiling if you hit targets.<br><br>🥉 <strong>Byju\'s:</strong> 83% match — requires a different communication style (empathy over selling), but worth exploring if you want a change of pace.',
+  'Can I shift from BPO to Banking? Is it feasible?':'Yes, absolutely feasible — and very common! Here\'s my honest take:<br><br>✅ <strong>BPO to Banking BPO:</strong> Easiest shift. Same calling skills, better brand name, slightly higher pay. Aim for Bank of Baroda BPO, SBI Cards, or HDFC collections.<br><br>⚠️ <strong>BPO to Bank Branch:</strong> Harder. Requires graduation + sometimes banking exams. But possible within 2–3 years if you\'re consistent.<br><br>💡 <strong>My recommendation:</strong> Move to Banking BPO first (6–12 months), build BFSI vocabulary, then target bank\'s direct hiring. Your voice pitch score of 91 is a big advantage.',
+  'How do I prepare for a telecaller interview?':'Smart move asking before the interview! Here\'s exactly what happens and how to ace it:<br><br>1️⃣ <strong>HR Round:</strong> Tell me about yourself + why telecalling. Keep it under 90 seconds. Practice your PitchFirst voice pitch!<br><br>2️⃣ <strong>Typing Test:</strong> Usually 30–40 WPM required. You\'re at 52 WPM — you\'ll pass easily.<br><br>3️⃣ <strong>Role Play:</strong> They\'ll say "sell me this product." Stay calm, use the AIDA method: Attention → Interest → Desire → Action.<br><br>4️⃣ <strong>Language Check:</strong> Speak slowly and clearly. They\'re testing confidence, not vocabulary.',
+};
+function sendQuick(msg){addUserMsg(msg);setTimeout(()=>addBotMsg(CB_RESPONSES[msg]||getBotReply(msg)),800);}
+function sendChatMsg(){
+  const inp=document.getElementById('cb-input');const msg=inp.value.trim();if(!msg)return;
+  inp.value='';addUserMsg(msg);showTyping();
+  setTimeout(()=>{hideTyping();addBotMsg(getBotReply(msg));},1200+msg.length*10);
+}
+function addUserMsg(msg){
+  const el=document.createElement('div');el.className='cb-msg user';
+  el.innerHTML=`<div class="cb-bubble user">${msg}</div><div class="cb-msg-av user" style="font-size:12px;font-weight:700">A</div>`;
+  document.getElementById('cb-messages').appendChild(el);scrollCB();
+}
+function addBotMsg(msg){
+  const el=document.createElement('div');el.className='cb-msg';
+  el.innerHTML=`<div class="cb-msg-av bot" style="font-size:14px">🤖</div><div class="cb-bubble bot">${msg}</div>`;
+  document.getElementById('cb-messages').appendChild(el);scrollCB();
+}
+function showTyping(){const r=document.getElementById('cb-typing-row');r.style.display='flex';scrollCB();}
+function hideTyping(){document.getElementById('cb-typing-row').style.display='none';}
+function scrollCB(){const m=document.getElementById('cb-messages');m.scrollTop=m.scrollHeight;}
+function getBotReply(msg){
+  const m=msg.toLowerCase();
+  if(m.includes('salary')||m.includes('pay')||m.includes('ctc')) return 'For telecalling roles in India, here\'s a realistic breakdown:<br><br>🎓 <strong>Fresher (0–1 yr):</strong> ₹12k–18k/mo + incentives<br>📈 <strong>Mid-level (2–4 yrs):</strong> ₹18k–28k/mo + incentives<br>💼 <strong>Senior (5+ yrs):</strong> ₹28k–45k/mo<br><br>Incentives can double or triple your take-home in high-performing roles. Banking BPO typically pays more than generic BPO.';
+  if(m.includes('resume')||m.includes('cv')) return 'Your resume should be 1 page maximum for telecalling roles. Key sections:<br><br>1. Contact info + LinkedIn/PitchFirst profile link<br>2. 2-line summary of your specialty<br>3. Work experience with <strong>specific numbers</strong> (calls/day, conversion %, targets met)<br>4. Skills: languages, CRM tools, typing speed<br>5. Education<br><br>Pro tip: Your PitchFirst voice pitch is 10x more powerful than a resume for telecalling roles!';
+  if(m.includes('interview')) return 'The most important thing in a telecaller interview is how you <strong>sound</strong>, not just what you say. Practice speaking clearly and at a steady pace. Avoid fillers like "umm" and "aah".<br><br>Common questions:<br>• Tell me about yourself<br>• Why do you want this role?<br>• How do you handle rejection?<br>• Role play: "Sell me this product"<br><br>Your voice pitch score of 82 on clarity is great — lean into that!';
+  if(m.includes('remote')||m.includes('work from home')) return 'For remote telecalling roles, employers look for:<br><br>✅ Stable internet (50 Mbps+)<br>✅ Dedicated quiet workspace<br>✅ Laptop with webcam and headset<br>✅ Good typing speed (40+ WPM)<br><br>Your infrastructure profile shows Remote Ready badge — you\'re already qualified. Focus on roles tagged 🌐 Remote Ready in the job listings.';
+  return `That's a great question about <em>"${msg.substring(0,40)}..."</em><br><br>Based on your profile as a telesales professional in Mumbai with 4 years of BFSI experience, I'd recommend focusing on roles that value your specific language skills (Hindi + English) and call centre background.<br><br>Would you like me to:<br>• Explain a specific job description?<br>• Find the best matching companies?<br>• Help with interview preparation?`;
+}
+
+// ══════════════════════════
+//  INIT
+// ══════════════════════════
+window.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('tt-pas').innerHTML='<span style="color:var(--slate);font-size:13px">Click Start Test to load your passage...</span>';
+  renderAll();
+});
+</script>
+</body>
+</html>
