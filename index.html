@@ -1748,10 +1748,16 @@ const PASSAGES=[
 let authState={loggedIn:false,role:null,plan:null,name:''};
 function requireAuth(page){
   if(authState.loggedIn){
-    if(authState.role===page||true) navTo(page);
+    if(page==='candidate'){
+      // logged-in candidates go to their dashboard
+      navTo('cdash');
+    } else {
+      navTo(page);
+    }
   } else {
     openModal('modal-auth');
     document.getElementById('auth-step-1').style.display='';
+    ['auth-step-emp','auth-step-cand','auth-step-signin'].forEach(id=>document.getElementById(id).style.display='none');
   }
 }
 function pickAuthRole(r){
@@ -1790,16 +1796,20 @@ function selectCandPlan(p){
 }
 function completeCandSignup(){
   authState={loggedIn:true,role:'candidate',plan:candPlan,name:'Aanya'};
-  closeModal('modal-auth');setLoggedIn();navTo('candidate');
-  const msg=candPlan==='free'?'Fresher free account created! Let\'s build your profile.':'Pro account active! Voice pitch & priority search unlocked.';
-  toast(msg,'s');document.getElementById('chatbot-btn').classList.add('show');
+  closeModal('modal-auth');setLoggedIn();
+  initCandDash();navTo('cdash');
+  const msg=candPlan==='free'?'Welcome! Fresher account created — your dashboard is ready 🎉':'Pro account active! Voice pitch & priority search unlocked 🎉';
+  toast(msg,'s');
 }
 function completeSignin(){
   authState={loggedIn:true,role:selectedAuthRole,plan:'pro',name:selectedAuthRole==='employer'?'FinTech Leads':'Aanya'};
-  closeModal('modal-auth');setLoggedIn();navTo(selectedAuthRole);
-  toast('Welcome back! Signed in successfully.','s');
-  if(selectedAuthRole==='candidate') document.getElementById('chatbot-btn').classList.add('show');
-  if(selectedAuthRole==='employer') setTimeout(()=>renderAll(),300);
+  closeModal('modal-auth');setLoggedIn();
+  if(selectedAuthRole==='candidate'){
+    initCandDash();navTo('cdash');
+  } else {
+    navTo('employer');setTimeout(()=>renderAll(),300);
+  }
+  toast('Welcome back! Signed in successfully ✓','s');
 }
 function setLoggedIn(){
   document.getElementById('nav-actions-guest').style.display='none';
@@ -1813,8 +1823,8 @@ function signOut(){
   authState={loggedIn:false,role:null,plan:null,name:''};
   document.getElementById('nav-actions-guest').style.display='flex';
   document.getElementById('nav-user-bar').classList.remove('show');
-  document.getElementById('chatbot-btn').classList.remove('show');
-  document.getElementById('chatbot-panel').classList.remove('show');
+  document.getElementById('chatbot-btn')?.classList.remove('show');
+  document.getElementById('chatbot-panel')?.classList.remove('show');
   navTo('landing');toast('Signed out successfully','i');
 }
 
@@ -1823,9 +1833,11 @@ function signOut(){
 // ══════════════════════════
 function navTo(p){
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('page-'+p)?.classList.add('active');
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tab-'+p)?.classList.add('active');
+  // Map cdash to the "For Candidates" tab visually
+  const tabId = p==='cdash'?'tab-candidate':('tab-'+p);
+  document.getElementById(tabId)?.classList.add('active');
   window.scrollTo(0,0);
 }
 function openModal(id){document.getElementById(id).classList.add('open')}
@@ -2008,8 +2020,242 @@ function cpEdit(section){
 function saveCpEdit(){closeModal('modal-cp-edit');toast('Changes saved to your company profile ✓','s');}
 
 // ══════════════════════════
-//  STEPPER
+//  CANDIDATE DASHBOARD
 // ══════════════════════════
+const CD_JOBS=[
+  {emoji:'🏦',title:'Phone Banking Officer',co:'Axis Bank',city:'Mumbai',type:'In-office',industry:'Banking & Finance',sal:'₹3.5–5 LPA',match:97,tags:['Banking','Hindi + English','🏢 In-office']},
+  {emoji:'🛡',title:'Telemarketing Executive',co:'HDFC Life Insurance',city:'Mumbai',type:'Hybrid',industry:'Insurance',sal:'₹3–4.5 LPA',match:91,tags:['Insurance','Hybrid','Hindi + English']},
+  {emoji:'📚',title:'Academic Counsellor',co:"Byju's",city:'Pune',type:'Remote',industry:'EdTech',sal:'₹4–6 LPA',match:83,tags:['EdTech','🌐 Remote','English']},
+  {emoji:'📞',title:'Outbound Sales Executive',co:'FinTech Leads Pvt. Ltd.',city:'Mumbai',type:'In-office',industry:'Banking & Finance',sal:'₹2.8–4 LPA',match:79,tags:['Outbound','BFSI','Hindi']},
+  {emoji:'🏥',title:'Patient Care Coordinator',co:'Apollo Healthco',city:'Mumbai',type:'Hybrid',industry:'Healthcare',sal:'₹3–4.5 LPA',match:72,tags:['Healthcare','Hindi + English','Hybrid']},
+  {emoji:'🛒',title:'Customer Support Executive',co:'Flipkart',city:'Bangalore',type:'Remote',industry:'E-Commerce',sal:'₹2.5–3.5 LPA',match:68,tags:['Support','Remote','Hindi + English']},
+  {emoji:'📱',title:'Churn Management Executive',co:'Jio BPO',city:'Mumbai',type:'In-office',industry:'Telecom',sal:'₹2.5–3.5 LPA',match:65,tags:['Telecom','In-office','Hindi']},
+  {emoji:'🎓',title:'Admissions Coordinator',co:'Career Launcher',city:'Delhi',type:'Hybrid',industry:'EdTech',sal:'₹3–4 LPA',match:61,tags:['EdTech','Hybrid','Hindi + English']},
+];
+const CD_APPS=[
+  {co:'FinTech Leads Pvt. Ltd.',role:'Outbound Sales Executive',city:'Mumbai',date:'2 days ago',status:'shortlisted'},
+  {co:'Axis Bank BPO',role:'Phone Banking Officer',city:'Mumbai',date:'4 days ago',status:'viewed'},
+  {co:'HDFC Life Insurance',role:'Telemarketing Executive',city:'Mumbai',date:'5 days ago',status:'applied'},
+  {co:"Byju's",role:'Academic Counsellor',city:'Pune',date:'6 days ago',status:'applied'},
+  {co:'Apollo Healthco',role:'Patient Care Coordinator',city:'Mumbai',date:'1 week ago',status:'applied'},
+];
+
+function initCandDash(){
+  // adapt UI for plan
+  const plan=authState.plan;
+  const isFree=plan==='free';
+
+  // Update sidebar snapshot
+  const name=authState.name||'Candidate';
+  if(document.getElementById('cdash-name')) document.getElementById('cdash-name').textContent=name+' '+(isFree?'👋':'');
+  if(document.getElementById('cdash-av')) document.getElementById('cdash-av').textContent=name.substring(0,2).toUpperCase();
+  if(document.getElementById('cdash-greeting-name')) document.getElementById('cdash-greeting-name').textContent=name.split(' ')[0];
+  if(document.getElementById('cdash-role')) document.getElementById('cdash-role').textContent=isFree?'Fresher · Building profile':'Telesales Executive · Mumbai';
+
+  // Badges — different for fresher vs pro
+  const badgeWrap=document.getElementById('cdash-badges');
+  if(badgeWrap){
+    if(isFree){
+      badgeWrap.innerHTML='<span class="cd-badge cd-badge-free">🎓 Fresher</span>';
+    } else {
+      badgeWrap.innerHTML='<span class="cd-badge cd-badge-pro">Pro</span><span class="cd-badge cd-badge-remote">🌐 Remote</span><span class="cd-badge cd-badge-gig">⚡ Gig</span>';
+    }
+  }
+
+  // Profile % — freshers start lower
+  const pct=isFree?'30%':'75%';
+  const progFill=document.getElementById('cdash-prog');
+  const progLbl=document.getElementById('cdash-prog-lbl');
+  if(progFill) progFill.style.width=pct;
+  if(progLbl) progLbl.textContent=`Profile ${pct} complete — ${isFree?'let\'s get started!':'keep going!'}`;
+
+  // Stats — freshers have 0 activity yet
+  const statsVals=isFree?
+    [{val:'0',delta:'Start applying!'},{val:'0',delta:'Build profile first'},{val:'0',delta:'—'},{val:'0',delta:'No pitch yet'}]:
+    [{val:'47',delta:'↑ +8 today'},{val:'5',delta:'↑ +1 this week'},{val:'2',delta:'↑ 1 new today'},{val:'12',delta:'Since upload'}];
+
+  const scVals=document.querySelectorAll('.cd-sc-val');
+  const scDeltas=document.querySelectorAll('.cd-sc-delta');
+  statsVals.forEach((s,i)=>{
+    if(scVals[i]) scVals[i].textContent=s.val;
+    if(scDeltas[i]) scDeltas[i].textContent=s.delta;
+  });
+
+  // Plan display in settings
+  const planDisp=document.getElementById('cdash-plan-display');
+  if(planDisp){
+    if(isFree){
+      planDisp.innerHTML=`
+        <div style="background:linear-gradient(135deg,#f0fdf4,var(--gs));border-radius:12px;padding:18px;margin-bottom:14px;border:1px solid rgba(16,185,129,.2)">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700">Fresher Free Plan</div><div style="font-size:13px;color:var(--slate);margin-top:3px">Active · No payment required</div></div>
+            <div style="font-family:'DM Mono',monospace;font-size:24px;font-weight:500;color:var(--green)">₹0</div>
+          </div>
+        </div>
+        <div style="background:var(--vs);border-radius:12px;padding:16px;border:1px solid rgba(124,58,237,.15)">
+          <div style="font-weight:700;font-size:14px;color:var(--vg);margin-bottom:8px">Upgrade to Pro — ₹199/month</div>
+          <div style="font-size:13px;color:var(--slate);margin-bottom:12px;line-height:1.5">Voice pitch upload · Priority placement · Application tracker · Profile viewed alerts · AI Career Mentor</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+            <div class="field"><label style="font-size:11px">Card Number</label><input class="finput" style="font-size:13px" placeholder="4242 4242 4242 4242"></div>
+            <div class="field"><label style="font-size:11px">Expiry / CVV</label><div style="display:flex;gap:6px"><input class="finput" style="font-size:13px;flex:1" placeholder="MM/YY"><input class="finput" style="font-size:13px;width:70px" placeholder="CVV"></div></div>
+          </div>
+          <button class="btn btn-purple" style="width:100%;justify-content:center" onclick="authState.plan='pro';initCandDash();toast('Upgraded to Pro! Voice pitch unlocked 🎉','s')">Upgrade to Pro — ₹199/month →</button>
+        </div>`;
+    } else {
+      planDisp.innerHTML=`
+        <div style="background:linear-gradient(135deg,var(--voice),#2d1060);border-radius:12px;padding:18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;color:#fff">Candidate Pro Plan</div><div style="font-size:13px;color:rgba(237,233,254,.45);margin-top:3px">Active · Next billing: 13 June 2026</div></div>
+          <div style="text-align:right"><div style="font-family:'DM Mono',monospace;font-size:24px;font-weight:500;color:var(--gl)">₹199</div><div style="font-size:11px;color:rgba(237,233,254,.35)">per month</div></div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost btn-sm" onclick="toast('Payment method updated','s')">Update Card</button>
+          <button class="btn btn-ghost btn-sm" onclick="toast('Invoice downloaded','s')">Download Invoice</button>
+          <button class="btn btn-red btn-sm" style="margin-left:auto" onclick="toast('Cancellation requested. Access continues until 13 June.','w')">Cancel Plan</button>
+        </div>`;
+    }
+  }
+
+  // Fresher-specific: update profile completeness card
+  if(isFree){
+    const pccItems=document.querySelectorAll('.pcc-item');
+    pccItems.forEach((item,i)=>{
+      const chk=item.querySelector('.pcc-check');
+      if(chk){chk.className='pcc-check pcc-todo';chk.textContent='○';}
+    });
+    // update activity to be empty/onboarding-focused
+    const actFeed=document.querySelector('.cd-activity');
+    if(actFeed) actFeed.innerHTML=`
+      <div class="cd-activity-title">Get Started</div>
+      <div class="cd-act-row"><div class="cd-act-ico cd-act-o">1️⃣</div><div style="flex:1"><strong>Complete your profile</strong> — takes about 10 minutes</div><span class="pcc-action" onclick="navTo('candidate')">Start →</span></div>
+      <div class="cd-act-row"><div class="cd-act-ico cd-act-v">2️⃣</div><div style="flex:1"><strong>Take your typing test</strong> — 3 attempts, averaged</div><span class="pcc-action" onclick="navTo('candidate');goSec(9)">Go →</span></div>
+      <div class="cd-act-row"><div class="cd-act-ico cd-act-g">3️⃣</div><div style="flex:1"><strong>Browse jobs</strong> — 18 roles match you now</div><span class="pcc-action" onclick="showCD('jobs',document.querySelectorAll('.cd-sbi')[1])">Browse →</span></div>
+      <div class="cd-act-row"><div class="cd-act-ico cd-act-b">4️⃣</div><div style="flex:1"><strong>Ask Aria</strong> — get career guidance from your AI mentor</div><span class="pcc-action" onclick="showCD('mentor',document.querySelectorAll('.cd-sbi')[6])">Chat →</span></div>`;
+  }
+
+  renderCDJobs();
+  renderCDApps(isFree);
+  initDashChatbot();
+}
+
+function showCD(id,el){
+  document.querySelectorAll('.cd-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('cdp-'+id).classList.add('active');
+  document.querySelectorAll('.cd-sbi').forEach(s=>s.classList.remove('active'));
+  if(el) el.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function cdToggleF(el){
+  document.querySelectorAll('#cdp-jobs .fc').forEach(f=>f.classList.remove('on'));
+  el.classList.add('on');
+  renderCDJobs(el.textContent.trim());
+}
+
+function renderCDJobs(filter='All'){
+  const list=filter==='All'?CD_JOBS:CD_JOBS.filter(j=>j.type===filter||j.industry===filter||j.tags.some(t=>t.toLowerCase().includes(filter.toLowerCase())));
+  document.getElementById('cd-jobs-list').innerHTML=list.map(j=>`
+    <div class="cd-job-card" onclick="openApply('${j.title}','${j.co} · ${j.city} · ${j.sal}')">
+      <div class="cd-jc-logo">${j.emoji}</div>
+      <div style="flex:1">
+        <div class="cd-jc-title">${j.title}</div>
+        <div class="cd-jc-co">${j.co} · ${j.city} · ${j.sal}</div>
+        <div class="tr" style="margin-top:5px">${j.tags.map(t=>`<span class="tag t-res" style="font-size:10px">${t}</span>`).join('')}</div>
+      </div>
+      <div class="cd-jc-r">
+        <div class="match-pct">${j.match}% match</div>
+        <button class="btn btn-gold btn-sm" onclick="event.stopPropagation();openApply('${j.title}','${j.co} · ${j.city} · ${j.sal}')">Apply →</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderCDApps(isFree){
+  const listEl=document.getElementById('cd-apps-list');
+  if(!listEl) return;
+  if(isFree){
+    listEl.innerHTML=`<div style="text-align:center;padding:40px 20px;color:var(--slate)">
+      <div style="font-size:32px;margin-bottom:12px">📋</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:6px">No applications yet</div>
+      <div style="font-size:13px;margin-bottom:16px">Browse jobs and apply — your application tracker will appear here</div>
+      <button class="btn btn-gold btn-sm" onclick="showCD('jobs',document.querySelectorAll('.cd-sbi')[1])">Browse Jobs →</button>
+    </div>`;
+    return;
+  }
+  const statMap={applied:'app-applied Applied',viewed:'app-viewed Viewed 👁',shortlisted:'app-shortlisted Shortlisted ✓',contacted:'app-contacted Contacted 🔓'};
+  listEl.innerHTML=CD_APPS.map(a=>{
+    const[cls,lbl]=statMap[a.status].split(' ').reduce((acc,w,i)=>i===0?[[w],acc[1]]:[[acc[0][0]],[...acc[1],w]],[[],[]]);
+    const sc=statMap[a.status].split(' ')[0];
+    const sl=statMap[a.status].split(' ').slice(1).join(' ');
+    return`<div class="app-track-row">
+      <div style="flex:1"><div class="app-co">${a.co}</div><div class="app-role">${a.role} · ${a.city} · Applied ${a.date}</div></div>
+      <span class="app-pill ${sc}">${sl}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('cd-app-cnt').textContent=CD_APPS.length;
+}
+
+// ── EMBEDDED CHATBOT (dashboard mentor panel) ──
+function initDashChatbot(){
+  // Reset messages to just the welcome
+  const msgsEl=document.getElementById('cd-cb-messages');
+  if(!msgsEl) return;
+  if(msgsEl.children.length===0){
+    cdAddBotMsg("Hi "+authState.name.split(' ')[0]+"! 👋 I'm Aria, your AI Career Mentor.<br><br>I can help you understand job descriptions, find the best company fit, evaluate industry shifts, and prep for interviews.<br><br>What would you like guidance on today?");
+  }
+}
+
+function cdSendQ(msg){
+  cdAddUserMsg(msg);
+  document.getElementById('cd-cb-typing-row').style.display='';
+  setTimeout(()=>{
+    document.getElementById('cd-cb-typing-row').style.display='none';
+    cdAddBotMsg(getCBReply(msg));
+  },900+msg.length*8);
+}
+
+function cdSendMsg(){
+  const inp=document.getElementById('cd-cb-input');
+  const msg=inp.value.trim();if(!msg)return;
+  inp.value='';
+  cdAddUserMsg(msg);
+  document.getElementById('cd-cb-typing-row').style.display='';
+  setTimeout(()=>{
+    document.getElementById('cd-cb-typing-row').style.display='none';
+    cdAddBotMsg(getCBReply(msg));
+  },1000+msg.length*10);
+}
+
+function cdAddUserMsg(msg){
+  const msgsEl=document.getElementById('cd-cb-messages');
+  const el=document.createElement('div');el.className='cd-cb-msg user';
+  el.innerHTML=`<div class="cd-cb-bub usr">${msg}</div><div class="cd-cb-av2 usr">A</div>`;
+  msgsEl.appendChild(el);msgsEl.scrollTop=msgsEl.scrollHeight;
+}
+
+function cdAddBotMsg(msg){
+  const msgsEl=document.getElementById('cd-cb-messages');
+  const el=document.createElement('div');el.className='cd-cb-msg';
+  el.innerHTML=`<div class="cd-cb-av2 bot" style="font-size:14px">🤖</div><div class="cd-cb-bub bot">${msg}</div>`;
+  msgsEl.appendChild(el);msgsEl.scrollTop=msgsEl.scrollHeight;
+}
+
+function getCBReply(msg){
+  const m=msg.toLowerCase();
+  if(m.includes('explain')||m.includes('job description')||m.includes('jd'))
+    return 'A <strong>Telesales Executive / Phone Banking Officer</strong> role in plain language:<br><br>📞 <strong>Your day:</strong> Make 80–100 outbound calls to customers. Follow a call script. Pitch banking products (credit cards, loans, insurance). Handle "not interested" gracefully and keep moving.<br><br>✅ <strong>What they actually want:</strong> Someone who sounds confident, doesn\'t give up easily, and can follow instructions. Good Hindi or English is more important than qualifications.<br><br>💰 <strong>Money:</strong> Fixed ₹15k–22k/month + incentives. Top performers earn 2–3x that.<br><br>Would you like me to explain a specific job description? Just paste it here.';
+  if(m.includes('which company')||m.includes('best match')||m.includes('suits me'))
+    return 'Based on your profile — 4 years BFSI, Mumbai, Hindi + English, 52 WPM — here\'s my honest assessment:<br><br>🥇 <strong>Axis Bank BPO</strong> (97% match) — Your BFSI background is exactly right. Structured growth, PF & ESI benefits. Best long-term brand on your resume.<br><br>🥈 <strong>HDFC Life Insurance</strong> (91% match) — Slightly lower salary ceiling but strong incentives. Insurance is a great stepping stone to financial services leadership.<br><br>🥉 <strong>Byju\'s Academic Counsellor</strong> (83% match) — Different vibe. Requires empathy over selling pressure. Good if you want to shift toward consulting/advisory roles.<br><br>💡 <strong>My recommendation:</strong> Apply to Axis Bank first, then HDFC Life as your backup.';
+  if(m.includes('shift')||m.includes('change industry')||m.includes('bpo to banking')||m.includes('switch'))
+    return 'Yes, this is one of the most common and achievable career moves in India. Here\'s the honest breakdown:<br><br>✅ <strong>BPO → Banking BPO:</strong> Easiest. Same skills, better brand. Timeline: immediate. Target: Axis BPO, SBI Cards, HDFC Collections.<br><br>⚠️ <strong>BPO → EdTech Counselling:</strong> Medium difficulty. Requires a gentler, more consultative style. Timeline: 2–3 months to adapt.<br><br>🔄 <strong>BPO → IT/SaaS SDR:</strong> Harder but pays significantly more. Requires basic CRM knowledge (Salesforce/HubSpot) and English fluency. Timeline: 6–12 months.<br><br>💡 <strong>My recommendation for you:</strong> Move to Banking BPO first (salary bump + better CV), then aim for SDR roles in 12–18 months.';
+  if(m.includes('interview')||m.includes('prepare')||m.includes('ace'))
+    return 'Here\'s exactly what happens in a telecaller interview — and how to ace each part:<br><br>1️⃣ <strong>HR Round (10 mins):</strong> "Tell me about yourself." Keep it to 90 seconds — your PitchFirst voice pitch is perfect practice for this!<br><br>2️⃣ <strong>Typing Test:</strong> You\'re at 52 WPM. Most companies need 30–40 WPM. You\'ll pass comfortably.<br><br>3️⃣ <strong>Role Play:</strong> "Call me and sell this product." Use AIDA: Attention (hook in 5 seconds) → Interest (the problem you solve) → Desire (the benefit) → Action (the close).<br><br>4️⃣ <strong>Language Check:</strong> Speak at 70% of your normal speed. Clarity beats speed every time.<br><br>🎤 <strong>Your biggest asset:</strong> Your voice pitch score of 85 on Energy is excellent. Lead with that confidence in the interview.';
+  if(m.includes('salary')||m.includes('pay')||m.includes('negotiate')||m.includes('ctc'))
+    return 'Here\'s a realistic salary guide for Mumbai telecalling roles in 2026:<br><br>🎓 <strong>Fresher (0–1 yr):</strong> ₹12k–18k fixed + incentives<br>📈 <strong>Mid-level (2–4 yrs):</strong> ₹18k–28k fixed + incentives<br>💼 <strong>Senior (5+ yrs):</strong> ₹28k–45k fixed<br><br>🏆 <strong>With incentives, top performers earn:</strong><br>• Banking BPO: ₹35k–60k/month<br>• Insurance: ₹40k–80k/month (commission-heavy)<br>• EdTech: ₹30k–70k/month<br><br>💡 <strong>Negotiation tip:</strong> Always ask for the incentive structure, not just the fixed pay. The best companies have uncapped incentives.';
+  if(m.includes('pitch')||m.includes('voice')||m.includes('improve score'))
+    return 'Your current pitch scores: Clarity 82 · Confidence 78 · Relevance 91 · Energy 85<br><br>Here\'s how to push each one higher:<br><br>🎯 <strong>Clarity (82 → 90+):</strong> Record yourself and listen back. Cut filler words ("umm", "so", "like"). Pause for 1 second after key sentences.<br><br>💪 <strong>Confidence (78 → 88+):</strong> Start with your strongest achievement in the first 10 seconds. Avoid starting with "I just..." or "Basically..."<br><br>⚡ <strong>Energy (85 → 92+):</strong> Stand up while recording. Smile — it literally changes your vocal tone. Keep sentences short and punchy.<br><br>📈 <strong>Relevance is already excellent at 91</strong> — you\'re saying the right things. Focus on delivery.';
+  return `That\'s a great question. Let me give you a personalised answer based on your profile (${authState.name}, 4 yrs BFSI, Mumbai).<br><br>In the telecalling market, the most important thing right now is <strong>how you present yourself on the first call with an employer</strong> — and that\'s exactly what your voice pitch does.<br><br>My suggestion: focus on completing your profile, especially the voice pitch, before applying to more roles. Candidates with a pitch get 3x more profile views than those without.<br><br>Would you like specific advice on:<br>• Choosing between two companies?<br>• Preparing for a specific industry?<br>• Understanding what a role actually involves day-to-day?`;
+}
+
+
 const STEP_LABELS=['Identity','Summary','Voice Pitch','Resume','Education','Skills','Preferences','Availability','Infrastructure','Typing Test'];
 let curSec=0;
 function buildStepper(){
