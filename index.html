@@ -517,6 +517,75 @@ img{max-width:100%}
 .psbt{width:50px;text-transform:uppercase;letter-spacing:.4px}
 .psb-track{flex:1;height:4px;background:rgba(14,11,7,.07);border-radius:2px;overflow:hidden}
 .psb-fill{height:100%;border-radius:2px;transition:width .6s ease}
+/* ══ THE MARQUEE ══ */
+.marquee-btn{background:linear-gradient(135deg,rgba(200,134,10,.15),rgba(240,168,50,.08)) !important;border-left:3px solid var(--gold) !important;color:rgba(250,246,240,.8) !important}
+.marquee-btn.active{background:rgba(200,134,10,.22) !important;color:#fff !important;border-left-color:var(--gold) !important}
+.marquee-hero{background:linear-gradient(135deg,#1a0a2e 0%,#2d1060 50%,#1a1060 100%);border-radius:20px;padding:28px 30px;margin-bottom:22px;position:relative;overflow:hidden}
+.marquee-hero-orb{position:absolute;border-radius:50%;pointer-events:none}
+.marquee-orb-1{width:300px;height:300px;background:radial-gradient(circle,rgba(200,134,10,.18) 0%,transparent 65%);top:-80px;right:-60px}
+.marquee-orb-2{width:200px;height:200px;background:radial-gradient(circle,rgba(124,58,237,.2) 0%,transparent 65%);bottom:-60px;left:-40px}
+.marquee-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:16px}
+.mq-card{background:#fff;border-radius:18px;border:1px solid var(--bd);overflow:hidden;transition:all .22s;cursor:pointer;position:relative}
+.mq-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(14,11,7,.12);border-color:rgba(200,134,10,.25)}
+.mq-card-pin{position:absolute;top:12px;left:12px;background:linear-gradient(135deg,var(--gold),var(--gl));color:#fff;font-size:9px;font-weight:800;padding:3px 9px;border-radius:20px;letter-spacing:.8px;text-transform:uppercase;z-index:2}
+.mq-card-actions{position:absolute;top:10px;right:10px;display:flex;gap:6px;opacity:0;transition:opacity .2s;z-index:2}
+.mq-card:hover .mq-card-actions{opacity:1}
+.mq-action-btn{width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s;backdrop-filter:blur(8px)}
+.mq-edit-btn{background:rgba(255,255,255,.9);color:var(--ink)}.mq-edit-btn:hover{background:#fff;transform:scale(1.1)}
+.mq-delete-btn{background:rgba(239,68,68,.85);color:#fff}.mq-delete-btn:hover{background:var(--red);transform:scale(1.1)}
+.mq-media{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:var(--cream)}
+.mq-media-wrap{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden}
+.mq-play-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(26,10,46,.45)}
+.mq-play-btn{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .2s}
+.mq-card:hover .mq-play-btn{transform:scale(1.1);background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.mq-thumb-img{width:100%;height:100%;object-fit:cover}
+.mq-thumb-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:28px}
+.mq-body{padding:16px 18px}
+.mq-type-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.6px}
+.mqt-video{background:#fce7f3;color:#be185d}.mqt-image{background:var(--gp);color:var(--gold)}.mqt-cert{background:var(--vs);color:var(--vg)}.mqt-portfolio{background:var(--bs);color:var(--blue)}.mqt-case{background:#f0fdf4;color:#15803d}
+.mq-title{font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.3}
+.mq-desc{font-size:12.5px;color:var(--slate);line-height:1.55;margin-bottom:10px}
+.mq-meta{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:rgba(14,11,7,.35)}
+.mq-stat{display:flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--vg)}
+/* Empty slot cards */
+.mq-empty-slot{border:2px dashed rgba(14,11,7,.12);border-radius:18px;padding:28px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:all .2s;background:rgba(14,11,7,.01)}
+.mq-empty-slot:hover{border-color:var(--gold);background:var(--gp);transform:translateY(-2px)}
+.mq-empty-icon{font-size:28px;margin-bottom:8px;opacity:.4;transition:opacity .2s}
+.mq-empty-slot:hover .mq-empty-icon{opacity:.8}
+.mq-empty-label{font-size:13px;font-weight:600;color:rgba(14,11,7,.3);transition:color .2s}
+.mq-empty-sub{font-size:11.5px;color:rgba(14,11,7,.2);margin-top:3px;transition:color .2s}
+.mq-empty-slot:hover .mq-empty-label{color:var(--gold)}.mq-empty-slot:hover .mq-empty-sub{color:rgba(200,134,10,.6)}
+/* Upload modal */
+.mq-upload-type-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:20px}
+.mq-type-card{border:2px solid var(--bd);border-radius:12px;padding:14px 8px;cursor:pointer;text-align:center;transition:all .2s;background:#fff}
+.mq-type-card:hover{border-color:var(--gold);background:var(--gp)}
+.mq-type-card.selected{border-color:var(--gold);background:var(--gp)}
+.mq-type-icon{font-size:22px;margin-bottom:5px}
+.mq-type-label{font-size:11px;font-weight:700;color:var(--ink)}
+.mq-drop-zone{border:2.5px dashed var(--bd);border-radius:14px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(14,11,7,.01);margin-bottom:14px}
+.mq-drop-zone:hover,.mq-drop-zone.drag-over{border-color:var(--gold);background:var(--gp)}
+.mq-drop-icon{font-size:36px;margin-bottom:10px}
+.mq-drop-text{font-size:14px;font-weight:600;color:var(--slate);margin-bottom:4px}
+.mq-drop-sub{font-size:12px;color:rgba(14,11,7,.3)}
+/* Employer view — marquee strip */
+.emp-marquee-strip{background:linear-gradient(135deg,#1a0a2e,#2d1060);border-radius:14px;padding:18px 20px;margin-bottom:14px}
+.emp-mq-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.emp-mq-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
+.emp-mq-items{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.emp-mq-item{flex-shrink:0;width:140px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;transition:all .2s}
+.emp-mq-item:hover{border-color:rgba(200,134,10,.4);transform:translateY(-2px)}
+.emp-mq-thumb{width:100%;height:80px;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:24px;background:rgba(255,255,255,.06)}
+.emp-mq-info{padding:8px 10px;background:rgba(255,255,255,.04)}
+.emp-mq-title{font-size:11px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.emp-mq-type{font-size:9px;color:rgba(255,255,255,.3);margin-top:1px;text-transform:uppercase;letter-spacing:.5px}
+/* countdown timer */
+.launch-countdown-wrap{display:inline-flex;align-items:center;gap:8px;margin-top:6px}
+.lcd-block{background:rgba(255,255,255,.12);border-radius:6px;padding:4px 9px;text-align:center;min-width:42px}
+.lcd-val{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:#fff;line-height:1}
+.lcd-lbl{font-size:8px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+.lcd-sep{font-family:'DM Mono',monospace;font-size:16px;color:rgba(255,255,255,.3);font-weight:500}
+@keyframes marqueeShimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+.marquee-gold-text{background:linear-gradient(90deg,var(--gold),var(--gl),#fff,var(--gl),var(--gold));background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:marqueeShimmer 4s linear infinite}
 </style>
 
 <!-- ══ AUTH MODAL ══ -->
@@ -569,22 +638,32 @@ img{max-width:100%}
         <button style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--slate)" onclick="backToS1()">←</button>
         <div class="mt" style="font-size:18px;margin-bottom:0">Candidate Sign Up</div>
       </div>
-      <div style="background:var(--gp);border-radius:var(--r12);padding:14px;margin-bottom:16px;border:1px solid rgba(200,134,10,.15)">
-        <div style="font-weight:700;font-size:13px;color:var(--gold);margin-bottom:10px">Choose your plan</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div style="border:2px solid var(--bd);border-radius:var(--r12);padding:14px;cursor:pointer;background:#fff;transition:all .2s" id="plan-free-card" onclick="selectPlan('free')">
-            <div style="font-weight:700;font-size:13px">🎓 Fresher / Student</div>
-            <div style="font-size:11px;color:var(--slate);margin-top:2px">0–12 months experience</div>
-            <div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--green);margin-top:8px">FREE</div>
-            <div style="font-size:10px;color:var(--slate);margin-top:2px">Profile · Apply · Typing test</div>
+      <!-- LAUNCH PROMO BANNER -->
+      <div style="background:linear-gradient(135deg,#0f6e56,#10b981);border-radius:var(--r12);padding:14px 16px;margin-bottom:16px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:rgba(255,255,255,.06);border-radius:50%"></div>
+        <div style="position:relative">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:16px">🎉</span>
+            <span style="font-weight:800;font-size:14px;color:#fff;letter-spacing:-.2px">Launch Offer — Everything FREE till 30th June!</span>
           </div>
-          <div style="border:2px solid var(--bd);border-radius:var(--r12);padding:14px;cursor:pointer;background:#fff;transition:all .2s" id="plan-pro-card" onclick="selectPlan('pro')">
-            <div style="font-weight:700;font-size:13px">💼 Experienced</div>
-            <div style="font-size:11px;color:var(--slate);margin-top:2px">1+ years experience</div>
-            <div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--vg);margin-top:8px">₹199<span style="font-size:11px;font-weight:400;color:var(--slate)">/mo</span></div>
-            <div style="font-size:10px;color:var(--slate);margin-top:2px">+ Voice pitch + Priority</div>
-          </div>
+          <div style="font-size:12px;color:rgba(255,255,255,.75);line-height:1.5">All candidates — freshers <em>and</em> experienced — sign up completely free during our India launch. Full Pro features included. No card required. Offer ends 30 June 2026.</div>
+          <div id="launch-countdown" style="font-family:'DM Mono',monospace;font-size:11px;color:#6ee7b7;margin-top:7px;font-weight:500"></div>
         </div>
+      </div>
+      <!-- What you get free -->
+      <div style="background:var(--gp);border-radius:var(--r12);padding:12px 14px;margin-bottom:14px;border:1px solid rgba(200,134,10,.15)">
+        <div style="font-weight:700;font-size:12px;color:var(--gold);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Everything included free until 30 June</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+          <div style="font-size:12px;color:var(--ink);display:flex;align-items:center;gap:5px"><span style="color:var(--green);font-weight:700">✓</span> 10-section profile</div>
+          <div style="font-size:12px;color:var(--ink);display:flex;align-items:center;gap:5px"><span style="color:var(--green);font-weight:700">✓</span> 🎤 Voice pitch upload</div>
+          <div style="font-size:12px;color:var(--ink);display:flex;align-items:center;gap:5px"><span style="color:var(--green);font-weight:700">✓</span> ⌨️ Typing test</div>
+          <div style="font-size:12px;color:var(--ink);display:flex;align-items:center;gap:5px"><span style="color:var(--green);font-weight:700">✓</span> Priority placement</div>
+          <div style="font-size:12px;color:var(--ink);display:flex;align-items:center;gap:5px"><span style="color:var(--green);font-weight:700">✓</span> Application tracker</div>
+          <div style="font-size:12px;color:var(--ink);display:flex;align-items:center;gap:5px"><span style="color:var(--green);font-weight:700">✓</span> 🤖 AI Career Mentor</div>
+          <div style="font-size:12px;color:var(--ink);display:flex;align-items:center;gap:5px"><span style="color:var(--green);font-weight:700">✓</span> ✨ The Marquee</div>
+          <div style="font-size:12px;color:var(--ink);display:flex;align-items:center;gap:5px"><span style="color:var(--green);font-weight:700">✓</span> Profile viewed alerts</div>
+        </div>
+        <div style="font-size:11px;color:var(--slate);margin-top:10px;padding-top:8px;border-top:1px solid rgba(200,134,10,.12)">After 30 June: Fresher Free plan (₹0) or Pro at ₹199/month</div>
       </div>
       <div class="fgrid" style="margin-bottom:14px">
         <div class="field"><label>Full Name</label><input class="fi" placeholder="First + last name"></div>
@@ -592,14 +671,9 @@ img{max-width:100%}
         <div class="field"><label>Email</label><input class="fi" type="email" placeholder="you@email.com"></div>
         <div class="field"><label>Password</label><input class="fi" type="password" placeholder="Create password"></div>
       </div>
-      <div id="cand-pay-block" style="display:none;background:var(--vs);border-radius:var(--r12);padding:14px;margin-bottom:14px;border:1px solid rgba(124,58,237,.15)">
-        <div style="font-weight:700;font-size:13px;color:var(--vg);margin-bottom:10px">💳 Pro Plan — ₹199/month</div>
-        <div class="fgrid">
-          <div class="field"><label style="font-size:11px">Card Number</label><input class="fi" style="font-size:13px" placeholder="4242 4242 4242 4242"></div>
-          <div class="field"><label style="font-size:11px">Expiry / CVV</label><div style="display:flex;gap:6px"><input class="fi" style="font-size:13px;flex:1" placeholder="MM/YY"><input class="fi" style="font-size:13px;width:70px" placeholder="CVV"></div></div>
-        </div>
-      </div>
-      <button class="btn bg" style="width:100%" id="cand-signup-btn" onclick="doCandSignup()">Create Free Account →</button>
+      <div id="cand-pay-block" style="display:none"></div>
+      <button class="btn bgn" style="width:100%;font-size:14px;padding:13px" id="cand-signup-btn" onclick="doCandSignup()">🎉 Join Free — Full Access Until 30 June →</button>
+      <div style="text-align:center;font-size:11px;color:var(--slate);margin-top:8px">No credit card needed · Cancel anytime after June</div>
     </div>
     <!-- Sign in -->
     <div id="auth-signin" style="display:none">
@@ -1389,6 +1463,7 @@ img{max-width:100%}
       <button class="cdsbi" onclick="showCD('voice',this)"><span style="width:18px;text-align:center">🎤</span> Voice Pitch</button>
       <button class="cdsbi" onclick="showCD('typing',this)"><span style="width:18px;text-align:center">⌨️</span> Typing Test</button>
       <div class="cdsbl">Career Tools</div>
+      <button class="cdsbi marquee-btn" onclick="showCD('marquee',this)"><span style="width:18px;text-align:center">✦</span> The Marquee <span class="cdcnt" style="background:linear-gradient(135deg,var(--gold),var(--gl));font-size:9px">NEW</span></button>
       <button class="cdsbi" onclick="showCD('mentor',this)"><span style="width:18px;text-align:center">🤖</span> AI Career Mentor</button>
       <div class="cdsbl">Account</div>
       <button class="cdsbi" onclick="showCD('settings',this)"><span style="width:18px;text-align:center">⚙️</span> Settings & Plan</button>
@@ -1609,6 +1684,90 @@ img{max-width:100%}
               </div>
               <div id="att-hist" style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px"></div>
               <div id="final-badge"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- THE MARQUEE -->
+      <div class="cdp" id="cdp-marquee">
+        <div class="cdph">
+          <div>
+            <div class="cdph-title" style="display:flex;align-items:center;gap:10px">
+              <span style="background:linear-gradient(135deg,var(--gold),var(--gl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">✦ The Marquee</span>
+            </div>
+            <div class="cdph-sub">Your defining moments — pinned, polished, and permanently visible to every employer who views your profile</div>
+          </div>
+          <button class="btn bsm" id="marquee-add-btn" onclick="openMarqueeUpload()" style="background:linear-gradient(135deg,var(--gold),var(--gl));color:#fff;border:none;font-weight:700">+ Add to Marquee</button>
+        </div>
+
+        <!-- Intro hero card -->
+        <div class="marquee-hero">
+          <div class="marquee-hero-orb marquee-orb-1"></div>
+          <div class="marquee-hero-orb marquee-orb-2"></div>
+          <div style="position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:24px">
+            <div style="flex:1">
+              <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px">Your Personal Trademark</div>
+              <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:10px">This is your <em style="font-style:italic;color:var(--gl)">marquee moment.</em><br/>Put your absolute defining proof here.</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.55);line-height:1.7;max-width:520px">The Marquee is the single most prominent section of your PitchFirst profile — the first thing employers see after your voice pitch. Pin up to 5 pieces of irrefutable proof: award videos, certification documents, portfolio pieces, case studies, or accolades. Make every slot count.</div>
+              <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+                <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);padding:6px 12px;border-radius:20px;font-size:11px;color:rgba(255,255,255,.6)">🎥 Award Videos</div>
+                <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);padding:6px 12px;border-radius:20px;font-size:11px;color:rgba(255,255,255,.6)">🏆 Achievement Images</div>
+                <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);padding:6px 12px;border-radius:20px;font-size:11px;color:rgba(255,255,255,.6)">📜 Certifications</div>
+                <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);padding:6px 12px;border-radius:20px;font-size:11px;color:rgba(255,255,255,.6)">📁 Portfolio Pieces</div>
+                <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);padding:6px 12px;border-radius:20px;font-size:11px;color:rgba(255,255,255,.6)">📊 Case Studies</div>
+              </div>
+            </div>
+            <div style="flex-shrink:0;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:var(--r12);padding:18px 22px">
+              <div style="font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:var(--gl)">5</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.8px;margin-top:3px">Max slots</div>
+              <div style="width:1px;height:1px;margin:12px auto"></div>
+              <div style="font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:#a78bfa" id="marquee-used-count">2</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.8px;margin-top:3px">Used</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slot count indicator -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-weight:700;font-size:14px;color:var(--ink)">Your Pinned Proof</div>
+            <div style="font-size:12px;color:var(--slate)" id="marquee-slot-label">2 of 5 slots used</div>
+          </div>
+          <div style="display:flex;gap:6px" id="marquee-slot-dots">
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--gold)"></div>
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--gold)"></div>
+            <div style="width:10px;height:10px;border-radius:50%;background:rgba(14,11,7,.1)"></div>
+            <div style="width:10px;height:10px;border-radius:50%;background:rgba(14,11,7,.1)"></div>
+            <div style="width:10px;height:10px;border-radius:50%;background:rgba(14,11,7,.1)"></div>
+          </div>
+        </div>
+
+        <!-- Items grid -->
+        <div class="marquee-grid" id="marquee-grid"></div>
+
+        <!-- Empty slot prompts -->
+        <div class="marquee-empty-slots" id="marquee-empty-slots"></div>
+
+        <!-- Tips section -->
+        <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:20px 22px;margin-top:4px">
+          <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;margin-bottom:14px">What makes a great Marquee entry?</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div style="display:flex;gap:10px;padding:12px;background:var(--cream);border-radius:10px;border:1px solid var(--bd)">
+              <span style="font-size:20px;flex-shrink:0">🏆</span>
+              <div><div style="font-weight:700;font-size:13px;margin-bottom:3px">Award Videos</div><div style="font-size:12px;color:var(--slate);line-height:1.5">A video of you receiving an award, being recognised on stage, or a company shoutout video carries more weight than any certificate.</div></div>
+            </div>
+            <div style="display:flex;gap:10px;padding:12px;background:var(--cream);border-radius:10px;border:1px solid var(--bd)">
+              <span style="font-size:20px;flex-shrink:0">📜</span>
+              <div><div style="font-weight:700;font-size:13px;margin-bottom:3px">Certifications</div><div style="font-size:12px;color:var(--slate);line-height:1.5">AMFI, IRDAI, NCFM, NISM, or any industry-specific certification signals credibility and regulatory awareness to BFSI employers.</div></div>
+            </div>
+            <div style="display:flex;gap:10px;padding:12px;background:var(--cream);border-radius:10px;border:1px solid var(--bd)">
+              <span style="font-size:20px;flex-shrink:0">📊</span>
+              <div><div style="font-weight:700;font-size:13px;margin-bottom:3px">Performance Screenshots</div><div style="font-size:12px;color:var(--slate);line-height:1.5">A dashboard screenshot showing 140% of quota, top performer of the month, or highest conversion rate — concrete proof beats vague claims.</div></div>
+            </div>
+            <div style="display:flex;gap:10px;padding:12px;background:var(--cream);border-radius:10px;border:1px solid var(--bd)">
+              <span style="font-size:20px;flex-shrink:0">✉️</span>
+              <div><div style="font-weight:700;font-size:13px;margin-bottom:3px">Appreciation Letters</div><div style="font-size:12px;color:var(--slate);line-height:1.5">A letter or email of appreciation from a manager or client, even redacted for privacy, shows character and relationship-building ability.</div></div>
             </div>
           </div>
         </div>
@@ -2616,6 +2775,422 @@ window.addEventListener('DOMContentLoaded', () => {
   buildStepper();
   document.getElementById('tt-pas').innerHTML = '<span style="color:var(--slate);font-size:13px">Click Start Test to begin...</span>';
 });
+</script>
+<!-- MARQUEE UPLOAD MODAL -->
+<div class="mb" id="modal-marquee">
+  <div class="modal" style="max-width:560px">
+    <button class="mx" onclick="closeModal('modal-marquee')">✕</button>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+      <span style="font-size:22px">✦</span>
+      <div class="mt" style="margin-bottom:0">Add to The Marquee</div>
+    </div>
+    <div class="ms">Pin your most powerful proof — employers see this first</div>
+
+    <!-- Type selector -->
+    <div style="font-size:12px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">What are you adding?</div>
+    <div class="mq-upload-type-grid" id="mq-type-grid">
+      <div class="mq-type-card selected" onclick="selectMQType(this,'video')">
+        <div class="mq-type-icon">🎥</div>
+        <div class="mq-type-label">Video</div>
+      </div>
+      <div class="mq-type-card" onclick="selectMQType(this,'image')">
+        <div class="mq-type-icon">🏆</div>
+        <div class="mq-type-label">Image</div>
+      </div>
+      <div class="mq-type-card" onclick="selectMQType(this,'cert')">
+        <div class="mq-type-icon">📜</div>
+        <div class="mq-type-label">Certificate</div>
+      </div>
+      <div class="mq-type-card" onclick="selectMQType(this,'portfolio')">
+        <div class="mq-type-icon">📁</div>
+        <div class="mq-type-label">Portfolio</div>
+      </div>
+      <div class="mq-type-card" onclick="selectMQType(this,'case')">
+        <div class="mq-type-icon">📊</div>
+        <div class="mq-type-label">Case Study</div>
+      </div>
+    </div>
+
+    <!-- Drop zone -->
+    <div class="mq-drop-zone" id="mq-drop-zone" onclick="simulateMQUpload()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="event.preventDefault();this.classList.remove('drag-over');simulateMQUpload()">
+      <div class="mq-drop-icon" id="mq-drop-icon">🎥</div>
+      <div class="mq-drop-text" id="mq-drop-text">Click to upload or drag & drop</div>
+      <div class="mq-drop-sub" id="mq-drop-sub">MP4, MOV, AVI up to 500MB · YouTube / Vimeo links accepted</div>
+      <div id="mq-upload-progress" style="display:none;margin-top:14px">
+        <div style="background:rgba(14,11,7,.08);border-radius:4px;height:6px;overflow:hidden;margin-bottom:6px">
+          <div id="mq-prog-fill" style="height:100%;width:0%;background:linear-gradient(to right,var(--gold),var(--gl));border-radius:4px;transition:width .3s"></div>
+        </div>
+        <div id="mq-prog-label" style="font-size:12px;color:var(--slate)">Uploading...</div>
+      </div>
+    </div>
+
+    <!-- OR paste link -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div style="flex:1;height:1px;background:var(--bd)"></div>
+      <span style="font-size:12px;color:var(--slate)">or paste a link</span>
+      <div style="flex:1;height:1px;background:var(--bd)"></div>
+    </div>
+    <div class="field" style="margin-bottom:16px">
+      <label>YouTube / Vimeo / Drive / LinkedIn URL</label>
+      <input class="fi" id="mq-link-input" placeholder="https://youtu.be/... or https://drive.google.com/...">
+    </div>
+
+    <!-- Details -->
+    <div class="fgrid" style="margin-bottom:14px">
+      <div class="field fcol">
+        <label><span class="star">★</span> Title <span style="font-size:11px;color:var(--slate);font-weight:400">(max 60 chars)</span></label>
+        <input class="fi" id="mq-title-input" placeholder="e.g. Best Performer of the Year — Axis BPO 2024" maxlength="60">
+      </div>
+      <div class="field fcol">
+        <label>Description <span style="font-size:11px;color:var(--slate);font-weight:400">(optional · max 140 chars)</span></label>
+        <textarea class="fi" id="mq-desc-input" rows="2" style="resize:none" placeholder="e.g. Ranked #1 out of 240 telecallers for Q3 2024. Recognised at company-wide awards ceremony." maxlength="140"></textarea>
+      </div>
+      <div class="field">
+        <label>Issuing Organisation <span style="font-size:11px;color:var(--slate);font-weight:400">(optional)</span></label>
+        <input class="fi" id="mq-org-input" placeholder="e.g. Axis BPO Services · AMFI · LinkedIn Learning">
+      </div>
+      <div class="field">
+        <label>Year</label>
+        <select class="fi" id="mq-year-input">
+          <option>2026</option><option>2025</option><option>2024</option>
+          <option>2023</option><option>2022</option><option>2021</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Visibility -->
+    <div style="background:var(--gp);border-radius:10px;padding:12px 14px;border:1px solid rgba(200,134,10,.15);margin-bottom:18px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-weight:700;font-size:13px;color:var(--ink)">Visible to all employers</div>
+        <div style="font-size:11.5px;color:var(--slate);margin-top:2px">Toggle off to save as draft — employers won't see it</div>
+      </div>
+      <div class="tog" id="mq-visibility-tog" onclick="this.classList.toggle('off')"></div>
+    </div>
+
+    <button class="btn" style="width:100%;background:linear-gradient(135deg,var(--gold),var(--gl));color:#fff;font-size:14px;padding:13px;border:none;border-radius:var(--r8);font-weight:700;cursor:pointer" onclick="addMarqueeItem()">Pin to The Marquee ✦</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  LAUNCH COUNTDOWN TIMER
+// ══════════════════════════════════════════
+function runCountdown() {
+  const target = new Date('2026-06-30T23:59:59+05:30');
+  const el = document.getElementById('launch-countdown');
+  if (!el) return;
+  function tick() {
+    const now = new Date();
+    const diff = target - now;
+    if (diff <= 0) { el.innerHTML = '<span style="color:#34d399;font-weight:700">Offer has ended — check new plans</span>'; return; }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    el.innerHTML = `
+      <div class="launch-countdown-wrap">
+        <div class="lcd-block"><div class="lcd-val">${String(d).padStart(2,'0')}</div><div class="lcd-lbl">Days</div></div>
+        <span class="lcd-sep">:</span>
+        <div class="lcd-block"><div class="lcd-val">${String(h).padStart(2,'0')}</div><div class="lcd-lbl">Hrs</div></div>
+        <span class="lcd-sep">:</span>
+        <div class="lcd-block"><div class="lcd-val">${String(m).padStart(2,'0')}</div><div class="lcd-lbl">Min</div></div>
+        <span class="lcd-sep">:</span>
+        <div class="lcd-block"><div class="lcd-val">${String(s).padStart(2,'0')}</div><div class="lcd-lbl">Sec</div></div>
+      </div>`;
+  }
+  tick(); setInterval(tick, 1000);
+}
+runCountdown();
+
+// ══════════════════════════════════════════
+//  THE MARQUEE DATA & LOGIC
+// ══════════════════════════════════════════
+let marqueeItems = [
+  {
+    id: 1, type: 'video', icon: '🎥',
+    title: 'Best Performer of the Year — Axis BPO 2024',
+    desc: 'Ranked #1 out of 240 telecallers for Q3 2024. Recognised on stage at the annual awards night in Mumbai.',
+    org: 'Axis BPO Services', year: '2024',
+    thumb: null, views: 34, pinned: true, visible: true,
+    typeBadge: 'mqt-video', typeLabel: 'Award Video'
+  },
+  {
+    id: 2, type: 'cert', icon: '📜',
+    title: 'AMFI Mutual Fund Distributor Certification',
+    desc: 'Passed NISM Series V-A with 89% score. Certified to distribute and advise on mutual fund products across India.',
+    org: 'AMFI / NISM India', year: '2023',
+    thumb: null, views: 18, pinned: true, visible: true,
+    typeBadge: 'mqt-cert', typeLabel: 'Certification'
+  }
+];
+
+let mqSelectedType = 'video';
+let mqUploaded = false;
+const MQ_TYPE_MAP = {
+  video:     { icon:'🎥', label:'Award Video',     badge:'mqt-video',     dropText:'Click to upload video or drag & drop',         dropSub:'MP4, MOV, AVI up to 500MB · YouTube / Vimeo links also accepted' },
+  image:     { icon:'🏆', label:'Achievement Image', badge:'mqt-image',   dropText:'Click to upload image or drag & drop',         dropSub:'JPG, PNG, WEBP up to 20MB · Clear high-resolution preferred' },
+  cert:      { icon:'📜', label:'Certification',   badge:'mqt-cert',      dropText:'Click to upload certificate PDF or image',     dropSub:'PDF, JPG, PNG up to 20MB · Make sure the name is clearly visible' },
+  portfolio: { icon:'📁', label:'Portfolio Piece', badge:'mqt-portfolio', dropText:'Click to upload portfolio file or drag & drop', dropSub:'PDF, PPT, images up to 50MB · Or paste a Google Drive / Behance link' },
+  case:      { icon:'📊', label:'Case Study',      badge:'mqt-case',      dropText:'Click to upload case study or drag & drop',    dropSub:'PDF, PPTX up to 50MB · Or paste a Notion / Drive link' },
+};
+
+function selectMQType(el, type) {
+  mqSelectedType = type; mqUploaded = false;
+  document.querySelectorAll('.mq-type-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const cfg = MQ_TYPE_MAP[type];
+  document.getElementById('mq-drop-icon').textContent = cfg.icon;
+  document.getElementById('mq-drop-text').textContent = cfg.dropText;
+  document.getElementById('mq-drop-sub').textContent = cfg.dropSub;
+  document.getElementById('mq-upload-progress').style.display = 'none';
+  document.getElementById('mq-prog-fill').style.width = '0%';
+}
+
+function openMarqueeUpload() {
+  if (marqueeItems.length >= 5) { toast('You\'ve used all 5 Marquee slots. Remove one to add a new entry.', 'tw2'); return; }
+  selectMQType(document.querySelector('.mq-type-card'), 'video');
+  document.getElementById('mq-title-input').value = '';
+  document.getElementById('mq-desc-input').value = '';
+  document.getElementById('mq-org-input').value = '';
+  document.getElementById('mq-link-input').value = '';
+  document.getElementById('mq-year-input').value = '2026';
+  document.getElementById('mq-visibility-tog').classList.remove('off');
+  mqUploaded = false;
+  openModal('modal-marquee');
+}
+
+function simulateMQUpload() {
+  const prog = document.getElementById('mq-upload-progress');
+  const fill = document.getElementById('mq-prog-fill');
+  const lbl = document.getElementById('mq-prog-label');
+  prog.style.display = '';
+  let pct = 0;
+  const iv = setInterval(() => {
+    pct += Math.random() * 18 + 8;
+    if (pct >= 100) { pct = 100; clearInterval(iv); mqUploaded = true; lbl.textContent = '✓ Upload complete — ready to pin'; fill.style.background = 'linear-gradient(to right,var(--green),#34d399)'; toast('File uploaded successfully ✓', 'ts'); }
+    else { lbl.textContent = `Uploading... ${Math.round(pct)}%`; }
+    fill.style.width = pct + '%';
+  }, 220);
+}
+
+function addMarqueeItem() {
+  const title = document.getElementById('mq-title-input').value.trim();
+  const link = document.getElementById('mq-link-input').value.trim();
+  if (!title) { toast('Please add a title for your Marquee entry', 'tw2'); document.getElementById('mq-title-input').focus(); return; }
+  if (!mqUploaded && !link) { toast('Please upload a file or paste a link', 'tw2'); return; }
+  const cfg = MQ_TYPE_MAP[mqSelectedType];
+  const newItem = {
+    id: Date.now(), type: mqSelectedType, icon: cfg.icon,
+    title, desc: document.getElementById('mq-desc-input').value.trim(),
+    org: document.getElementById('mq-org-input').value.trim(),
+    year: document.getElementById('mq-year-input').value,
+    thumb: null, views: 0, pinned: true,
+    visible: !document.getElementById('mq-visibility-tog').classList.contains('off'),
+    typeBadge: cfg.badge, typeLabel: cfg.label
+  };
+  marqueeItems.push(newItem);
+  closeModal('modal-marquee');
+  renderMarquee();
+  toast(`"${title}" pinned to The Marquee ✦`, 'ts');
+}
+
+function deleteMarqueeItem(id) {
+  if (!confirm('Remove this entry from The Marquee?')) return;
+  marqueeItems = marqueeItems.filter(x => x.id !== id);
+  renderMarquee();
+  toast('Entry removed from The Marquee', 'ti');
+}
+
+function renderMarquee() {
+  const grid = document.getElementById('marquee-grid');
+  const emptySlots = document.getElementById('marquee-empty-slots');
+  const used = marqueeItems.length;
+  const remaining = 5 - used;
+
+  // Update slot counter
+  document.getElementById('marquee-used-count').textContent = used;
+  document.getElementById('marquee-slot-label').textContent = `${used} of 5 slot${used !== 1 ? 's' : ''} used`;
+
+  // Update slot dots
+  const dotsEl = document.getElementById('marquee-slot-dots');
+  dotsEl.innerHTML = Array.from({length: 5}, (_, i) =>
+    `<div style="width:10px;height:10px;border-radius:50%;background:${i < used ? 'var(--gold)' : 'rgba(14,11,7,.1)'};transition:background .3s"></div>`
+  ).join('');
+
+  // Update add button
+  const addBtn = document.getElementById('marquee-add-btn');
+  if (addBtn) {
+    addBtn.textContent = used >= 5 ? '✦ All Slots Used' : '+ Add to Marquee';
+    addBtn.disabled = used >= 5;
+    addBtn.style.opacity = used >= 5 ? '.5' : '1';
+    addBtn.style.cursor = used >= 5 ? 'not-allowed' : 'pointer';
+  }
+
+  // Render item cards
+  grid.innerHTML = marqueeItems.map((item, idx) => `
+    <div class="mq-card" onclick="previewMarqueeItem(${item.id})">
+      <div class="mq-card-pin">✦ Pinned ${idx + 1}</div>
+      <div class="mq-card-actions" onclick="event.stopPropagation()">
+        <button class="mq-action-btn mq-edit-btn" onclick="toast('Edit coming soon','ti')" title="Edit">✎</button>
+        <button class="mq-action-btn mq-delete-btn" onclick="deleteMarqueeItem(${item.id})" title="Remove">✕</button>
+      </div>
+      <div class="mq-media-wrap">
+        <div class="mq-thumb-placeholder" style="background:${getThumbBg(item.type)}">
+          <span>${item.icon}</span>
+          <span style="font-size:11px;color:rgba(255,255,255,.5);font-weight:600;text-transform:uppercase;letter-spacing:.8px">${item.typeLabel}</span>
+        </div>
+        ${item.type === 'video' ? `
+        <div class="mq-play-overlay">
+          <div class="mq-play-btn">▶</div>
+        </div>` : ''}
+      </div>
+      <div class="mq-body">
+        <span class="mq-type-badge ${item.typeBadge}">${item.icon} ${item.typeLabel}</span>
+        <div class="mq-title">${item.title}</div>
+        ${item.desc ? `<div class="mq-desc">${item.desc}</div>` : ''}
+        <div class="mq-meta">
+          <span>${item.org ? `${item.org} · ` : ''}${item.year}</span>
+          <div style="display:flex;align-items:center;gap:12px">
+            ${item.views > 0 ? `<span class="mq-stat">👁 ${item.views} employer views</span>` : '<span style="font-size:11px;color:rgba(14,11,7,.25)">Just added</span>'}
+            <span style="font-size:11px;padding:2px 8px;border-radius:20px;${item.visible ? 'background:var(--gs);color:#0f6e56' : 'background:rgba(14,11,7,.06);color:var(--slate)'}">${item.visible ? '● Visible' : '● Draft'}</span>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  // Render empty slot prompts
+  const emptyTypes = [
+    { icon: '🎥', label: 'Add a Video', sub: 'Award ceremony, recognition clip' },
+    { icon: '🏆', label: 'Add an Achievement', sub: 'Certificate, trophy, award image' },
+    { icon: '📊', label: 'Add a Case Study', sub: 'Performance proof, portfolio piece' },
+  ];
+  if (remaining > 0) {
+    emptySlots.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:4px">
+        ${Array.from({length: Math.min(remaining, 3)}, (_, i) => {
+          const et = emptyTypes[i % emptyTypes.length];
+          return `<div class="mq-empty-slot" onclick="openMarqueeUpload()">
+            <div class="mq-empty-icon">${et.icon}</div>
+            <div class="mq-empty-label">${et.label}</div>
+            <div class="mq-empty-sub">${et.sub}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  } else {
+    emptySlots.innerHTML = '';
+  }
+}
+
+function getThumbBg(type) {
+  const map = { video:'linear-gradient(135deg,#1a0a2e,#2d1060)', image:'linear-gradient(135deg,#854f0b,#c8860a)', cert:'linear-gradient(135deg,#1e3a8a,#2563eb)', portfolio:'linear-gradient(135deg,#064e3b,#10b981)', case:'linear-gradient(135deg,#1c1917,#4a4540)' };
+  return map[type] || 'linear-gradient(135deg,var(--voice),var(--vg))';
+}
+
+function previewMarqueeItem(id) {
+  const item = marqueeItems.find(x => x.id === id); if (!item) return;
+  toast(`${item.icon} Previewing "${item.title.substring(0,40)}${item.title.length > 40 ? '...' : ''}"`, 'ti');
+}
+
+// Also render marquee items in employer candidate modal (in the refs section)
+function renderEmployerMarquee(candId) {
+  // For Aanya (id=1), show her marquee items in employer view
+  if (candId !== 1 || marqueeItems.length === 0) return '';
+  return `
+    <div class="emp-marquee-strip" style="margin-bottom:14px">
+      <div class="emp-mq-label">✦ The Marquee — Candidate's pinned proof</div>
+      <div class="emp-mq-items">
+        ${marqueeItems.map(item => `
+          <div class="emp-mq-item" onclick="toast('${item.icon} ${item.title.substring(0,30)}...','ti')">
+            <div class="emp-mq-thumb" style="background:${getThumbBg(item.type)}">${item.icon}</div>
+            <div class="emp-mq-info">
+              <div class="emp-mq-title">${item.title}</div>
+              <div class="emp-mq-type">${item.typeLabel} · ${item.year}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// Patch openCandModal to include Marquee in employer view
+const _origOpenCandModal = openCandModal;
+function openCandModal(id) {
+  _origOpenCandModal(id);
+  // Inject marquee into modal after it opens
+  setTimeout(() => {
+    const body = document.getElementById('modal-cand-body');
+    if (!body || id !== 1) return;
+    const refsDiv = body.querySelector('#refs-section-' + id);
+    if (!refsDiv) return;
+    const mqHTML = renderEmployerMarquee(id);
+    if (mqHTML) {
+      const mqWrap = document.createElement('div');
+      mqWrap.innerHTML = mqHTML;
+      body.insertBefore(mqWrap, refsDiv.closest('div[style*="border"]'));
+    }
+  }, 50);
+}
+
+// ══════════════════════════════════════════
+//  INIT MARQUEE ON DASH LOAD
+// ══════════════════════════════════════════
+const _origInitCandDash = initCandDash;
+function initCandDash() {
+  _origInitCandDash();
+  renderMarquee();
+  // Add marquee preview to overview
+  setTimeout(() => {
+    const recJobs = document.getElementById('cd-rec-jobs');
+    if (recJobs && marqueeItems.length > 0) {
+      const existingMQPreview = document.getElementById('overview-marquee-preview');
+      if (!existingMQPreview) {
+        const mqPreview = document.createElement('div');
+        mqPreview.id = 'overview-marquee-preview';
+        mqPreview.style.cssText = 'background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:18px 20px;margin-bottom:14px';
+        mqPreview.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="font-family:\'Fraunces\',serif;font-size:15px;font-weight:700">
+              <span style="background:linear-gradient(90deg,var(--gold),var(--gl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">✦ The Marquee</span>
+            </div>
+            <button class="btn bgh bsm" onclick="showCD(\'marquee\',document.querySelector(\'.marquee-btn\'))">View all →</button>
+          </div>
+          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px">
+            ${marqueeItems.map(item => `
+              <div onclick="showCD('marquee',document.querySelector('.marquee-btn'))" style="flex-shrink:0;width:160px;border-radius:12px;overflow:hidden;border:1px solid var(--bd);cursor:pointer;transition:all .2s" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='rgba(200,134,10,.3)'" onmouseout="this.style.transform='';this.style.borderColor='var(--bd)'">
+                <div style="height:72px;background:${getThumbBg(item.type)};display:flex;align-items:center;justify-content:center;font-size:24px">${item.icon}</div>
+                <div style="padding:8px 10px;background:#fff"><div style="font-size:11.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.title}</div><div style="font-size:10px;color:var(--slate);margin-top:1px">${item.typeLabel} · ${item.year}</div></div>
+              </div>`).join('')}
+            <div onclick="openMarqueeUpload()" style="flex-shrink:0;width:100px;border-radius:12px;border:2px dashed rgba(14,11,7,.12);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:all .2s;padding:10px;text-align:center" onmouseover="this.style.borderColor='var(--gold)';this.style.background='var(--gp)'" onmouseout="this.style.borderColor='rgba(14,11,7,.12)';this.style.background='transparent'">
+              <span style="font-size:22px;opacity:.4">+</span>
+              <span style="font-size:10px;color:rgba(14,11,7,.3);font-weight:600">Add slot</span>
+            </div>
+          </div>`;
+        const cdph = document.querySelector('#cdp-overview .cdph');
+        if (cdph) cdph.parentNode.insertBefore(mqPreview, cdph.nextSibling.nextSibling.nextSibling);
+      }
+    }
+  }, 100);
+}
+
+// ══════════════════════════════════════════
+//  PATCH doCandSignup — launch promo: all free till 30 June
+// ══════════════════════════════════════════
+function doCandSignup() {
+  AUTH = { in: true, role: 'candidate', plan: 'pro', name: 'Aanya Sharma' }; // everyone gets pro during launch
+  closeModal('modal-auth');
+  setLoggedIn();
+  initCandDash();
+  navTo('cdash');
+  toast('🎉 Welcome! Full access activated — free until 30 June 2026', 'ts');
+  setTimeout(() => toast('✦ Your Marquee is ready — pin your best proof now!', 'ti'), 2500);
+}
+
+// ══════════════════════════════════════════
+//  PATCH selectPlan — disable during promo
+// ══════════════════════════════════════════
+function selectPlan(p) {
+  // No-op during launch promo — everything is free
+  candPlan = 'free';
+}
 </script>
 </body>
 </html>
