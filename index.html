@@ -3304,6 +3304,8 @@ function addMarqueeOverviewPreview() {
   }, 150);
 }
 
+
+
 // ══════════════════════════════════════════
 //  INTERVIEW FEEDBACK SYSTEM
 // ══════════════════════════════════════════
@@ -3318,40 +3320,77 @@ function submitInterviewFeedback() {
   if (!candSel.value) { toast('Please select a candidate', 'tw2'); return; }
   if (!role.value.trim()) { toast('Please enter the role', 'tw2'); return; }
   if (!text.value.trim()) { toast('Please write feedback before submitting', 'tw2'); return; }
+
   const candName = candSel.options[candSel.selectedIndex].text.split(' — ')[0];
   const isNegative = rating <= 2;
   const hist = document.getElementById('emp-feedback-history');
   const outcomeEl = document.querySelector('#fb-outcome-chips .chip.on');
   const outcome = outcomeEl ? outcomeEl.textContent.trim() : 'Reviewed';
   const ratingStars = '⭐'.repeat(rating);
-  const oc = outcome === 'Offer Extended' ? 'background:var(--gs);color:#0f6e56' : outcome === 'Not Selected' ? 'background:var(--rs);color:var(--red)' : 'background:var(--gp);color:var(--gold)';
+  let outcomeCss;
+  if (outcome === 'Offer Extended') outcomeCss = 'background:var(--gs);color:#0f6e56';
+  else if (outcome === 'Not Selected') outcomeCss = 'background:var(--rs);color:var(--red)';
+  else outcomeCss = 'background:var(--gp);color:var(--gold)';
+
   const newEntry = document.createElement('div');
   newEntry.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;padding:12px 0;border-top:1px solid var(--bd);margin-top:8px';
-  newEntry.innerHTML = '<div><div style="font-weight:700;font-size:13.5px">' + candName + '</div><div style="font-size:12px;color:var(--slate);margin-top:2px">' + role.value + ' · Interviewed today</div><div style="font-size:12.5px;color:var(--ink);margin-top:6px;line-height:1.5">' + text.value + '</div></div><div style="text-align:right;flex-shrink:0;margin-left:12px"><div style="color:var(--gold);font-size:14px">' + ratingStars + '</div><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;' + oc + '">' + outcome + '</span></div>';
+  newEntry.innerHTML = `
+    <div>
+      <div style="font-weight:700;font-size:13.5px">${candName}</div>
+      <div style="font-size:12px;color:var(--slate);margin-top:2px">${role.value} · Interviewed today</div>
+      <div style="font-size:12.5px;color:var(--ink);margin-top:6px;line-height:1.5">${text.value}</div>
+    </div>
+    <div style="text-align:right;flex-shrink:0;margin-left:12px">
+      <div style="color:var(--gold);font-size:14px">${ratingStars}</div>
+      <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;${outcomeCss}">${outcome}</span>
+    </div>`;
   if (hist) hist.appendChild(newEntry);
+
   if (candSel.value === '1') {
     totalReviewCount++;
     const crt = document.getElementById('cd-review-total');
     if (crt) crt.textContent = totalReviewCount;
+
     if (isNegative) {
       negativeReviewCount++;
       const cnrc = document.getElementById('cd-neg-review-count');
       if (cnrc) cnrc.textContent = negativeReviewCount;
-      if (negativeReviewCount >= 3) { const sw = document.getElementById('cd-suspension-warning'); if (sw) sw.style.display = ''; }
-      if (negativeReviewCount >= 5) toast('Account suspended: 5 negative reviews reached', 'te', 6000);
+      if (negativeReviewCount >= 3) {
+        const sw = document.getElementById('cd-suspension-warning');
+        if (sw) sw.style.display = '';
+      }
+      if (negativeReviewCount >= 5) {
+        toast('Account suspended: 5 negative reviews reached', 'te', 6000);
+      }
     }
+
     const reviewList = document.getElementById('cd-reviews-list');
     if (reviewList) {
       const nr = document.createElement('div');
       nr.style.cssText = 'border-top:1px solid var(--bd);padding-top:16px;margin-top:16px';
-      nr.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div><div style="font-weight:700;font-size:13.5px">FinTech Leads Pvt. Ltd.</div><div style="font-size:12px;color:var(--slate);margin-top:1px">' + role.value + ' · Interviewed today</div></div><div style="color:var(--gold);font-size:15px">' + ratingStars + '</div></div><p style="font-size:13px;color:var(--ink);line-height:1.65">' + text.value + '</p>';
+      nr.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div>
+            <div style="font-weight:700;font-size:13.5px">FinTech Leads Pvt. Ltd.</div>
+            <div style="font-size:12px;color:var(--slate);margin-top:1px">${role.value} · Interviewed today</div>
+          </div>
+          <div style="color:var(--gold);font-size:15px">${ratingStars}</div>
+        </div>
+        <p style="font-size:13px;color:var(--ink);line-height:1.65">${text.value}</p>`;
       reviewList.appendChild(nr);
     }
+
     const cnt = document.getElementById('cd-reviews-cnt');
-    if (cnt) { cnt.textContent = totalReviewCount; cnt.style.background = isNegative ? 'var(--red)' : 'var(--green)'; }
+    if (cnt) {
+      cnt.textContent = totalReviewCount;
+      cnt.style.background = isNegative ? 'var(--red)' : 'var(--green)';
+    }
   }
+
   toast('Feedback submitted for ' + candName + ' ✓', 'ts');
-  candSel.value = ''; role.value = ''; text.value = '';
+  candSel.value = '';
+  role.value = '';
+  text.value = '';
 }
 
 function checkSuspensionWarning() {
@@ -3360,7 +3399,18 @@ function checkSuspensionWarning() {
     setTimeout(() => {
       const warn = document.createElement('div');
       warn.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
-      warn.innerHTML = '<div style="background:#fff;border-radius:20px;padding:32px;max-width:440px;width:100%;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><div style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:#7f1d1d;margin-bottom:10px">Account Suspension Warning</div><p style="font-size:14px;color:var(--slate);line-height:1.7;margin-bottom:20px">You have received <strong>' + negativeReviewCount + ' negative reviews</strong> from employers. Your account will be permanently suspended after <strong>' + remaining + ' more negative review' + (remaining > 1 ? 's' : '') + '</strong>. Review your employer feedback and improve flagged areas.</p><button class=\"btn br\" style=\"width:100%\" onclick=\"this.closest('[style*=fixed]').remove()\">I Understand – Close</button></div>';
+      warn.innerHTML = `
+        <div style="background:#fff;border-radius:20px;padding:32px;max-width:440px;width:100%;text-align:center">
+          <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+          <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:#7f1d1d;margin-bottom:10px">Account Suspension Warning</div>
+          <p style="font-size:14px;color:var(--slate);line-height:1.7;margin-bottom:20px">
+            You have received <strong>${negativeReviewCount} negative reviews</strong> from employers.
+            Your account will be permanently suspended after
+            <strong>${remaining} more negative review${remaining > 1 ? 's' : ''}</strong>.
+            Please review your employer feedback and work on the areas flagged.
+          </p>
+          <button class="btn br" style="width:100%" onclick="this.closest('[style*=fixed]').remove()">I Understand – Close</button>
+        </div>`;
       document.body.appendChild(warn);
     }, 1500);
   }
