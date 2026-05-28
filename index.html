@@ -1231,6 +1231,7 @@ img{max-width:100%}
       <button class="esbi" onclick="showEP('roles',this)"><span class="esbi-ico">📋</span> Active Roles <span class="ecnt">5</span></button>
       <button class="esbi" onclick="showEP('interviews',this)"><span class="esbi-ico">📅</span> Interviews <span class="ecnt">3</span></button>
       <button class="esbi" onclick="showEP('shortlisted',this)"><span class="esbi-ico">⭐</span> Shortlisted <span class="ecnt" id="sl-cnt">0</span></button>
+      <button class="esbi" onclick="showEP('feedback',this)"><span class="esbi-ico">💬</span> Leave Feedback</button>
       <div class="esbl">Filters</div>
       <button class="esbi" onclick="filterBadge('Remote Ready')"><span class="esbi-ico">🌐</span> Remote Ready</button>
       <button class="esbi" onclick="filterBadge('Field Ready')"><span class="esbi-ico">🏍</span> Field Ready</button>
@@ -1324,6 +1325,96 @@ img{max-width:100%}
       <div class="ep" id="ep-shortlisted">
         <div class="eph"><div><div class="eph-title">Shortlisted Candidates</div><div class="eph-sub" id="sl-sub">Shortlist candidates from the pool to see them here</div></div></div>
         <div class="cl" id="sl-list"></div>
+      </div>
+
+      <!-- INTERVIEW FEEDBACK -->
+      <div class="ep" id="ep-feedback">
+        <div class="eph">
+          <div><div class="eph-title">Interview Feedback</div><div class="eph-sub">Submit feedback after a completed interview · Visible to the candidate on their dashboard</div></div>
+        </div>
+        <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:22px;margin-bottom:14px">
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:16px">Submit Post-Interview Feedback</div>
+          <div class="fgrid" style="margin-bottom:14px">
+            <div class="field">
+              <label><span class="star">★</span> Candidate</label>
+              <select class="fi" id="fb-cand-sel">
+                <option value="">Select candidate...</option>
+                <option value="1">Aanya Sharma — Telesales Executive</option>
+                <option value="2">Rohan Mehta — Phone Banking Officer</option>
+                <option value="3">Sneha Kulkarni — Academic Counsellor</option>
+                <option value="4">Karan Desai — Inside Sales Executive</option>
+                <option value="5">Priya Nair — Insurance Advisor</option>
+                <option value="6">Vikram Singh — Collections Executive</option>
+              </select>
+            </div>
+            <div class="field">
+              <label><span class="star">★</span> Interview Date</label>
+              <input class="fi" type="date" id="fb-date" value="2026-05-27">
+            </div>
+            <div class="field">
+              <label><span class="star">★</span> Role Interviewed For</label>
+              <input class="fi" id="fb-role" placeholder="e.g. Telesales Executive">
+            </div>
+            <div class="field">
+              <label><span class="star">★</span> Overall Rating</label>
+              <div class="chips" id="fb-rating-chips">
+                <div class="chip" onclick="sc(this,'fb-rating-chips');document.getElementById('fb-rating-val').value='1'">⭐ 1 – Poor</div>
+                <div class="chip" onclick="sc(this,'fb-rating-chips');document.getElementById('fb-rating-val').value='2'">⭐⭐ 2 – Below Avg</div>
+                <div class="chip" onclick="sc(this,'fb-rating-chips');document.getElementById('fb-rating-val').value='3'">⭐⭐⭐ 3 – Average</div>
+                <div class="chip on" onclick="sc(this,'fb-rating-chips');document.getElementById('fb-rating-val').value='4'">⭐⭐⭐⭐ 4 – Good</div>
+                <div class="chip" onclick="sc(this,'fb-rating-chips');document.getElementById('fb-rating-val').value='5'">⭐⭐⭐⭐⭐ 5 – Excellent</div>
+              </div>
+              <input type="hidden" id="fb-rating-val" value="4">
+            </div>
+            <div class="field fcol">
+              <label><span class="star">★</span> Communication Skills</label>
+              <div class="chips" id="fb-comm-chips">
+                <div class="chip" onclick="sc(this,'fb-comm-chips')">Needs Improvement</div>
+                <div class="chip" onclick="sc(this,'fb-comm-chips')">Satisfactory</div>
+                <div class="chip on" onclick="sc(this,'fb-comm-chips')">Good</div>
+                <div class="chip" onclick="sc(this,'fb-comm-chips')">Excellent</div>
+              </div>
+            </div>
+            <div class="field fcol">
+              <label><span class="star">★</span> Detailed Feedback</label>
+              <textarea class="fi" id="fb-text" rows="4" placeholder="Describe the candidate's performance, communication style, attitude, areas of strength and improvement..."></textarea>
+            </div>
+            <div class="field">
+              <label><span class="star">★</span> Outcome</label>
+              <div class="chips" id="fb-outcome-chips">
+                <div class="chip on" onclick="sc(this,'fb-outcome-chips')">Offer Extended</div>
+                <div class="chip" onclick="sc(this,'fb-outcome-chips')">On Hold</div>
+                <div class="chip" onclick="sc(this,'fb-outcome-chips')">Not Selected</div>
+                <div class="chip" onclick="sc(this,'fb-outcome-chips')">2nd Round Scheduled</div>
+              </div>
+            </div>
+            <div class="field">
+              <label>Would You Recommend for Other Roles?</label>
+              <div class="chips" id="fb-rec-chips">
+                <div class="chip on" onclick="sc(this,'fb-rec-chips')">Yes</div>
+                <div class="chip" onclick="sc(this,'fb-rec-chips')">No</div>
+                <div class="chip" onclick="sc(this,'fb-rec-chips')">Maybe</div>
+              </div>
+            </div>
+          </div>
+          <div style="background:var(--vs);border-radius:10px;padding:12px;border:1px solid rgba(124,58,237,.15);margin-bottom:16px;font-size:13px;color:var(--slate)">
+            ℹ️ This feedback will be visible to the candidate on their PitchFirst dashboard. Candidates cannot reply. After 3 negative reviews (rating ≤ 2), the candidate receives a suspension warning. After 5 negative reviews, the account is suspended.
+          </div>
+          <button class="btn bp" style="width:100%" onclick="submitInterviewFeedback()">Submit Feedback →</button>
+        </div>
+        <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:22px">
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Your Recent Feedback Submissions</div>
+          <div id="emp-feedback-history">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--bd)">
+              <div><div style="font-weight:700;font-size:13.5px">Aanya Sharma</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Telesales Executive · Interviewed 24 May 2026</div><div style="font-size:12.5px;color:var(--ink);margin-top:6px;line-height:1.5">Strong communicator, great energy on the call. Reached quota metrics in our simulation. Highly recommended for client-facing roles.</div></div>
+              <div style="text-align:right;flex-shrink:0;margin-left:12px"><div style="color:var(--gold);font-size:14px">⭐⭐⭐⭐⭐</div><span style="background:var(--gs);color:#0f6e56;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Offer Extended</span></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:12px 0">
+              <div><div style="font-weight:700;font-size:13.5px">Karan Desai</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Inside Sales Executive · Interviewed 20 May 2026</div><div style="font-size:12.5px;color:var(--ink);margin-top:6px;line-height:1.5">Typing speed below our threshold. Communication was average. Needs more product knowledge for BFSI roles.</div></div>
+              <div style="text-align:right;flex-shrink:0;margin-left:12px"><div style="color:var(--gold);font-size:14px">⭐⭐</div><span style="background:var(--rs);color:var(--red);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Not Selected</span></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- COMPANY PROFILE -->
@@ -1479,6 +1570,7 @@ img{max-width:100%}
       <div class="cdsbl">Career Tools</div>
       <button class="cdsbi marquee-btn" onclick="showCD('marquee',this)"><span style="width:18px;text-align:center">✦</span> The Marquee <span class="cdcnt" style="background:linear-gradient(135deg,var(--gold),var(--gl));font-size:9px">NEW</span></button>
       <button class="cdsbi" onclick="showCD('mentor',this)"><span style="width:18px;text-align:center">🤖</span> AI Career Mentor</button>
+      <button class="cdsbi" onclick="showCD('reviews',this)"><span style="width:18px;text-align:center">💬</span> Employer Reviews <span class="cdcnt" id="cd-reviews-cnt" style="background:var(--green)">1</span></button>
       <div class="cdsbl">Account</div>
       <button class="cdsbi" onclick="showCD('settings',this)"><span style="width:18px;text-align:center">⚙️</span> Settings & Plan</button>
       <button class="cdsbi" onclick="navTo('candidate-profile')"><span style="width:18px;text-align:center">✏️</span> Edit Full Profile</button>
@@ -1842,6 +1934,51 @@ img{max-width:100%}
         </div>
       </div>
 
+      <!-- EMPLOYER REVIEWS -->
+      <div class="cdp" id="cdp-reviews">
+        <div class="cdph"><div><div class="cdph-title">💬 Employer Reviews</div><div class="cdph-sub">Feedback from employers after your interviews · Read-only</div></div></div>
+        <div id="cd-reviews-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:18px">
+          <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:14px;text-align:center">
+            <div style="font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--gold)">4.5</div>
+            <div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px;margin-top:3px">Avg Rating</div>
+          </div>
+          <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:14px;text-align:center">
+            <div style="font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--vg)" id="cd-review-total">2</div>
+            <div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px;margin-top:3px">Total Reviews</div>
+          </div>
+          <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:14px;text-align:center">
+            <div style="font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--green)" id="cd-neg-review-count">0</div>
+            <div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px;margin-top:3px">Negative Reviews</div>
+          </div>
+        </div>
+        <div id="cd-suspension-warning" style="display:none;background:linear-gradient(135deg,#7f1d1d,#991b1b);border-radius:var(--r12);padding:16px 20px;margin-bottom:16px;border:1px solid rgba(239,68,68,.3)">
+          <div style="font-weight:700;font-size:14px;color:#fca5a5;margin-bottom:4px">⚠️ Account Suspension Warning</div>
+          <div style="font-size:13px;color:rgba(252,165,165,.8);line-height:1.6">You have received 3 or more negative reviews. Your account will be suspended after 2 more negative reviews. Please review the feedback below and work on areas of improvement.</div>
+        </div>
+        <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:18px 20px" id="cd-reviews-list">
+          <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;margin-bottom:14px">Interview Feedback from Employers</div>
+          <div style="border-bottom:1px solid var(--bd);padding-bottom:16px;margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+              <div><div style="font-weight:700;font-size:13.5px">FinTech Leads Pvt. Ltd.</div><div style="font-size:12px;color:var(--slate);margin-top:1px">Telesales Executive · Interviewed 24 May 2026</div></div>
+              <div style="text-align:right"><div style="color:var(--gold);font-size:15px">⭐⭐⭐⭐⭐</div><span style="background:var(--gs);color:#0f6e56;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Offer Extended</span></div>
+            </div>
+            <p style="font-size:13px;color:var(--ink);line-height:1.65">Strong communicator, great energy on the call. Reached quota metrics in our simulation. Highly recommended for client-facing roles.</p>
+            <div style="display:flex;gap:8px;margin-top:8px"><span style="font-size:11px;font-weight:600;background:var(--gs);color:#0f6e56;padding:2px 8px;border-radius:20px">Communication: Excellent</span><span style="font-size:11px;font-weight:600;background:var(--gp);color:var(--gold);padding:2px 8px;border-radius:20px">Would Recommend: Yes</span></div>
+          </div>
+          <div style="padding-bottom:4px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+              <div><div style="font-weight:700;font-size:13.5px">Axis Bank BPO</div><div style="font-size:12px;color:var(--slate);margin-top:1px">Phone Banking Officer · Interviewed 18 May 2026</div></div>
+              <div style="text-align:right"><div style="color:var(--gold);font-size:15px">⭐⭐⭐⭐</div><span style="background:var(--gp);color:var(--gold);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">On Hold</span></div>
+            </div>
+            <p style="font-size:13px;color:var(--ink);line-height:1.65">Good overall performance. Voice clarity was excellent. Could improve on product knowledge for premium banking products. We may reach out for a second round next month.</p>
+            <div style="display:flex;gap:8px;margin-top:8px"><span style="font-size:11px;font-weight:600;background:var(--gs);color:#0f6e56;padding:2px 8px;border-radius:20px">Communication: Good</span><span style="font-size:11px;font-weight:600;background:var(--gp);color:var(--gold);padding:2px 8px;border-radius:20px">Would Recommend: Maybe</span></div>
+          </div>
+        </div>
+        <div style="background:var(--cream);border-radius:10px;padding:12px 16px;border:1px solid var(--bd);margin-top:12px;font-size:12.5px;color:var(--slate)">
+          ℹ️ These reviews are submitted by verified employers after completed interviews. You cannot reply to reviews. If you believe a review is false or malicious, contact <a href="mailto:support@pitchfirst.in" style="color:var(--vg);font-weight:600">support@pitchfirst.in</a>.
+        </div>
+      </div>
+
       <!-- SETTINGS -->
       <div class="cdp" id="cdp-settings">
         <div class="cdph"><div><div class="cdph-title">Settings & Plan</div><div class="cdph-sub">Manage your account, subscription, and notifications</div></div></div>
@@ -2117,13 +2254,14 @@ function doCandSignup() {
   initCandDash(); navTo('cdash');
   toast('Welcome! Full Pro access activated - free until 30 June 2026', 'ts');
   setTimeout(() => toast('Your Marquee is ready - pin your best proof now!', 'ti'), 2500);
+  checkSuspensionWarning();
 }
 
 function doSignin() {
   AUTH = { in: true, role: siSelectedRole, plan: 'pro', name: siSelectedRole === 'employer' ? 'FinTech Leads' : 'Aanya Sharma' };
   closeModal('modal-auth'); setLoggedIn();
   if (siSelectedRole === 'employer') { navTo('employer'); setTimeout(() => renderAll(), 300); }
-  else { initCandDash(); navTo('cdash'); }
+  else { initCandDash(); navTo('cdash'); checkSuspensionWarning(); }
   toast('Welcome back! Signed in successfully ✓', 'ts');
 }
 
@@ -3166,6 +3304,512 @@ function addMarqueeOverviewPreview() {
   }, 150);
 }
 
+// ══════════════════════════════════════════
+//  INTERVIEW FEEDBACK SYSTEM
+// ══════════════════════════════════════════
+let negativeReviewCount = 0;
+let totalReviewCount = 2;
+
+function submitInterviewFeedback() {
+  const candSel = document.getElementById('fb-cand-sel');
+  const role = document.getElementById('fb-role');
+  const text = document.getElementById('fb-text');
+  const rating = parseInt(document.getElementById('fb-rating-val').value);
+  if (!candSel.value) { toast('Please select a candidate', 'tw2'); return; }
+  if (!role.value.trim()) { toast('Please enter the role', 'tw2'); return; }
+  if (!text.value.trim()) { toast('Please write feedback before submitting', 'tw2'); return; }
+  const candName = candSel.options[candSel.selectedIndex].text.split(' — ')[0];
+  const isNegative = rating <= 2;
+  const hist = document.getElementById('emp-feedback-history');
+  const outcomeEl = document.querySelector('#fb-outcome-chips .chip.on');
+  const outcome = outcomeEl ? outcomeEl.textContent.trim() : 'Reviewed';
+  const ratingStars = '⭐'.repeat(rating);
+  const oc = outcome === 'Offer Extended' ? 'background:var(--gs);color:#0f6e56' : outcome === 'Not Selected' ? 'background:var(--rs);color:var(--red)' : 'background:var(--gp);color:var(--gold)';
+  const newEntry = document.createElement('div');
+  newEntry.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;padding:12px 0;border-top:1px solid var(--bd);margin-top:8px';
+  newEntry.innerHTML = '<div><div style="font-weight:700;font-size:13.5px">' + candName + '</div><div style="font-size:12px;color:var(--slate);margin-top:2px">' + role.value + ' · Interviewed today</div><div style="font-size:12.5px;color:var(--ink);margin-top:6px;line-height:1.5">' + text.value + '</div></div><div style="text-align:right;flex-shrink:0;margin-left:12px"><div style="color:var(--gold);font-size:14px">' + ratingStars + '</div><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;' + oc + '">' + outcome + '</span></div>';
+  if (hist) hist.appendChild(newEntry);
+  if (candSel.value === '1') {
+    totalReviewCount++;
+    const crt = document.getElementById('cd-review-total');
+    if (crt) crt.textContent = totalReviewCount;
+    if (isNegative) {
+      negativeReviewCount++;
+      const cnrc = document.getElementById('cd-neg-review-count');
+      if (cnrc) cnrc.textContent = negativeReviewCount;
+      if (negativeReviewCount >= 3) { const sw = document.getElementById('cd-suspension-warning'); if (sw) sw.style.display = ''; }
+      if (negativeReviewCount >= 5) toast('Account suspended: 5 negative reviews reached', 'te', 6000);
+    }
+    const reviewList = document.getElementById('cd-reviews-list');
+    if (reviewList) {
+      const nr = document.createElement('div');
+      nr.style.cssText = 'border-top:1px solid var(--bd);padding-top:16px;margin-top:16px';
+      nr.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div><div style="font-weight:700;font-size:13.5px">FinTech Leads Pvt. Ltd.</div><div style="font-size:12px;color:var(--slate);margin-top:1px">' + role.value + ' · Interviewed today</div></div><div style="color:var(--gold);font-size:15px">' + ratingStars + '</div></div><p style="font-size:13px;color:var(--ink);line-height:1.65">' + text.value + '</p>';
+      reviewList.appendChild(nr);
+    }
+    const cnt = document.getElementById('cd-reviews-cnt');
+    if (cnt) { cnt.textContent = totalReviewCount; cnt.style.background = isNegative ? 'var(--red)' : 'var(--green)'; }
+  }
+  toast('Feedback submitted for ' + candName + ' ✓', 'ts');
+  candSel.value = ''; role.value = ''; text.value = '';
+}
+
+function checkSuspensionWarning() {
+  if (negativeReviewCount >= 3 && negativeReviewCount < 5) {
+    const remaining = 5 - negativeReviewCount;
+    setTimeout(() => {
+      const warn = document.createElement('div');
+      warn.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+      warn.innerHTML = '<div style="background:#fff;border-radius:20px;padding:32px;max-width:440px;width:100%;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><div style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:#7f1d1d;margin-bottom:10px">Account Suspension Warning</div><p style="font-size:14px;color:var(--slate);line-height:1.7;margin-bottom:20px">You have received <strong>' + negativeReviewCount + ' negative reviews</strong> from employers. Your account will be permanently suspended after <strong>' + remaining + ' more negative review' + (remaining > 1 ? 's' : '') + '</strong>. Review your employer feedback and improve flagged areas.</p><button class=\"btn br\" style=\"width:100%\" onclick=\"this.closest('[style*=fixed]').remove()\">I Understand – Close</button></div>';
+      document.body.appendChild(warn);
+    }, 1500);
+  }
+}
+
+
 </script>
+
+<!-- LEGAL MODALS -->
+<div class="mb" id="modal-privacy">
+  <div class="modal" style="max-width:680px;padding:0">
+    <div style="position:sticky;top:0;background:#fff;padding:24px 32px 16px;border-bottom:1px solid var(--bd);border-radius:20px 20px 0 0;z-index:2;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Privacy Policy</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Effective: 1 June 2026 · PitchFirst Technologies Pvt. Ltd.</div></div>
+      <button class="mx" style="position:static" onclick="closeModal('modal-privacy')">✕</button>
+    </div>
+    <div style="padding:24px 32px;max-height:65vh;overflow-y:auto;font-size:13.5px;line-height:1.8;color:var(--slate)">
+      <p style="margin-bottom:14px">PitchFirst Technologies Pvt. Ltd. operates pitchfirst.in. This Privacy Policy explains how we collect, use, store, and protect your personal data under the Digital Personal Data Protection Act, 2023 and applicable Indian law.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">1. Data We Collect</div>
+      <p style="margin-bottom:10px"><strong>Candidates:</strong> Full name, mobile, email, city, DOB (optional), qualifications, work history, resume PDF, voice pitch recordings, typing test results, infrastructure details (internet, devices, vehicle, UPI/bank info for badge verification only), professional references, and profile photo.</p>
+      <p style="margin-bottom:10px"><strong>Employers:</strong> Company name, industry, address, work email, phone, GSTIN (optional), billing details (processed via PCI-DSS compliant gateway — card numbers are never stored by us).</p>
+      <p style="margin-bottom:10px"><strong>Automatically collected:</strong> IP address, browser type, device identifiers, pages visited, time on platform — via cookies and server logs for analytics and fraud prevention.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">2. How We Use Your Data</div>
+      <p style="margin-bottom:10px">To: (a) operate and improve PitchFirst; (b) match candidates with roles; (c) provide employers access to profiles; (d) process payments; (e) send transactional alerts (profile views, shortlisting, interview invites); (f) AI-score voice pitches for Clarity, Confidence, Relevance, and Energy; (g) enforce our Terms; and (h) comply with Indian law.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">3. Voice Pitch Data</div>
+      <p style="margin-bottom:10px">By recording a pitch you explicitly consent to AI processing as required under Section 6 of the DPDP Act, 2023. Voice data is stored securely and only accessible to employers who unlock your contact. You may delete your pitch at any time from your profile settings.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">4. Data Sharing</div>
+      <p style="margin-bottom:10px">We do not sell your data. We share only with: (a) employers — limited to profile info you have made visible; (b) payment processors — under strict contractual obligations; (c) cloud providers (AWS/Google Cloud) — hosting only; (d) analytics providers — aggregated, anonymised data only; (e) law enforcement — only when required by law.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">5. Data Retention</div>
+      <p style="margin-bottom:10px">Personal data is retained for the duration of your account. On deletion, data is purged within 30 days except where Indian law requires retention (e.g., GST records 7 years, transaction logs 5 years). Voice pitches are deleted within 7 days of account closure.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">6. Your Rights Under the DPDP Act, 2023</div>
+      <p style="margin-bottom:10px">You have the right to: access your data; correct inaccuracies; request erasure; withdraw consent; nominate another individual to exercise rights in case of death/incapacity; and file a complaint with the Data Protection Board of India. To exercise rights email <a href="mailto:privacy@pitchfirst.in" style="color:var(--vg)">privacy@pitchfirst.in</a>. We respond within 30 days.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">7. Security</div>
+      <p style="margin-bottom:10px">We use TLS 1.3 encryption in transit, AES-256 at rest, role-based access controls, and regular security audits. In case of a personal data breach, we notify affected users and the Data Protection Board as required under Section 8(6) of the DPDP Act.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">8. Children</div>
+      <p style="margin-bottom:10px">PitchFirst is not for users under 18. We delete any minor's account promptly on discovery.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">9. Contact</div>
+      <p>Data Protection Officer: <a href="mailto:privacy@pitchfirst.in" style="color:var(--vg)">privacy@pitchfirst.in</a> · PitchFirst Technologies Pvt. Ltd., Mumbai, Maharashtra.</p>
+    </div>
+    <div style="padding:16px 32px 24px;border-top:1px solid var(--bd);display:flex;gap:10px">
+      <button class="btn bg" style="flex:1" onclick="closeModal('modal-privacy');toast('Privacy Policy accepted','ts')">I Accept &amp; Close</button>
+      <button class="btn bgh" onclick="closeModal('modal-privacy')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="mb" id="modal-tos">
+  <div class="modal" style="max-width:680px;padding:0">
+    <div style="position:sticky;top:0;background:#fff;padding:24px 32px 16px;border-bottom:1px solid var(--bd);border-radius:20px 20px 0 0;z-index:2;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Terms of Service</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Effective: 1 June 2026 · PitchFirst Technologies Pvt. Ltd.</div></div>
+      <button class="mx" style="position:static" onclick="closeModal('modal-tos')">✕</button>
+    </div>
+    <div style="padding:24px 32px;max-height:65vh;overflow-y:auto;font-size:13.5px;line-height:1.8;color:var(--slate)">
+      <p style="margin-bottom:14px">By using PitchFirst (pitchfirst.in) you agree to these Terms. If you do not agree, do not use the platform.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">1. Platform Description</div>
+      <p style="margin-bottom:10px">PitchFirst is a voice-first hiring marketplace for telecallers, BPO professionals, and inside sales executives. We are not an employment agency and do not guarantee job placement.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">2. Account Eligibility</div>
+      <p style="margin-bottom:10px">You must be 18+. All information provided must be accurate. Fraudulent or duplicate accounts will be permanently suspended.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">3. Candidate Obligations</div>
+      <p style="margin-bottom:10px">Candidates must provide accurate information, ensure their voice pitch genuinely represents their abilities, not misrepresent experience or references, and respond professionally to employers. Accounts receiving 5 or more negative employer reviews (rating ≤ 2) are subject to suspension.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">4. Employer Obligations</div>
+      <p style="margin-bottom:10px">Employers must post only genuine roles, use candidate data exclusively for recruitment, not share or sell candidate contacts obtained via PitchFirst, comply with Indian labour laws, and submit factual post-interview feedback. Abusive or false feedback results in account termination.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">5. Subscriptions &amp; Payments</div>
+      <p style="margin-bottom:10px">Employer Pro: ₹2,499/month. Candidate Pro: ₹199/month (post-launch offer period). Auto-renews monthly. GST charged additionally. See our Refund Policy for refund eligibility.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">6. Prohibited Conduct</div>
+      <p style="margin-bottom:10px">Users must not scrape data, reverse-engineer the platform, post misleading listings, bypass subscriptions by contacting candidates off-platform, harass or discriminate against users, or upload malware.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">7. Intellectual Property</div>
+      <p style="margin-bottom:10px">All platform content and code is owned by PitchFirst Technologies Pvt. Ltd. User-generated content remains the user's property but you grant PitchFirst a non-exclusive licence to display it for platform operations.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">8. Limitation of Liability</div>
+      <p style="margin-bottom:10px">PitchFirst is provided "as is". Liability is limited to subscription fees paid in the preceding 3 months.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">9. Governing Law</div>
+      <p>Governed by Indian law. Disputes subject to exclusive jurisdiction of courts in Mumbai, Maharashtra.</p>
+    </div>
+    <div style="padding:16px 32px 24px;border-top:1px solid var(--bd);display:flex;gap:10px">
+      <button class="btn bg" style="flex:1" onclick="closeModal('modal-tos');toast('Terms accepted','ts')">I Accept &amp; Close</button>
+      <button class="btn bgh" onclick="closeModal('modal-tos')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="mb" id="modal-cookie">
+  <div class="modal" style="max-width:620px;padding:0">
+    <div style="position:sticky;top:0;background:#fff;padding:24px 32px 16px;border-bottom:1px solid var(--bd);border-radius:20px 20px 0 0;z-index:2;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Cookie Policy</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Effective: 1 June 2026</div></div>
+      <button class="mx" style="position:static" onclick="closeModal('modal-cookie')">✕</button>
+    </div>
+    <div style="padding:24px 32px;max-height:65vh;overflow-y:auto;font-size:13.5px;line-height:1.8;color:var(--slate)">
+      <p style="margin-bottom:14px">PitchFirst uses cookies and similar technologies to improve your experience. Here is what we use and why.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+        <div style="background:var(--cream);border-radius:10px;padding:13px;border:1px solid var(--bd)"><div style="font-weight:700;font-size:13px;color:var(--ink);margin-bottom:4px">Essential Cookies</div><p>Required for the platform to work — session authentication, CSRF protection, user preferences. Cannot be disabled. No consent required under applicable law.</p></div>
+        <div style="background:var(--cream);border-radius:10px;padding:13px;border:1px solid var(--bd)"><div style="font-weight:700;font-size:13px;color:var(--ink);margin-bottom:4px">Analytics Cookies</div><p>Anonymised, aggregated data to understand how users navigate PitchFirst. Provider: Google Analytics with IP masking enabled. Opt out via browser settings or private/incognito mode.</p></div>
+        <div style="background:var(--cream);border-radius:10px;padding:13px;border:1px solid var(--bd)"><div style="font-weight:700;font-size:13px;color:var(--ink);margin-bottom:4px">Functionality Cookies</div><p>Remember your preferences (language, filter settings, dashboard layout). First-party only. Expire after 30 days of inactivity.</p></div>
+        <div style="background:var(--cream);border-radius:10px;padding:13px;border:1px solid var(--bd)"><div style="font-weight:700;font-size:13px;color:var(--ink);margin-bottom:4px">No Advertising Cookies</div><p>PitchFirst does not use advertising cookies, retargeting pixels, or ad networks. We do not sell your data to advertisers.</p></div>
+      </div>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">Managing Cookies</div>
+      <p>Control cookies via your browser settings. Disabling essential cookies will prevent login. We respect Do Not Track (DNT) signals for analytics cookies.</p>
+    </div>
+    <div style="padding:16px 32px 24px;border-top:1px solid var(--bd);display:flex;gap:10px">
+      <button class="btn bg" style="flex:1" onclick="closeModal('modal-cookie');toast('Cookie preferences saved','ts')">I Accept &amp; Close</button>
+      <button class="btn bgh" onclick="closeModal('modal-cookie')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="mb" id="modal-refund">
+  <div class="modal" style="max-width:620px;padding:0">
+    <div style="position:sticky;top:0;background:#fff;padding:24px 32px 16px;border-bottom:1px solid var(--bd);border-radius:20px 20px 0 0;z-index:2;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Refund Policy</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Effective: 1 June 2026</div></div>
+      <button class="mx" style="position:static" onclick="closeModal('modal-refund')">✕</button>
+    </div>
+    <div style="padding:24px 32px;max-height:65vh;overflow-y:auto;font-size:13.5px;line-height:1.8;color:var(--slate)">
+      <div style="background:var(--gp);border-radius:10px;padding:13px;border:1px solid rgba(200,134,10,.15);margin-bottom:16px"><strong style="color:var(--gold)">Launch Period (Until 30 June 2026):</strong> All candidate accounts are free. No payment taken, no refund applicable.</div>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:0 0 6px">Candidate Pro Plan (₹199/month)</div>
+      <p style="margin-bottom:10px"><strong>7-day refund window:</strong> Full refund within 7 days of first payment. Email <a href="mailto:support@pitchfirst.in" style="color:var(--vg)">support@pitchfirst.in</a> with subject "Refund Request — Candidate Pro". Processed within 5–7 business days.</p>
+      <p style="margin-bottom:10px"><strong>After 7 days:</strong> Non-refundable. You retain Pro access until end of billing cycle.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Employer Pro Plan (₹2,499/month)</div>
+      <p style="margin-bottom:10px"><strong>No refund after platform use:</strong> If you have accessed candidate profiles, played pitches, or unlocked contacts, that cycle is non-refundable.</p>
+      <p style="margin-bottom:10px"><strong>Technical failure credit:</strong> If platform is unavailable 48+ cumulative hours in a month due to our fault, you receive a proportional credit on the next cycle.</p>
+      <p style="margin-bottom:10px"><strong>First-month refund:</strong> Employers who have not accessed any candidate features within 72 hours of subscription may request a full refund.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Account Suspension</div>
+      <p style="margin-bottom:10px">Accounts suspended for policy violations are not eligible for refunds.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">How to Request</div>
+      <p>Email <a href="mailto:support@pitchfirst.in" style="color:var(--vg)">support@pitchfirst.in</a> with your registered email, transaction ID, and reason. We respond within 2 business days.</p>
+    </div>
+    <div style="padding:16px 32px 24px;border-top:1px solid var(--bd);display:flex;gap:10px">
+      <button class="btn bg" style="flex:1" onclick="closeModal('modal-refund');toast('Refund policy noted','ts')">I Understand &amp; Close</button>
+      <button class="btn bgh" onclick="closeModal('modal-refund')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="mb" id="modal-dpdp">
+  <div class="modal" style="max-width:680px;padding:0">
+    <div style="position:sticky;top:0;background:#fff;padding:24px 32px 16px;border-bottom:1px solid var(--bd);border-radius:20px 20px 0 0;z-index:2;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">DPDP Act Compliance</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Digital Personal Data Protection Act, 2023 · PitchFirst Technologies Pvt. Ltd.</div></div>
+      <button class="mx" style="position:static" onclick="closeModal('modal-dpdp')">✕</button>
+    </div>
+    <div style="padding:24px 32px;max-height:65vh;overflow-y:auto;font-size:13.5px;line-height:1.8;color:var(--slate)">
+      <div style="background:var(--vs);border-radius:10px;padding:13px;border:1px solid rgba(124,58,237,.15);margin-bottom:16px"><strong style="color:var(--vg)">PitchFirst's DPDP Commitment:</strong> PitchFirst is designed from the ground up to comply with the Digital Personal Data Protection Act, 2023 (No. 22 of 2023). As a Data Fiduciary we process your personal data lawfully, transparently, and only for specified purposes.</div>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:0 0 6px">Our Role Under the DPDP Act</div>
+      <p style="margin-bottom:10px">PitchFirst Technologies Pvt. Ltd. is a <strong>Data Fiduciary</strong> under Section 2(i). Employers accessing candidate data through PitchFirst act as Data Fiduciaries in their own right for their direct hiring processes.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Consent Framework (Section 6)</div>
+      <p style="margin-bottom:10px">All data collection is consent-based. At registration you receive a clear notice explaining what data is collected, the purpose of processing, and how to exercise your rights. Consent is free, specific, informed, unconditional and unambiguous. Withdraw consent anytime from Settings → Account.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Notice Requirements (Section 5)</div>
+      <p style="margin-bottom:10px">Before collecting data we provide a detailed plain-language notice. Voice pitch recording requires a separate explicit consent checkbox given its biometric-adjacent nature.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Your Rights as a Data Principal</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+        <div style="background:var(--cream);border-radius:9px;padding:11px;border:1px solid var(--bd)"><strong>Right to Access (S.11):</strong> Request a summary of all data we hold via <a href="mailto:privacy@pitchfirst.in" style="color:var(--vg)">privacy@pitchfirst.in</a>.</div>
+        <div style="background:var(--cream);border-radius:9px;padding:11px;border:1px solid var(--bd)"><strong>Right to Correction &amp; Erasure (S.12):</strong> Edit profile data in your dashboard. For full deletion, email us.</div>
+        <div style="background:var(--cream);border-radius:9px;padding:11px;border:1px solid var(--bd)"><strong>Right to Grievance Redressal (S.13):</strong> We resolve grievances within 30 days. Contact DPO at <a href="mailto:privacy@pitchfirst.in" style="color:var(--vg)">privacy@pitchfirst.in</a>.</div>
+        <div style="background:var(--cream);border-radius:9px;padding:11px;border:1px solid var(--bd)"><strong>Right to Withdraw Consent (S.6(4)):</strong> Withdraw anytime from Settings. Historical lawful processing is unaffected.</div>
+        <div style="background:var(--cream);border-radius:9px;padding:11px;border:1px solid var(--bd)"><strong>Right to Nominate (S.14):</strong> Nominate a person to exercise your rights in case of death or incapacity. Contact us to register a nominee.</div>
+      </div>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Security Safeguards (Section 8(5))</div>
+      <p style="margin-bottom:10px">TLS encryption in transit, AES-256 at rest, role-based access control, regular penetration testing, formal incident response plan. Data breaches reported to the Data Protection Board and affected users per Section 8(6).</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Data Retention (Section 8(7))</div>
+      <p style="margin-bottom:10px">Data retained only as long as necessary for its specified purpose or as required by law. Voice pitch data deleted within 7 days of account closure.</p>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Escalation to the Data Protection Board</div>
+      <p>If your grievance is unresolved within 30 days, you may file a complaint with the Data Protection Board of India once constituted under Section 18 of the DPDP Act, 2023. Always contact our DPO first at <a href="mailto:privacy@pitchfirst.in" style="color:var(--vg)">privacy@pitchfirst.in</a>.</p>
+    </div>
+    <div style="padding:16px 32px 24px;border-top:1px solid var(--bd);display:flex;gap:10px">
+      <button class="btn bg" style="flex:1" onclick="closeModal('modal-dpdp');toast('DPDP compliance noted','ts')">I Understand &amp; Close</button>
+      <button class="btn bgh" onclick="closeModal('modal-dpdp')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- SALARY GUIDE MODAL -->
+<div class="mb" id="modal-salary">
+  <div class="modal" style="max-width:700px;padding:0">
+    <div style="position:sticky;top:0;background:var(--ink);padding:24px 32px 16px;border-radius:20px 20px 0 0;z-index:2;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:#fff">Telecaller Salary Guide India 2026</div><div style="font-size:12px;color:rgba(250,246,240,.4);margin-top:2px">Source: Telemploy.com Industry Compensation Report 2026</div></div>
+      <button class="mx" style="position:static;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.15);color:#fff" onclick="closeModal('modal-salary')">✕</button>
+    </div>
+    <div style="padding:24px 32px;max-height:70vh;overflow-y:auto;font-size:13.5px;line-height:1.8;color:var(--slate)">
+      <div style="background:var(--voice);border-radius:var(--r12);padding:20px;margin-bottom:20px">
+        <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:12px">Executive Summary — Fixed In-Hand (Post PF &amp; ESI)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+          <div style="background:rgba(255,255,255,.07);border-radius:9px;padding:11px"><div style="font-size:10px;color:rgba(237,233,254,.4);text-transform:uppercase;letter-spacing:.5px">Fresher (0 yrs)</div><div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--gl);margin-top:4px">₹10,000 – ₹18,000/mo</div></div>
+          <div style="background:rgba(255,255,255,.07);border-radius:9px;padding:11px"><div style="font-size:10px;color:rgba(237,233,254,.4);text-transform:uppercase;letter-spacing:.5px">1–2 Years</div><div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--gl);margin-top:4px">₹14,000 – ₹25,000/mo</div></div>
+          <div style="background:rgba(255,255,255,.07);border-radius:9px;padding:11px"><div style="font-size:10px;color:rgba(237,233,254,.4);text-transform:uppercase;letter-spacing:.5px">2–4 Years</div><div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--gl);margin-top:4px">₹20,000 – ₹35,000/mo</div></div>
+          <div style="background:rgba(255,255,255,.07);border-radius:9px;padding:11px"><div style="font-size:10px;color:rgba(237,233,254,.4);text-transform:uppercase;letter-spacing:.5px">Team Lead / Senior</div><div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--gl);margin-top:4px">₹30,000 – ₹55,000/mo</div></div>
+        </div>
+        <div style="font-size:11px;color:rgba(237,233,254,.35);margin-top:9px">Top performers earn 30–80% more via incentives on top of fixed pay.</div>
+      </div>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:0 0 10px">City-Wise Benchmarks</div>
+      <div style="overflow-x:auto;margin-bottom:20px"><table style="width:100%;border-collapse:collapse;font-size:12.5px">
+        <thead><tr style="background:var(--voice);color:#fff"><th style="padding:9px 11px;text-align:left">City</th><th style="padding:9px 11px;text-align:left">Fixed (₹/mo)</th><th style="padding:9px 11px;text-align:left">With Incentives</th></tr></thead>
+        <tbody>
+          <tr style="background:#fff;border-bottom:1px solid var(--bd)"><td style="padding:8px 11px;font-weight:600;color:var(--ink)">Bangalore</td><td style="padding:8px 11px">15,000–24,000</td><td style="padding:8px 11px;color:var(--green);font-weight:500">22,000–38,000</td></tr>
+          <tr style="background:var(--cream);border-bottom:1px solid var(--bd)"><td style="padding:8px 11px;font-weight:600;color:var(--ink)">Delhi/Gurgaon/Noida</td><td style="padding:8px 11px">15,000–25,000</td><td style="padding:8px 11px;color:var(--green);font-weight:500">22,000–40,000</td></tr>
+          <tr style="background:#fff;border-bottom:1px solid var(--bd)"><td style="padding:8px 11px;font-weight:600;color:var(--ink)">Mumbai</td><td style="padding:8px 11px">14,000–22,000</td><td style="padding:8px 11px;color:var(--green);font-weight:500">20,000–34,000</td></tr>
+          <tr style="background:var(--cream);border-bottom:1px solid var(--bd)"><td style="padding:8px 11px;font-weight:600;color:var(--ink)">Hyderabad</td><td style="padding:8px 11px">13,000–21,000</td><td style="padding:8px 11px;color:var(--green);font-weight:500">19,000–33,000</td></tr>
+          <tr style="background:#fff;border-bottom:1px solid var(--bd)"><td style="padding:8px 11px;font-weight:600;color:var(--ink)">Pune</td><td style="padding:8px 11px">13,000–20,000</td><td style="padding:8px 11px;color:var(--green);font-weight:500">18,000–30,000</td></tr>
+          <tr style="background:var(--cream);border-bottom:1px solid var(--bd)"><td style="padding:8px 11px;font-weight:600;color:var(--ink)">Chennai</td><td style="padding:8px 11px">12,000–20,000</td><td style="padding:8px 11px;color:var(--green);font-weight:500">18,000–30,000</td></tr>
+          <tr style="background:#fff;border-bottom:1px solid var(--bd)"><td style="padding:8px 11px;font-weight:600;color:var(--ink)">Kolkata</td><td style="padding:8px 11px">10,000–17,000</td><td style="padding:8px 11px;color:var(--green);font-weight:500">15,000–25,000</td></tr>
+          <tr style="background:var(--cream);border-bottom:1px solid var(--bd)"><td style="padding:8px 11px;font-weight:600;color:var(--ink)">Ahmedabad</td><td style="padding:8px 11px">11,000–17,000</td><td style="padding:8px 11px;color:var(--green);font-weight:500">15,000–25,000</td></tr>
+          <tr style="background:#fff;border-bottom:1px solid var(--bd)"><td style="padding:8px 11px;font-weight:600;color:var(--ink)">Jaipur/Lucknow/Indore</td><td style="padding:8px 11px">9,000–15,000</td><td style="padding:8px 11px;color:var(--green);font-weight:500">13,000–22,000</td></tr>
+          <tr style="background:var(--cream)"><td style="padding:8px 11px;font-weight:600;color:var(--ink)">Tier-3 Cities</td><td style="padding:8px 11px">8,000–13,000</td><td style="padding:8px 11px;color:var(--green);font-weight:500">11,000–18,000</td></tr>
+        </tbody>
+      </table></div>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:0 0 10px">Language Premium</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
+        <div style="background:var(--cream);border-radius:9px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px"><strong>Hindi Only</strong> — baseline, largest market, lowest premium</div>
+        <div style="background:var(--cream);border-radius:9px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px"><strong>English (International Accent)</strong> — <span style="color:var(--green);font-weight:600">+30% to +80%</span></div>
+        <div style="background:var(--cream);border-radius:9px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px"><strong>Regional (Tamil/Telugu/Kannada/Malayalam)</strong> — <span style="color:var(--vg);font-weight:600">+10% to +25%</span> outside native zone</div>
+        <div style="background:var(--cream);border-radius:9px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px"><strong>Multi-lingual (3+ languages)</strong> — <span style="color:var(--gold);font-weight:600">+20% to +40%</span></div>
+        <div style="background:var(--cream);border-radius:9px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px;grid-column:1/-1"><strong>Foreign Languages (Arabic/French/Spanish)</strong> — <span style="color:var(--red);font-weight:600">₹35,000–₹60,000 entry-level (offshore niche)</span></div>
+      </div>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:0 0 10px">Career Progression</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;padding:9px 12px;background:#fff;border:1px solid var(--bd);border-radius:9px;font-size:13px"><span style="font-weight:600">Senior Telecaller (1–2 yrs)</span><span style="font-family:'DM Mono',monospace;color:var(--vg)">₹18k–₹28k</span></div>
+        <div style="display:flex;justify-content:space-between;padding:9px 12px;background:#fff;border:1px solid var(--bd);border-radius:9px;font-size:13px"><span style="font-weight:600">Team Lead (3–5 yrs)</span><span style="font-family:'DM Mono',monospace;color:var(--vg)">₹30k–₹50k + overrides</span></div>
+        <div style="display:flex;justify-content:space-between;padding:9px 12px;background:#fff;border:1px solid var(--bd);border-radius:9px;font-size:13px"><span style="font-weight:600">Asst. Manager / Ops</span><span style="font-family:'DM Mono',monospace;color:var(--vg)">₹45k–₹75k</span></div>
+        <div style="display:flex;justify-content:space-between;padding:9px 12px;background:#fff;border:1px solid var(--bd);border-radius:9px;font-size:13px"><span style="font-weight:600">Manager – Operations</span><span style="font-family:'DM Mono',monospace;color:var(--gold)">₹70k–₹1,20,000</span></div>
+        <div style="display:flex;justify-content:space-between;padding:9px 12px;background:#fff;border:1px solid var(--bd);border-radius:9px;font-size:13px"><span style="font-weight:600">AVP / Centre Head</span><span style="font-family:'DM Mono',monospace;color:var(--gold)">₹1.5L–₹3.5L</span></div>
+      </div>
+      <div style="background:var(--gp);border-radius:10px;padding:13px 15px;border:1px solid rgba(200,134,10,.15)">
+        <div style="font-weight:700;font-size:13px;color:var(--gold);margin-bottom:7px">Negotiation Tips</div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:13px">
+          <div>✓ Quote ranges, not fixed numbers — gives recruiters flexibility</div>
+          <div>✓ Anchor to last verified in-hand salary + 20–30% uplift</div>
+          <div>✓ Negotiate incentive caps over fixed pay — top performers gain more</div>
+          <div>✓ Keep night-shift allowance (₹2k–4k) separate from base</div>
+          <div>✓ Get all components in writing before resigning</div>
+          <div>✓ Ask: "What % of team hit 100% target last month?" — below 30% = unrealistic</div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:16px 32px 24px;border-top:1px solid var(--bd)">
+      <button class="btn bg" style="width:100%" onclick="closeModal('modal-salary')">Close Guide</button>
+    </div>
+  </div>
+</div>
+
+<!-- EMPLOYER GUIDE PAGE -->
+<div id="page-employer-guide" class="page">
+  <div style="max-width:860px;margin:0 auto;padding:48px 24px 80px">
+    <button class="btn bgh bsm" style="margin-bottom:28px" onclick="navTo('landing')">← Back to PitchFirst</button>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px">
+      <div style="width:52px;height:52px;background:var(--voice);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">🏢</div>
+      <div><div style="font-family:'Fraunces',serif;font-size:34px;font-weight:900;letter-spacing:-1px;color:var(--ink)">Employer Guide</div><div style="font-size:14px;color:var(--slate);margin-top:3px">Everything you need to hire telecallers faster on PitchFirst</div></div>
+    </div>
+    <div style="height:3px;background:linear-gradient(to right,var(--vg),var(--gl));border-radius:2px;margin:24px 0 36px"></div>
+    <p style="font-size:14px;color:var(--slate);line-height:1.85;margin-bottom:28px">PitchFirst shows you a voice pitch, AI communication scores, a verified typing test, and smart infrastructure badges — before you make a single call. Average time-to-hire: 4.2 days. Offer acceptance rate: 89%.</p>
+    <div style="display:flex;flex-direction:column;gap:20px">
+
+      <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:26px 28px;border-left:4px solid var(--vg)">
+        <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:8px">Step 1 — Create Your Employer Account</div>
+        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">Click "Get Started Free" and select "I'm Hiring". Fill in company name, industry, work email, and billing details. The Employer Pro Plan is ₹2,499/month with unlimited role postings and full candidate access.</p>
+        <div style="background:var(--cream);border-radius:9px;padding:11px 13px;border:1px solid var(--bd);font-size:13px"><strong>Tip:</strong> Use your official HR email (e.g. hr@yourcompany.com). Verified employer badges increase application rates by 35%.</div>
+      </div>
+
+      <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:26px 28px;border-left:4px solid var(--vg)">
+        <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:8px">Step 2 — Complete Your Company Profile</div>
+        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">Go to Company Profile in your sidebar. Add description, team size, office locations, a "Why Join Us" section, and your logo. Candidates who see complete profiles with reviews apply 2.4× more than to blank ones.</p>
+        <div style="background:var(--gp);border-radius:9px;padding:11px 13px;border:1px solid rgba(200,134,10,.15);font-size:13px"><strong style="color:var(--gold)">What candidates check first:</strong> Company rating, team size, currently-hiring roles, and time-to-hire. Keep these updated.</div>
+      </div>
+
+      <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:26px 28px;border-left:4px solid var(--vg)">
+        <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:8px">Step 3 — Post Your First Role</div>
+        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">Click "+ Post New Role". Fill in job title, industry, city, experience level, salary range, and a clear job description including daily call volumes, product type, and incentive structure. Specify minimum typing speed (30/40/50 WPM) and voice pitch requirement.</p>
+        <div style="background:var(--vs);border-radius:9px;padding:11px 13px;border:1px solid rgba(124,58,237,.15);font-size:13px"><strong style="color:var(--vg)">Voice Pitch = Required:</strong> Roles requiring a voice pitch receive 3× more qualified applicants than those that don't.</div>
+      </div>
+
+      <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:26px 28px;border-left:4px solid var(--vg)">
+        <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:8px">Step 4 — Browse and Filter Candidates</div>
+        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">All applicants are sorted by AI match score. Use the filter bar to narrow by voice pitch, readiness badge, typing speed, or AI verification. The sidebar quick-filters let you jump directly to Remote Ready, Field Ready, Gig Ready, or In-Office Ready candidates.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:var(--cream);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px"><strong>🌐 Remote Ready</strong> — fiber, laptop, webcam, 50 Mbps+, UPS</div>
+          <div style="background:var(--cream);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px"><strong>🏍 Field Ready</strong> — own vehicle, licence, travel willingness</div>
+          <div style="background:var(--cream);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px"><strong>⚡ Gig Ready</strong> — UPI enabled, bank verified</div>
+          <div style="background:var(--cream);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px"><strong>🏢 In-Office Ready</strong> — within commute distance</div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:26px 28px;border-left:4px solid var(--vg)">
+        <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:8px">Step 5 — Play Voice Pitches and Review AI Scores</div>
+        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">Open any candidate card and hit "▶ Play Pitch". AI scores show Clarity, Confidence, Relevance, and Energy — each out of 100. Shortlist directly from this view. Candidates with all four scores above 80 have an 89% offer acceptance rate on PitchFirst.</p>
+        <div style="background:var(--cream);border-radius:9px;padding:11px 13px;border:1px solid var(--bd);font-size:13px"><strong>Shortlisting tip:</strong> AI Score ≥ 75 + Typing ≥ 40 WPM + Voice Pitch present consistently surfaces the top 15% of your pool.</div>
+      </div>
+
+      <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:26px 28px;border-left:4px solid var(--vg)">
+        <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:8px">Step 6 — Review The Marquee</div>
+        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">The Marquee is the first thing to check after the voice pitch — up to 5 pinned proof items: award videos, certifications, performance screenshots, appreciation letters, or portfolio pieces. Visible directly in the candidate's full profile. Candidates with 3+ Marquee items receive offers 2.1× more often.</p>
+      </div>
+
+      <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:26px 28px;border-left:4px solid var(--vg)">
+        <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:8px">Step 7 — Unlock Contact and References</div>
+        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">Click "🔓 Unlock Contact" to reveal the candidate's mobile number and any consented reference phone numbers. Call within 48 hours — a longer delay increases drop-off by 40%.</p>
+      </div>
+
+      <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:26px 28px;border-left:4px solid var(--vg)">
+        <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:8px">Step 8 — Submit Post-Interview Feedback</div>
+        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">After every interview, go to "Leave Feedback" in your sidebar. Rate the candidate (1–5 stars), describe communication skills, note the outcome, and indicate referral willingness. Feedback is visible to the candidate on their dashboard and builds platform-wide quality and accountability.</p>
+        <div style="background:var(--cream);border-radius:9px;padding:11px 13px;border:1px solid var(--bd);font-size:13px"><strong>Note:</strong> Candidates with 3+ negative reviews (rating ≤ 2) receive a suspension warning. After 5 negative reviews the account is suspended. Submit only accurate, factual feedback.</div>
+      </div>
+
+    </div>
+    <div style="margin-top:36px;text-align:center">
+      <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;margin-bottom:8px">Ready to start hiring?</div>
+      <button class="btn bp" style="font-size:14px;padding:13px 28px" onclick="navTo('landing');setTimeout(()=>{openModal('modal-auth');pickRole('employer')},100)">Create Employer Account →</button>
+    </div>
+  </div>
+</div>
+
+<!-- FRESHER GUIDE PAGE -->
+<div id="page-fresher-guide" class="page">
+  <div style="max-width:860px;margin:0 auto;padding:48px 24px 80px">
+    <button class="btn bgh bsm" style="margin-bottom:28px" onclick="navTo('landing')">← Back to PitchFirst</button>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px">
+      <div style="width:52px;height:52px;background:linear-gradient(135deg,var(--gold),var(--gl));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">🎤</div>
+      <div><div style="font-family:'Fraunces',serif;font-size:34px;font-weight:900;letter-spacing:-1px;color:var(--ink)">Fresher Guide</div><div style="font-size:14px;color:var(--slate);margin-top:3px">Your complete guide to landing your first telecalling job on PitchFirst</div></div>
+    </div>
+    <div style="height:3px;background:linear-gradient(to right,var(--gold),var(--gl));border-radius:2px;margin:24px 0 36px"></div>
+    <div style="background:linear-gradient(135deg,#0f6e56,#10b981);border-radius:var(--r16);padding:22px 26px;margin-bottom:28px">
+      <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;color:#fff;margin-bottom:7px">Welcome, Fresher!</div>
+      <p style="font-size:13.5px;color:rgba(255,255,255,.8);line-height:1.8">No experience? No problem. A confident 90-second voice pitch can get you shortlisted over candidates with 2 years of experience. Your Fresher Free account is completely free — no credit card needed.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+
+      <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:24px 26px;border-left:4px solid var(--gold)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:30px;height:30px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--gold)">1</div><div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700">Create Your Free Account</div></div>
+        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">Click "Get Started Free" → "I'm Looking for a Job". Enter your name, mobile, and email. No payment required. Full Pro features free until 30 June 2026.</p>
+      </div>
+
+      <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:24px 26px;border-left:4px solid var(--gold)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:30px;height:30px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--gold)">2</div><div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700">Build Your Profile — All 10 Sections</div></div>
+        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">Click "Edit Full Profile". Complete all 10 sections. As a fresher put 0 years experience — there is no penalty. Be honest throughout. For Skills add anything relevant: "active listening", "MS Excel basic", "Hindi fluency" all count.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:var(--cream);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px"><strong>Availability (S.8):</strong> Set to "Actively Looking" + "Immediate" for highest search priority.</div>
+          <div style="background:var(--cream);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px"><strong>Infrastructure (S.9):</strong> Fill internet type, laptop, commute — earns you Remote Ready and In-Office Ready badges.</div>
+          <div style="background:var(--cream);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px"><strong>References (S.10):</strong> Add a professor, internship supervisor, or trusted contact. Boosts profile credibility by 40%.</div>
+          <div style="background:var(--cream);border-radius:8px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px"><strong>The Marquee:</strong> Upload any achievement — a certificate, award, or commendation. Even one item makes a difference.</div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:24px 26px;border-left:4px solid var(--gold)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:30px;height:30px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--gold)">3</div><div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700">Take Your Typing Test</div></div>
+        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">Dashboard → Typing Test. 3 attempts, average shown on your profile. Type as accurately as possible — accuracy (90%+) matters more than speed. Most fresher roles require 30–40 WPM. Practice on typingclub.com before your first attempt if you're nervous.</p>
+        <div style="background:var(--cream);border-radius:9px;padding:10px 13px;border:1px solid var(--bd);font-size:13px"><strong>Target:</strong> 35–40 WPM + 90%+ accuracy qualifies you for most freshers-welcome roles. 45+ opens every role.</div>
+      </div>
+
+      <div style="background:var(--voice);border-radius:var(--r16);padding:24px 26px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:#fff">4</div><div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:#fff">Record Your Voice Pitch — Your Superpower</div></div>
+        <p style="font-size:13.5px;color:rgba(237,233,254,.7);line-height:1.8;margin-bottom:14px">A confident 60–90 second pitch has gotten freshers hired over candidates with 2 years of experience. Here's your script:</p>
+        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:15px;border:1px solid rgba(255,255,255,.1);font-size:13px;color:rgba(237,233,254,.8);line-height:1.9;font-style:italic;margin-bottom:12px">
+          "Hello, my name is [Name] from [City]. I'm a recent [degree] graduate from [College]. I'm looking for my first role in [BPO/telesales/customer support].<br><br>
+          During my studies I [mention any internship, project, or activity]. This helped me develop [skill — communication, problem-solving, patience].<br><br>
+          I speak [languages] fluently, type at [X] words per minute, and can join immediately. I'm a quick learner and genuinely excited to build my career in this field. Thank you."
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px;border:1px solid rgba(255,255,255,.1);font-size:12.5px;color:rgba(237,233,254,.7)">✓ Stand while recording — improves energy and vocal tone</div>
+          <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px;border:1px solid rgba(255,255,255,.1);font-size:12.5px;color:rgba(237,233,254,.7)">✓ Smile — employers can hear it in your voice</div>
+          <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px;border:1px solid rgba(255,255,255,.1);font-size:12.5px;color:rgba(237,233,254,.7)">✓ Speak at 80% normal pace — clarity beats speed</div>
+          <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px;border:1px solid rgba(255,255,255,.1);font-size:12.5px;color:rgba(237,233,254,.7)">✓ Quiet room — background noise lowers Clarity score</div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:24px 26px;border-left:4px solid var(--gold)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:30px;height:30px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--gold)">5</div><div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700">Apply to the Right Roles</div></div>
+        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">Filter jobs for "Freshers welcome". Apply to 5–8 roles — resume and voice pitch are automatically attached. Use the AI Cover Letter generator to personalise each application in seconds.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:var(--cream);border-radius:9px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px"><strong>E-Commerce Support</strong> — Flipkart, Meesho, Zomato BPO. Inbound, structured, paid training.</div>
+          <div style="background:var(--cream);border-radius:9px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px"><strong>Academic Counsellor</strong> — EdTech. High demand, strong incentives.</div>
+          <div style="background:var(--cream);border-radius:9px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px"><strong>Insurance Advisor</strong> — LIC, HDFC Life. Commission-heavy, high earning potential.</div>
+          <div style="background:var(--cream);border-radius:9px;padding:10px 12px;border:1px solid var(--bd);font-size:12.5px"><strong>Inbound Banking Support</strong> — Structured, good training, clear career path.</div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:24px 26px;border-left:4px solid var(--gold)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:30px;height:30px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--gold)">6</div><div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700">Track Applications and Respond Quickly</div></div>
+        <p style="font-size:13.5px;color:var(--slate);line-height:1.8">Check "My Applications" daily. When status changes to "Viewed" or "Shortlisted" an employer may call within 24–48 hours. Keep your mobile charged and nearby. Answer professionally: "Hello, this is [Name]. Good morning." If you miss a call, call back within 2 hours.</p>
+      </div>
+
+      <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:24px 26px;border-left:4px solid var(--gold)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:30px;height:30px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--gold)">7</div><div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700">Use Aria — Your AI Career Mentor</div></div>
+        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">Aria is available 24/7 in your dashboard. She can explain any JD in plain language, help you choose between companies, coach you for interviews, and give realistic salary expectations. Ask her anything.</p>
+        <div style="background:var(--cream);border-radius:9px;padding:10px 13px;border:1px solid var(--bd);font-size:13px"><strong>Good questions:</strong> "Is this company right for a fresher?", "How do I answer tell me about yourself?", "What salary at HDFC Life with no experience?", "Difference between inbound and outbound calling?"</div>
+      </div>
+
+    </div>
+    <div style="margin-top:36px;text-align:center">
+      <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;margin-bottom:8px">Your first job is waiting.</div>
+      <button class="btn bg" style="font-size:14px;padding:13px 28px" onclick="navTo('landing');setTimeout(()=>{openModal('modal-auth');pickRole('candidate')},100)">Build My Profile Free →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT / HELP CENTRE PAGE -->
+<div id="page-contact" class="page">
+  <div style="max-width:820px;margin:0 auto;padding:48px 24px 80px">
+    <button class="btn bgh bsm" style="margin-bottom:28px" onclick="navTo('landing')">← Back to PitchFirst</button>
+    <div style="font-family:'Fraunces',serif;font-size:34px;font-weight:900;letter-spacing:-1px;color:var(--ink);margin-bottom:6px">Help Centre</div>
+    <div style="font-size:14px;color:var(--slate);margin-bottom:6px">Get help with your PitchFirst account, billing, or technical issues</div>
+    <div style="height:3px;background:linear-gradient(to right,var(--vg),var(--gl));border-radius:2px;margin-bottom:36px"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:36px">
+      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:20px;text-align:center"><div style="font-size:28px;margin-bottom:8px">📧</div><div style="font-weight:700;font-size:14px;margin-bottom:4px">Email Support</div><div style="font-size:12.5px;color:var(--slate)">Response within 24 hours</div><a href="mailto:support@pitchfirst.in" style="display:block;margin-top:10px;font-size:12px;font-weight:600;color:var(--vg)">support@pitchfirst.in</a></div>
+      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:20px;text-align:center"><div style="font-size:28px;margin-bottom:8px">📞</div><div style="font-weight:700;font-size:14px;margin-bottom:4px">Phone Support</div><div style="font-size:12.5px;color:var(--slate)">Mon–Sat · 9 AM–7 PM IST</div><a href="tel:+918000000000" style="display:block;margin-top:10px;font-size:12px;font-weight:600;color:var(--vg)">+91 80000 00000</a></div>
+      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:20px;text-align:center"><div style="font-size:28px;margin-bottom:8px">📍</div><div style="font-weight:700;font-size:14px;margin-bottom:4px">Office</div><div style="font-size:12.5px;color:var(--slate)">Mumbai, Maharashtra</div><div style="margin-top:10px;font-size:12px;font-weight:600;color:var(--vg)">By appointment only</div></div>
+    </div>
+    <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:16px">Send Us a Message</div>
+    <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:28px;margin-bottom:32px">
+      <div class="fgrid" style="margin-bottom:14px">
+        <div class="field"><label><span class="star">★</span> Your Name</label><input class="fi" placeholder="Full name" id="contact-name"></div>
+        <div class="field"><label><span class="star">★</span> Email</label><input class="fi" type="email" placeholder="your@email.com" id="contact-email"></div>
+        <div class="field"><label><span class="star">★</span> I am a</label>
+          <div class="chips" id="contact-type-chips">
+            <div class="chip on" onclick="sc(this,'contact-type-chips')">Candidate</div>
+            <div class="chip" onclick="sc(this,'contact-type-chips')">Employer</div>
+            <div class="chip" onclick="sc(this,'contact-type-chips')">Other</div>
+          </div>
+        </div>
+        <div class="field"><label><span class="star">★</span> Topic</label>
+          <select class="fi" id="contact-topic">
+            <option>Account &amp; Login</option><option>Billing &amp; Subscription</option><option>Voice Pitch Upload</option><option>Typing Test</option><option>Job Application</option><option>Candidate Profile</option><option>Technical Issue</option><option>Report Abuse or Fraud</option><option>Data / Privacy Request</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field fcol"><label><span class="star">★</span> Your Message</label><textarea class="fi" rows="5" id="contact-msg" placeholder="Describe your issue or question. Include error messages, device, and steps to reproduce if applicable."></textarea></div>
+      </div>
+      <button class="btn bp" style="width:100%" onclick="submitContactForm()">Send Message →</button>
+    </div>
+    <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:16px">Frequently Asked Questions</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden"><button style="width:100%;padding:15px 20px;text-align:left;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;font-family:'DM Sans',sans-serif" onclick="toggleFaq(this)">How do I record my voice pitch? <span>+</span></button><div style="display:none;padding:0 20px 15px;font-size:13.5px;color:var(--slate);line-height:1.7">Dashboard → Voice Pitch → click the microphone button. Maximum 90 seconds. AI scores your pitch for Clarity, Confidence, Relevance, and Energy. Re-record anytime — only your latest pitch is shown to employers.</div></div>
+      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden"><button style="width:100%;padding:15px 20px;text-align:left;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;font-family:'DM Sans',sans-serif" onclick="toggleFaq(this)">Why is my typing test score not showing? <span>+</span></button><div style="display:none;padding:0 20px 15px;font-size:13.5px;color:var(--slate);line-height:1.7">You need to complete all 3 attempts. Partial attempts are saved but not displayed until all 3 are done. If you see a technical error, clear your browser cache and retry or email support@pitchfirst.in.</div></div>
+      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden"><button style="width:100%;padding:15px 20px;text-align:left;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;font-family:'DM Sans',sans-serif" onclick="toggleFaq(this)">Can I cancel my subscription anytime? <span>+</span></button><div style="display:none;padding:0 20px 15px;font-size:13.5px;color:var(--slate);line-height:1.7">Yes. Settings → Plan → Cancel. Cancellation takes effect at the end of your billing cycle. You retain full access until then. No contracts, no penalties.</div></div>
+      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden"><button style="width:100%;padding:15px 20px;text-align:left;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;font-family:'DM Sans',sans-serif" onclick="toggleFaq(this)">When can employers see my phone number? <span>+</span></button><div style="display:none;padding:0 20px 15px;font-size:13.5px;color:var(--slate);line-height:1.7">Your number is never shown on your public profile. It is only revealed after an employer actively clicks "Unlock Contact" — a deliberate paid action. You are notified when this happens.</div></div>
+      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden"><button style="width:100%;padding:15px 20px;text-align:left;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;font-family:'DM Sans',sans-serif" onclick="toggleFaq(this)">How do I dispute a false employer review? <span>+</span></button><div style="display:none;padding:0 20px 15px;font-size:13.5px;color:var(--slate);line-height:1.7">Email support@pitchfirst.in with subject "Review Dispute", your registered email, and details of the review. Our team reviews disputes within 5 business days. Verified false reviews are removed and the employer's account may be suspended.</div></div>
+      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden"><button style="width:100%;padding:15px 20px;text-align:left;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;font-family:'DM Sans',sans-serif" onclick="toggleFaq(this)">How do I delete my PitchFirst account? <span>+</span></button><div style="display:none;padding:0 20px 15px;font-size:13.5px;color:var(--slate);line-height:1.7">Settings → Account → Danger Zone → Delete Account. Permanently deletes your profile and data within 30 days. Cancel any active subscription first to avoid further charges. This action cannot be undone.</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function submitContactForm() {
+  const n = document.getElementById('contact-name');
+  const e = document.getElementById('contact-email');
+  const m = document.getElementById('contact-msg');
+  if (!n.value.trim() || !e.value.trim() || !m.value.trim()) { toast('Please fill all required fields', 'tw2'); return; }
+  toast("Message sent! We'll respond within 24 hours ✓", 'ts');
+  n.value = ''; e.value = ''; m.value = '';
+}
+function toggleFaq(btn) {
+  const c = btn.nextElementSibling;
+  const open = c.style.display !== 'none';
+  c.style.display = open ? 'none' : 'block';
+  btn.querySelector('span').textContent = open ? '+' : '−';
+}
+</script>
+
 </body>
 </html>
