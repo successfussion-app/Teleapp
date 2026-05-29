@@ -820,7 +820,6 @@ img{max-width:100%}
   <div class="logo" onclick="navTo('landing')">
     <div class="logo-tile"><div class="logo-wf"><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
     <span class="logo-name"><span class="p">Pitch</span><span class="f">First</span></span>
-    <span class="logo-beta">BETA</span>
   </div>
   <div class="nav-right">
     <div id="nav-guest">
@@ -1223,18 +1222,18 @@ img{max-width:100%}
       </div>
       <div>
         <div class="ft-col-title">Contact Us</div>
-        <div class="ft-contact">📧 <a href="mailto:hello@pitchfirst.in" style="color:rgba(250,246,240,.55)">hello@pitchfirst.in</a></div>
-        <div class="ft-contact">📞 <a href="tel:+918000000000" style="color:rgba(250,246,240,.55)">+91 80000 00000</a></div>
+        <div class="ft-contact">📧 <a href="mailto:support@pitchfirst.app" style="color:rgba(250,246,240,.55)">support@pitchfirst.app</a></div>
+        <div class="ft-contact">📞 <a href="tel:+919326398507" style="color:rgba(250,246,240,.55)">+91 93263 98507</a></div>
         <div class="ft-contact">📍 Mumbai, Maharashtra, India</div>
         <div class="ft-contact" style="margin-top:8px">🕐 Mon–Sat · 9 AM – 7 PM IST</div>
         <div style="margin-top:14px">
           <div class="ft-col-title">Support</div>
-          <div class="ft-contact">📧 <a href="mailto:support@pitchfirst.in" style="color:rgba(250,246,240,.55)">support@pitchfirst.in</a></div>
+          <div class="ft-contact">📧 <a href="mailto:support@pitchfirst.app" style="color:rgba(250,246,240,.55)">support@pitchfirst.app</a></div>
         </div>
       </div>
     </div>
     <div class="footer-bottom">
-      <div class="fb-copy">© 2026 PitchFirst Technologies Pvt. Ltd. All rights reserved. CIN: U72900MH2026PTC000000</div>
+      <div class="fb-copy">© 2026 PitchFirst. All rights reserved.</div>
       <div class="fb-legal">
         <span onclick="openModal('modal-privacy')">Privacy Policy</span>
         <span onclick="openModal('modal-tos')">Terms of Service</span>
@@ -1271,6 +1270,7 @@ img{max-width:100%}
       <button class="esbi" onclick="filterBadge('In-Office Ready')"><span class="esbi-ico">🏢</span> In-Office Ready</button>
       <div class="esbl">Company</div>
       <button class="esbi" onclick="showEP('company',this)"><span class="esbi-ico">🏢</span> Company Profile</button>
+      <button class="esbi" onclick="showEP('walkin',this)"><span class="esbi-ico">📍</span> Walk-In Interviews</button>
       <button class="esbi" onclick="showEP('analytics',this)"><span class="esbi-ico">📈</span> Analytics</button>
       <button class="esbi" onclick="showEP('billing',this)"><span class="esbi-ico">💳</span> Billing</button>
       <button class="esbi" onclick="signOut()"><span class="esbi-ico">←</span> Sign Out</button>
@@ -1519,6 +1519,55 @@ img{max-width:100%}
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- WALK-IN INTERVIEWS -->
+      <div class="ep" id="ep-walkin">
+        <div class="eph">
+          <div><div class="eph-title">Walk-In Interviews</div><div class="eph-sub">Post walk-in drives — candidates see these directly in Browse Jobs</div></div>
+          <button class="btn bp bsm" onclick="openWalkinForm()">+ Schedule Walk-In</button>
+        </div>
+
+        <!-- Scheduled walk-ins list -->
+        <div id="walkin-list" style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px"></div>
+
+        <!-- Schedule form -->
+        <div id="walkin-form" style="display:none;background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:24px 26px">
+          <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:4px">Schedule a Walk-In Interview</div>
+          <div style="font-size:12.5px;color:var(--slate);margin-bottom:18px">This will appear as a highlighted card in the candidate Browse Jobs section</div>
+          <div class="fgrid" style="margin-bottom:14px">
+            <div class="field fcol"><label><span class="star">★</span> Walk-In Title</label><input class="fi" id="wi-title" placeholder="e.g. Walk-In Drive — Telesales Executives · May 2026"></div>
+            <div class="field"><label><span class="star">★</span> Role(s) Hiring For</label><input class="fi" id="wi-role" placeholder="e.g. Telesales Executive, Phone Banking Officer"></div>
+            <div class="field"><label><span class="star">★</span> Walk-In Date</label><input class="fi" type="date" id="wi-date"></div>
+            <div class="field"><label><span class="star">★</span> Walk-In Time</label><div style="display:flex;gap:8px;align-items:center"><input class="fi" type="time" id="wi-time-start" style="flex:1"><span style="color:var(--slate);font-size:13px">to</span><input class="fi" type="time" id="wi-time-end" style="flex:1"></div></div>
+            <div class="field fcol"><label><span class="star">★</span> Venue / Address</label><input class="fi" id="wi-venue" placeholder="e.g. FinTech Leads Pvt. Ltd., 4th Floor, Nariman Point, Mumbai – 400021"></div>
+            <div class="field"><label>Nearest Landmark / Metro</label><input class="fi" id="wi-landmark" placeholder="e.g. Churchgate Station, Exit 2"></div>
+            <div class="field"><label>Google Maps Link <span style="font-size:11px;color:var(--slate);font-weight:400">(optional)</span></label><input class="fi" id="wi-maps" placeholder="https://maps.google.com/..."></div>
+            <div class="field"><label><span class="star">★</span> Vacancies</label><input class="fi" type="number" id="wi-vacancies" placeholder="e.g. 15" min="1"></div>
+            <div class="field"><label>Experience Required</label>
+              <div class="chips" id="wi-exp-chips">
+                <div class="chip on" onclick="sc(this,'wi-exp-chips')">Freshers welcome</div>
+                <div class="chip" onclick="sc(this,'wi-exp-chips')">1–2 years</div>
+                <div class="chip" onclick="sc(this,'wi-exp-chips')">2–4 years</div>
+                <div class="chip" onclick="sc(this,'wi-exp-chips')">Any experience</div>
+              </div>
+            </div>
+            <div class="field fcol"><label>What to Bring</label><input class="fi" id="wi-bring" placeholder="e.g. Updated resume (2 copies), Aadhar card, passport photo"></div>
+            <div class="field fcol"><label>Additional Notes <span style="font-size:11px;color:var(--slate);font-weight:400">(optional)</span></label><textarea class="fi" id="wi-notes" rows="2" placeholder="e.g. Spot offers for shortlisted candidates. Smart casuals preferred."></textarea></div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn bp" style="flex:1" onclick="submitWalkin()">Publish Walk-In →</button>
+            <button class="btn bgh" onclick="closeWalkinForm()">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div id="walkin-empty" style="background:#fff;border-radius:var(--r12);border:2px dashed var(--bd);padding:40px 24px;text-align:center">
+          <div style="font-size:36px;margin-bottom:10px">📍</div>
+          <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:6px">No walk-in drives scheduled</div>
+          <p style="font-size:13px;color:var(--slate);margin-bottom:16px;max-width:380px;margin-left:auto;margin-right:auto">Schedule a walk-in interview drive and it will appear as a highlighted opportunity in every matching candidate's Browse Jobs section.</p>
+          <button class="btn bp bsm" onclick="openWalkinForm()">+ Schedule Your First Walk-In</button>
         </div>
       </div>
 
@@ -2113,7 +2162,7 @@ img{max-width:100%}
           </div>
         </div>
         <div style="background:var(--cream);border-radius:10px;padding:12px 16px;border:1px solid var(--bd);margin-top:12px;font-size:12.5px;color:var(--slate)">
-          ℹ️ These reviews are submitted by verified employers after completed interviews. You cannot reply to reviews. If you believe a review is false or malicious, contact <a href="mailto:support@pitchfirst.in" style="color:var(--vg);font-weight:600">support@pitchfirst.in</a>.
+          ℹ️ These reviews are submitted by verified employers after completed interviews. You cannot reply to reviews. If you believe a review is false or malicious, contact <a href="mailto:support@pitchfirst.app" style="color:var(--vg);font-weight:600">support@pitchfirst.app</a>.
         </div>
       </div>
 
@@ -2668,20 +2717,166 @@ function renderPlanSection() {
     </div>`;
 }
 
+// ══════════════════════════════════════════
+//  WALK-IN INTERVIEW SYSTEM
+// ══════════════════════════════════════════
+let walkinDrives = [];
+
+function openWalkinForm() {
+  document.getElementById('walkin-form').style.display = '';
+  document.getElementById('walkin-empty').style.display = 'none';
+}
+
+function closeWalkinForm() {
+  document.getElementById('walkin-form').style.display = 'none';
+  if (walkinDrives.length === 0) document.getElementById('walkin-empty').style.display = '';
+}
+
+function submitWalkin() {
+  const title = document.getElementById('wi-title').value.trim();
+  const role = document.getElementById('wi-role').value.trim();
+  const date = document.getElementById('wi-date').value;
+  const timeStart = document.getElementById('wi-time-start').value;
+  const timeEnd = document.getElementById('wi-time-end').value;
+  const venue = document.getElementById('wi-venue').value.trim();
+  const vacancies = document.getElementById('wi-vacancies').value;
+
+  if (!title || !role || !date || !timeStart || !venue || !vacancies) {
+    toast('Please fill all required fields', 'tw2'); return;
+  }
+
+  const expEl = document.querySelector('#wi-exp-chips .chip.on');
+  const exp = expEl ? expEl.textContent.trim() : 'Any experience';
+  const landmark = document.getElementById('wi-landmark').value.trim();
+  const maps = document.getElementById('wi-maps').value.trim();
+  const bring = document.getElementById('wi-bring').value.trim();
+  const notes = document.getElementById('wi-notes').value.trim();
+
+  const dateObj = new Date(date);
+  const dateStr = dateObj.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const timeStr = formatTime(timeStart) + (timeEnd ? ' – ' + formatTime(timeEnd) : '');
+
+  const drive = { id: Date.now(), title, role, date, dateStr, timeStr, venue, landmark, maps, vacancies: parseInt(vacancies), exp, bring, notes };
+  walkinDrives.push(drive);
+  renderWalkinList();
+  closeWalkinForm();
+  clearWalkinForm();
+  toast(`Walk-in drive published! Candidates can now see it in Browse Jobs ✓`, 'ts');
+  setTimeout(() => toast('Matching candidates have been notified', 'ti'), 2000);
+}
+
+function formatTime(t) {
+  if (!t) return '';
+  const [h, m] = t.split(':');
+  const hr = parseInt(h);
+  return `${hr > 12 ? hr - 12 : hr || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
+}
+
+function clearWalkinForm() {
+  ['wi-title','wi-role','wi-date','wi-time-start','wi-time-end','wi-venue','wi-landmark','wi-maps','wi-vacancies','wi-bring','wi-notes'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+}
+
+function cancelWalkin(id) {
+  if (!confirm('Cancel this walk-in drive? Candidates will no longer see it.')) return;
+  walkinDrives = walkinDrives.filter(w => w.id !== id);
+  renderWalkinList();
+  toast('Walk-in drive cancelled', 'ti');
+}
+
+function renderWalkinList() {
+  const list = document.getElementById('walkin-list');
+  if (!list) return;
+  const empty = document.getElementById('walkin-empty');
+  if (walkinDrives.length === 0) {
+    list.innerHTML = '';
+    if (empty) empty.style.display = '';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  list.innerHTML = walkinDrives.map(w => `
+    <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:18px 20px;border-left:4px solid var(--vg)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px">
+        <div>
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:var(--ink)">${w.title}</div>
+          <div style="font-size:12.5px;color:var(--vg);font-weight:600;margin-top:3px">${w.role}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <span style="background:var(--gs);color:#0f6e56;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px">● Live</span>
+          <button class="btn br bsm" onclick="cancelWalkin(${w.id})">Cancel</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
+        <div style="display:flex;gap:6px;align-items:flex-start"><span style="flex-shrink:0">📅</span><span><strong>${w.dateStr}</strong></span></div>
+        <div style="display:flex;gap:6px;align-items:flex-start"><span style="flex-shrink:0">🕐</span><span>${w.timeStr}</span></div>
+        <div style="display:flex;gap:6px;align-items:flex-start;grid-column:1/-1"><span style="flex-shrink:0">📍</span><span>${w.venue}${w.landmark ? ' · Near ' + w.landmark : ''}</span></div>
+        <div style="display:flex;gap:6px"><span>👥</span><span>${w.vacancies} vacancies · ${w.exp}</span></div>
+        ${w.bring ? `<div style="display:flex;gap:6px"><span>📋</span><span>${w.bring}</span></div>` : ''}
+      </div>
+      ${w.notes ? `<div style="margin-top:10px;padding:8px 11px;background:var(--cream);border-radius:8px;font-size:12.5px;color:var(--slate);border:1px solid var(--bd)">${w.notes}</div>` : ''}
+    </div>`).join('');
+  // Also refresh candidate jobs list if it's visible
+  if (document.getElementById('cdp-jobs') && document.getElementById('cdp-jobs').classList.contains('active')) {
+    renderCDJobs();
+  }
+}
+
 function renderCDJobs(filter = 'all', search = '') {
+  // Prepend walk-in drives as highlighted cards
+  const walkinHTML = walkinDrives.length > 0 ? `
+    <div style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--vg)">📍 Walk-In Interviews Near You</span>
+        <div style="flex:1;height:1px;background:var(--bd)"></div>
+      </div>
+      ${walkinDrives.map(w => `
+        <div style="background:linear-gradient(135deg,#1a0a2e,#2d1060);border-radius:var(--r12);padding:16px 18px;margin-bottom:10px;border:1px solid rgba(124,58,237,.3);cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='rgba(200,134,10,.5)'" onmouseout="this.style.borderColor='rgba(124,58,237,.3)'" onclick="openWalkinApply(${w.id})">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">
+                <span style="background:linear-gradient(135deg,var(--gold),var(--gl));color:#fff;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;letter-spacing:.8px;text-transform:uppercase">WALK-IN</span>
+                <span style="background:var(--gs);color:#0f6e56;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px">● Live Now</span>
+              </div>
+              <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:3px">${w.title}</div>
+              <div style="font-size:12px;color:rgba(237,233,254,.6);margin-bottom:8px">${w.role} · FinTech Leads · Mumbai</div>
+              <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:rgba(237,233,254,.55)">
+                <span>📅 ${w.dateStr}</span>
+                <span>🕐 ${w.timeStr}</span>
+                <span>👥 ${w.vacancies} vacancies</span>
+              </div>
+              <div style="font-size:12px;color:rgba(237,233,254,.45);margin-top:5px">📍 ${w.venue}</div>
+              ${w.bring ? `<div style="font-size:11.5px;color:rgba(200,134,10,.8);margin-top:5px;display:flex;gap:5px"><span>📋</span><span>Bring: ${w.bring}</span></div>` : ''}
+            </div>
+            <button class="btn bsm" style="background:linear-gradient(135deg,var(--gold),var(--gl));color:#fff;border:none;font-weight:700;flex-shrink:0;align-self:flex-start" onclick="event.stopPropagation();openWalkinApply(${w.id})">Register →</button>
+          </div>
+        </div>`).join('')}
+    </div>` : '';
+
   let list = CD_JOBS.filter(j => {
     const mf = filter === 'all' || j.ind === filter || j.type === filter;
     const ms = !search || j.title.toLowerCase().includes(search) || j.co.toLowerCase().includes(search);
     return mf && ms;
   });
-  document.getElementById('cd-jobs-sub').textContent = `${list.length} roles match your profile today`;
-  document.getElementById('cd-jobs-list').innerHTML = list.map(j => `
+  const total = list.length + walkinDrives.length;
+  document.getElementById('cd-jobs-sub').textContent = `${total} opportunit${total !== 1 ? 'ies' : 'y'} match your profile today${walkinDrives.length ? ' · ' + walkinDrives.length + ' walk-in drive' + (walkinDrives.length > 1 ? 's' : '') : ''}`;
+  document.getElementById('cd-jobs-list').innerHTML = walkinHTML + list.map(j => `
     <div class="cdjc" onclick="openApply('${j.title}','${j.co} · ${j.city} · ${j.sal}')">
       <div class="cdjc-logo">${j.emoji}</div>
       <div style="flex:1"><div style="font-weight:700;font-size:13.5px">${j.title}</div><div style="font-size:12px;color:var(--slate);margin-top:1px">${j.co} · ${j.city} · ${j.sal}</div><div class="tr" style="margin-top:5px"><span class="tag t-res" style="font-size:10px">${j.ind}</span><span class="tag t-res" style="font-size:10px">${j.type}</span></div></div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px"><div style="font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--green)">${j.match}% match</div><button class="btn bg bsm" onclick="event.stopPropagation();openApply('${j.title}','${j.co} · ${j.city} · ${j.sal}')">Apply →</button></div>
     </div>`).join('');
 }
+
+function openWalkinApply(id) {
+  const w = walkinDrives.find(x => x.id === id);
+  if (!w) return;
+  document.getElementById('apply-title').textContent = `Walk-In: ${w.role}`;
+  document.getElementById('apply-meta').textContent = `FinTech Leads · ${w.venue} · ${w.dateStr} · ${w.timeStr}`;
+  openModal('modal-apply');
+}
+
+
 
 function renderCDRecJobs() {
   const top3 = CD_JOBS.slice(0, 3);
@@ -3514,11 +3709,11 @@ function checkSuspensionWarning() {
 <div class="mb" id="modal-privacy">
   <div class="modal" style="max-width:680px;padding:0">
     <div style="position:sticky;top:0;background:#fff;padding:24px 32px 16px;border-bottom:1px solid var(--bd);border-radius:20px 20px 0 0;z-index:2;display:flex;justify-content:space-between;align-items:center">
-      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Privacy Policy</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Effective: 1 June 2026 · PitchFirst Technologies Pvt. Ltd.</div></div>
+      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Privacy Policy</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Effective: 1 June 2026 · PitchFirst</div></div>
       <button class="mx" style="position:static" onclick="closeModal('modal-privacy')">✕</button>
     </div>
     <div style="padding:24px 32px;max-height:65vh;overflow-y:auto;font-size:13.5px;line-height:1.8;color:var(--slate)">
-      <p style="margin-bottom:14px">PitchFirst Technologies Pvt. Ltd. operates pitchfirst.in. This Privacy Policy explains how we collect, use, store, and protect your personal data under the Digital Personal Data Protection Act, 2023 and applicable Indian law.</p>
+      <p style="margin-bottom:14px">PitchFirst operates pitchfirst.in. This Privacy Policy explains how we collect, use, store, and protect your personal data under the Digital Personal Data Protection Act, 2023 and applicable Indian law.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">1. Data We Collect</div>
       <p style="margin-bottom:10px"><strong>Candidates:</strong> Full name, mobile, email, city, DOB (optional), qualifications, work history, resume PDF, voice pitch recordings, typing test results, infrastructure details (internet, devices, vehicle, UPI/bank info for badge verification only), professional references, and profile photo.</p>
       <p style="margin-bottom:10px"><strong>Employers:</strong> Company name, industry, address, work email, phone, GSTIN (optional), billing details (processed via PCI-DSS compliant gateway — card numbers are never stored by us).</p>
@@ -3532,13 +3727,13 @@ function checkSuspensionWarning() {
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">5. Data Retention</div>
       <p style="margin-bottom:10px">Personal data is retained for the duration of your account. On deletion, data is purged within 30 days except where Indian law requires retention (e.g., GST records 7 years, transaction logs 5 years). Voice pitches are deleted within 7 days of account closure.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">6. Your Rights Under the DPDP Act, 2023</div>
-      <p style="margin-bottom:10px">You have the right to: access your data; correct inaccuracies; request erasure; withdraw consent; nominate another individual to exercise rights in case of death/incapacity; and file a complaint with the Data Protection Board of India. To exercise rights email <a href="mailto:privacy@pitchfirst.in" style="color:var(--vg)">privacy@pitchfirst.in</a>. We respond within 30 days.</p>
+      <p style="margin-bottom:10px">You have the right to: access your data; correct inaccuracies; request erasure; withdraw consent; nominate another individual to exercise rights in case of death/incapacity; and file a complaint with the Data Protection Board of India. To exercise rights email <a href="mailto:support@pitchfirst.app" style="color:var(--vg)">support@pitchfirst.app</a>. We respond within 30 days.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">7. Security</div>
       <p style="margin-bottom:10px">We use TLS 1.3 encryption in transit, AES-256 at rest, role-based access controls, and regular security audits. In case of a personal data breach, we notify affected users and the Data Protection Board as required under Section 8(6) of the DPDP Act.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">8. Children</div>
       <p style="margin-bottom:10px">PitchFirst is not for users under 18. We delete any minor's account promptly on discovery.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">9. Contact</div>
-      <p>Data Protection Officer: <a href="mailto:privacy@pitchfirst.in" style="color:var(--vg)">privacy@pitchfirst.in</a> · PitchFirst Technologies Pvt. Ltd., Mumbai, Maharashtra.</p>
+      <p>Data Protection Officer: <a href="mailto:support@pitchfirst.app" style="color:var(--vg)">support@pitchfirst.app</a> · PitchFirst, Mumbai, Maharashtra, India.</p>
     </div>
     <div style="padding:16px 32px 24px;border-top:1px solid var(--bd);display:flex;gap:10px">
       <button class="btn bg" style="flex:1" onclick="closeModal('modal-privacy');toast('Privacy Policy accepted','ts')">I Accept &amp; Close</button>
@@ -3550,7 +3745,7 @@ function checkSuspensionWarning() {
 <div class="mb" id="modal-tos">
   <div class="modal" style="max-width:680px;padding:0">
     <div style="position:sticky;top:0;background:#fff;padding:24px 32px 16px;border-bottom:1px solid var(--bd);border-radius:20px 20px 0 0;z-index:2;display:flex;justify-content:space-between;align-items:center">
-      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Terms of Service</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Effective: 1 June 2026 · PitchFirst Technologies Pvt. Ltd.</div></div>
+      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Terms of Service</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Effective: 1 June 2026 · PitchFirst</div></div>
       <button class="mx" style="position:static" onclick="closeModal('modal-tos')">✕</button>
     </div>
     <div style="padding:24px 32px;max-height:65vh;overflow-y:auto;font-size:13.5px;line-height:1.8;color:var(--slate)">
@@ -3568,7 +3763,7 @@ function checkSuspensionWarning() {
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">6. Prohibited Conduct</div>
       <p style="margin-bottom:10px">Users must not scrape data, reverse-engineer the platform, post misleading listings, bypass subscriptions by contacting candidates off-platform, harass or discriminate against users, or upload malware.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">7. Intellectual Property</div>
-      <p style="margin-bottom:10px">All platform content and code is owned by PitchFirst Technologies Pvt. Ltd. User-generated content remains the user's property but you grant PitchFirst a non-exclusive licence to display it for platform operations.</p>
+      <p style="margin-bottom:10px">All platform content and code is owned by PitchFirst User-generated content remains the user's property but you grant PitchFirst a non-exclusive licence to display it for platform operations.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">8. Limitation of Liability</div>
       <p style="margin-bottom:10px">PitchFirst is provided "as is". Liability is limited to subscription fees paid in the preceding 3 months.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">9. Governing Law</div>
@@ -3614,8 +3809,9 @@ function checkSuspensionWarning() {
     <div style="padding:24px 32px;max-height:65vh;overflow-y:auto;font-size:13.5px;line-height:1.8;color:var(--slate)">
       <div style="background:var(--gp);border-radius:10px;padding:13px;border:1px solid rgba(200,134,10,.15);margin-bottom:16px"><strong style="color:var(--gold)">Launch Period (Until 30 June 2026):</strong> Both candidate and employer accounts are free. No payment taken, no refund applicable. From 1 July 2026: Candidates ₹199/month · Employers ₹2,999/month.</div>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:0 0 6px">Candidate Pro Plan (₹199/month)</div>
-      <p style="margin-bottom:10px"><strong>7-day refund window:</strong> Full refund within 7 days of first payment. Email <a href="mailto:support@pitchfirst.in" style="color:var(--vg)">support@pitchfirst.in</a> with subject "Refund Request — Candidate Pro". Processed within 5–7 business days.</p>
-      <p style="margin-bottom:10px"><strong>After 7 days:</strong> Non-refundable. You retain Pro access until end of billing cycle.</p>
+      <div style="background:var(--rs);border-radius:9px;padding:11px 13px;border:1px solid rgba(239,68,68,.15);margin-bottom:10px;font-size:13px"><strong style="color:var(--red)">Strict No-Refund Policy for Candidates</strong><br>Candidate subscription fees are <strong>non-refundable</strong> under all circumstances except one: a verified double payment (i.e. you were charged twice for the same billing cycle due to a technical error). No other reason — including dissatisfaction, accidental subscription, or non-use of the platform — will be accepted as grounds for a candidate refund.</div>
+      <p style="margin-bottom:10px"><strong>Double payment refund:</strong> If you have been charged twice in the same billing period, email <a href="mailto:support@pitchfirst.app" style="color:var(--vg)">support@pitchfirst.app</a> with subject "Double Payment — Candidate" and include your registered email and both transaction IDs. We will verify and refund the duplicate charge within 5–7 business days.</p>
+      <p style="margin-bottom:10px"><strong>All other requests:</strong> Refund requests citing any reason other than a verified double payment will not be processed. By subscribing, you acknowledge and accept this policy.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Employer Pro Plan (₹2,499/month)</div>
       <p style="margin-bottom:10px"><strong>No refund after platform use:</strong> If you have accessed candidate profiles, played pitches, or unlocked contacts, that cycle is non-refundable.</p>
       <p style="margin-bottom:10px"><strong>Technical failure credit:</strong> If platform is unavailable 48+ cumulative hours in a month due to our fault, you receive a proportional credit on the next cycle.</p>
@@ -3623,7 +3819,7 @@ function checkSuspensionWarning() {
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Account Suspension</div>
       <p style="margin-bottom:10px">Accounts suspended for policy violations are not eligible for refunds.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">How to Request</div>
-      <p>Email <a href="mailto:support@pitchfirst.in" style="color:var(--vg)">support@pitchfirst.in</a> with your registered email, transaction ID, and reason. We respond within 2 business days.</p>
+      <p>Email <a href="mailto:support@pitchfirst.app" style="color:var(--vg)">support@pitchfirst.app</a> with your registered email, transaction ID, and reason. We respond within 2 business days.</p>
     </div>
     <div style="padding:16px 32px 24px;border-top:1px solid var(--bd);display:flex;gap:10px">
       <button class="btn bg" style="flex:1" onclick="closeModal('modal-refund');toast('Refund policy noted','ts')">I Understand &amp; Close</button>
@@ -3635,22 +3831,22 @@ function checkSuspensionWarning() {
 <div class="mb" id="modal-dpdp">
   <div class="modal" style="max-width:680px;padding:0">
     <div style="position:sticky;top:0;background:#fff;padding:24px 32px 16px;border-bottom:1px solid var(--bd);border-radius:20px 20px 0 0;z-index:2;display:flex;justify-content:space-between;align-items:center">
-      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">DPDP Act Compliance</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Digital Personal Data Protection Act, 2023 · PitchFirst Technologies Pvt. Ltd.</div></div>
+      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">DPDP Act Compliance</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Digital Personal Data Protection Act, 2023 · PitchFirst</div></div>
       <button class="mx" style="position:static" onclick="closeModal('modal-dpdp')">✕</button>
     </div>
     <div style="padding:24px 32px;max-height:65vh;overflow-y:auto;font-size:13.5px;line-height:1.8;color:var(--slate)">
       <div style="background:var(--vs);border-radius:10px;padding:13px;border:1px solid rgba(124,58,237,.15);margin-bottom:16px"><strong style="color:var(--vg)">PitchFirst's DPDP Commitment:</strong> PitchFirst is designed from the ground up to comply with the Digital Personal Data Protection Act, 2023 (No. 22 of 2023). As a Data Fiduciary we process your personal data lawfully, transparently, and only for specified purposes.</div>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:0 0 6px">Our Role Under the DPDP Act</div>
-      <p style="margin-bottom:10px">PitchFirst Technologies Pvt. Ltd. is a <strong>Data Fiduciary</strong> under Section 2(i). Employers accessing candidate data through PitchFirst act as Data Fiduciaries in their own right for their direct hiring processes.</p>
+      <p style="margin-bottom:10px">PitchFirst is a <strong>Data Fiduciary</strong> under Section 2(i). Employers accessing candidate data through PitchFirst act as Data Fiduciaries in their own right for their direct hiring processes.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Consent Framework (Section 6)</div>
       <p style="margin-bottom:10px">All data collection is consent-based. At registration you receive a clear notice explaining what data is collected, the purpose of processing, and how to exercise your rights. Consent is free, specific, informed, unconditional and unambiguous. Withdraw consent anytime from Settings → Account.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Notice Requirements (Section 5)</div>
       <p style="margin-bottom:10px">Before collecting data we provide a detailed plain-language notice. Voice pitch recording requires a separate explicit consent checkbox given its biometric-adjacent nature.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Your Rights as a Data Principal</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
-        <div style="background:var(--cream);border-radius:9px;padding:11px;border:1px solid var(--bd)"><strong>Right to Access (S.11):</strong> Request a summary of all data we hold via <a href="mailto:privacy@pitchfirst.in" style="color:var(--vg)">privacy@pitchfirst.in</a>.</div>
+        <div style="background:var(--cream);border-radius:9px;padding:11px;border:1px solid var(--bd)"><strong>Right to Access (S.11):</strong> Request a summary of all data we hold via <a href="mailto:support@pitchfirst.app" style="color:var(--vg)">support@pitchfirst.app</a>.</div>
         <div style="background:var(--cream);border-radius:9px;padding:11px;border:1px solid var(--bd)"><strong>Right to Correction &amp; Erasure (S.12):</strong> Edit profile data in your dashboard. For full deletion, email us.</div>
-        <div style="background:var(--cream);border-radius:9px;padding:11px;border:1px solid var(--bd)"><strong>Right to Grievance Redressal (S.13):</strong> We resolve grievances within 30 days. Contact DPO at <a href="mailto:privacy@pitchfirst.in" style="color:var(--vg)">privacy@pitchfirst.in</a>.</div>
+        <div style="background:var(--cream);border-radius:9px;padding:11px;border:1px solid var(--bd)"><strong>Right to Grievance Redressal (S.13):</strong> We resolve grievances within 30 days. Contact DPO at <a href="mailto:support@pitchfirst.app" style="color:var(--vg)">support@pitchfirst.app</a>.</div>
         <div style="background:var(--cream);border-radius:9px;padding:11px;border:1px solid var(--bd)"><strong>Right to Withdraw Consent (S.6(4)):</strong> Withdraw anytime from Settings. Historical lawful processing is unaffected.</div>
         <div style="background:var(--cream);border-radius:9px;padding:11px;border:1px solid var(--bd)"><strong>Right to Nominate (S.14):</strong> Nominate a person to exercise your rights in case of death or incapacity. Contact us to register a nominee.</div>
       </div>
@@ -3659,7 +3855,7 @@ function checkSuspensionWarning() {
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Data Retention (Section 8(7))</div>
       <p style="margin-bottom:10px">Data retained only as long as necessary for its specified purpose or as required by law. Voice pitch data deleted within 7 days of account closure.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Escalation to the Data Protection Board</div>
-      <p>If your grievance is unresolved within 30 days, you may file a complaint with the Data Protection Board of India once constituted under Section 18 of the DPDP Act, 2023. Always contact our DPO first at <a href="mailto:privacy@pitchfirst.in" style="color:var(--vg)">privacy@pitchfirst.in</a>.</p>
+      <p>If your grievance is unresolved within 30 days, you may file a complaint with the Data Protection Board of India once constituted under Section 18 of the DPDP Act, 2023. Always contact our DPO first at <a href="mailto:support@pitchfirst.app" style="color:var(--vg)">support@pitchfirst.app</a>.</p>
     </div>
     <div style="padding:16px 32px 24px;border-top:1px solid var(--bd);display:flex;gap:10px">
       <button class="btn bg" style="flex:1" onclick="closeModal('modal-dpdp');toast('DPDP compliance noted','ts')">I Understand &amp; Close</button>
@@ -3898,8 +4094,8 @@ function checkSuspensionWarning() {
     <div style="font-size:14px;color:var(--slate);margin-bottom:6px">Get help with your PitchFirst account, billing, or technical issues</div>
     <div style="height:3px;background:linear-gradient(to right,var(--vg),var(--gl));border-radius:2px;margin-bottom:36px"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:36px">
-      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:20px;text-align:center"><div style="font-size:28px;margin-bottom:8px">📧</div><div style="font-weight:700;font-size:14px;margin-bottom:4px">Email Support</div><div style="font-size:12.5px;color:var(--slate)">Response within 24 hours</div><a href="mailto:support@pitchfirst.in" style="display:block;margin-top:10px;font-size:12px;font-weight:600;color:var(--vg)">support@pitchfirst.in</a></div>
-      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:20px;text-align:center"><div style="font-size:28px;margin-bottom:8px">📞</div><div style="font-weight:700;font-size:14px;margin-bottom:4px">Phone Support</div><div style="font-size:12.5px;color:var(--slate)">Mon–Sat · 9 AM–7 PM IST</div><a href="tel:+918000000000" style="display:block;margin-top:10px;font-size:12px;font-weight:600;color:var(--vg)">+91 80000 00000</a></div>
+      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:20px;text-align:center"><div style="font-size:28px;margin-bottom:8px">📧</div><div style="font-weight:700;font-size:14px;margin-bottom:4px">Email Support</div><div style="font-size:12.5px;color:var(--slate)">Response within 24 hours</div><a href="mailto:support@pitchfirst.app" style="display:block;margin-top:10px;font-size:12px;font-weight:600;color:var(--vg)">support@pitchfirst.app</a></div>
+      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:20px;text-align:center"><div style="font-size:28px;margin-bottom:8px">📞</div><div style="font-weight:700;font-size:14px;margin-bottom:4px">Phone Support</div><div style="font-size:12.5px;color:var(--slate)">Mon–Sat · 9 AM–7 PM IST</div><a href="tel:+919326398507" style="display:block;margin-top:10px;font-size:12px;font-weight:600;color:var(--vg)">+91 93263 98507</a></div>
       <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:20px;text-align:center"><div style="font-size:28px;margin-bottom:8px">📍</div><div style="font-weight:700;font-size:14px;margin-bottom:4px">Office</div><div style="font-size:12.5px;color:var(--slate)">Mumbai, Maharashtra</div><div style="margin-top:10px;font-size:12px;font-weight:600;color:var(--vg)">By appointment only</div></div>
     </div>
     <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:16px">Send Us a Message</div>
@@ -3926,10 +4122,10 @@ function checkSuspensionWarning() {
     <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:16px">Frequently Asked Questions</div>
     <div style="display:flex;flex-direction:column;gap:8px">
       <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden"><button style="width:100%;padding:15px 20px;text-align:left;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;font-family:'DM Sans',sans-serif" onclick="toggleFaq(this)">How do I record my voice pitch? <span>+</span></button><div style="display:none;padding:0 20px 15px;font-size:13.5px;color:var(--slate);line-height:1.7">Dashboard → Voice Pitch → click the microphone button. Maximum 90 seconds. AI scores your pitch for Clarity, Confidence, Relevance, and Energy. Re-record anytime — only your latest pitch is shown to employers.</div></div>
-      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden"><button style="width:100%;padding:15px 20px;text-align:left;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;font-family:'DM Sans',sans-serif" onclick="toggleFaq(this)">Why is my typing test score not showing? <span>+</span></button><div style="display:none;padding:0 20px 15px;font-size:13.5px;color:var(--slate);line-height:1.7">You need to complete all 3 attempts. Partial attempts are saved but not displayed until all 3 are done. If you see a technical error, clear your browser cache and retry or email support@pitchfirst.in.</div></div>
+      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden"><button style="width:100%;padding:15px 20px;text-align:left;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;font-family:'DM Sans',sans-serif" onclick="toggleFaq(this)">Why is my typing test score not showing? <span>+</span></button><div style="display:none;padding:0 20px 15px;font-size:13.5px;color:var(--slate);line-height:1.7">You need to complete all 3 attempts. Partial attempts are saved but not displayed until all 3 are done. If you see a technical error, clear your browser cache and retry or email support@pitchfirst.app.</div></div>
       <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden"><button style="width:100%;padding:15px 20px;text-align:left;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;font-family:'DM Sans',sans-serif" onclick="toggleFaq(this)">Can I cancel my subscription anytime? <span>+</span></button><div style="display:none;padding:0 20px 15px;font-size:13.5px;color:var(--slate);line-height:1.7">Yes. Settings → Plan → Cancel. Cancellation takes effect at the end of your billing cycle. You retain full access until then. No contracts, no penalties.</div></div>
       <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden"><button style="width:100%;padding:15px 20px;text-align:left;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;font-family:'DM Sans',sans-serif" onclick="toggleFaq(this)">When can employers see my phone number? <span>+</span></button><div style="display:none;padding:0 20px 15px;font-size:13.5px;color:var(--slate);line-height:1.7">Your number is never shown on your public profile. It is only revealed after an employer actively clicks "Unlock Contact" — a deliberate paid action. You are notified when this happens.</div></div>
-      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden"><button style="width:100%;padding:15px 20px;text-align:left;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;font-family:'DM Sans',sans-serif" onclick="toggleFaq(this)">How do I dispute a false employer review? <span>+</span></button><div style="display:none;padding:0 20px 15px;font-size:13.5px;color:var(--slate);line-height:1.7">Email support@pitchfirst.in with subject "Review Dispute", your registered email, and details of the review. Our team reviews disputes within 5 business days. Verified false reviews are removed and the employer's account may be suspended.</div></div>
+      <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden"><button style="width:100%;padding:15px 20px;text-align:left;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;font-family:'DM Sans',sans-serif" onclick="toggleFaq(this)">How do I dispute a false employer review? <span>+</span></button><div style="display:none;padding:0 20px 15px;font-size:13.5px;color:var(--slate);line-height:1.7">Email support@pitchfirst.app with subject "Review Dispute", your registered email, and details of the review. Our team reviews disputes within 5 business days. Verified false reviews are removed and the employer's account may be suspended.</div></div>
       <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden"><button style="width:100%;padding:15px 20px;text-align:left;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;font-family:'DM Sans',sans-serif" onclick="toggleFaq(this)">How do I delete my PitchFirst account? <span>+</span></button><div style="display:none;padding:0 20px 15px;font-size:13.5px;color:var(--slate);line-height:1.7">Settings → Account → Danger Zone → Delete Account. Permanently deletes your profile and data within 30 days. Cancel any active subscription first to avoid further charges. This action cannot be undone.</div></div>
     </div>
   </div>
