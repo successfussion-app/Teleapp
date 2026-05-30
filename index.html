@@ -13,6 +13,7 @@
 <link rel="canonical" href="https://pitchfirst.in">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"PitchFirst","url":"https://pitchfirst.in","description":"India's voice-first hiring platform for telecallers and BPO professionals","potentialAction":{"@type":"SearchAction","target":"https://pitchfirst.in/jobs?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -690,11 +691,12 @@ img{max-width:100%}
         <button id="si-cand-btn" onclick="siRole('candidate')" style="padding:11px;border-radius:9px;border:1.5px solid var(--bd);background:#fff;cursor:pointer;font-weight:600;font-size:13px;transition:all .2s">🎤 Candidate</button>
       </div>
       <div class="field" style="margin-bottom:12px"><label>Email / Mobile</label><input class="fi" placeholder="Email or +91 mobile" id="si-email" onkeydown="if(event.key==='Enter')doSignin()"></div>
-      <div class="field" style="margin-bottom:8px"><label>Password</label><input class="fi" type="password" placeholder="Your password" id="si-pass" onkeydown="if(event.key==='Enter')doSignin()"></div>
-      <div style="text-align:right;margin-bottom:18px">
+      <div class="field" style="margin-bottom:8px"><label>Password</label><input class="fi" type="password" placeholder="Your password" id="si-password" onkeydown="if(event.key==='Enter')doSignin()"></div>
+      <div style="text-align:right;margin-bottom:12px">
         <span style="font-size:12px;color:var(--vg);font-weight:600;cursor:pointer" onclick="showForgotPassword()">Forgot Password?</span>
       </div>
-      <button class="btn bg" style="width:100%" onclick="doSignin()">Sign In →</button>
+      <div id="si-error" style="display:none;background:var(--rs);border-radius:8px;padding:9px 13px;font-size:13px;color:var(--red);margin-bottom:12px"></div>
+      <button class="btn bg" id="si-btn" style="width:100%" onclick="doSignin()">Sign In →</button>
       <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--slate)">New here? <span style="color:var(--vg);font-weight:600;cursor:pointer" onclick="backToS1()">Create account →</span></div>
     </div>
   </div>
@@ -943,7 +945,7 @@ img{max-width:100%}
       <div class="about-left">
         <div class="lp-sec-tag">About PitchFirst</div>
         <h2 class="lp-sec-h" id="about-heading">The hiring platform <em>built for India's</em> voice economy</h2>
-        <p class="lp-sec-p" style="margin-bottom:20px">India has over 5 million active telecallers & sales professionals across banking, insurance, EdTech, healthcare, e-commerce, BPO and many other industries - and 40% of them change jobs every year. Yet the platforms they use to find work were never built for them.</p>
+        <p class="lp-sec-p" style="margin-bottom:20px">India has over 5 million active telecallers across banking, insurance, EdTech, healthcare, e-commerce, and BPO - and 40% of them change jobs every year. Yet the platforms they use to find work were never built for them.</p>
         <p class="lp-sec-p" style="margin-bottom:20px">PitchFirst changes that. Instead of judging candidates by a PDF résumé, we let employers <strong>hear them speak</strong> - before making any hiring decision. A 90-second voice pitch, a live typing test averaged over 3 attempts, AI-scored across 4 dimensions, and infrastructure readiness badges tell an employer everything a résumé never could.</p>
         <p class="lp-sec-p">For candidates, it's a level playing field. Whether you're a fresher from Nagpur or a 6-year veteran from Andheri - if you can communicate well, PitchFirst gives you the platform to prove it.</p>
         <div style="display:flex;gap:10px;margin-top:28px">
@@ -2383,6 +2385,146 @@ img{max-width:100%}
 <script>
 
 // ══════════════════════════════════════════
+//  SUPABASE CONFIG
+// ══════════════════════════════════════════
+const SUPA_URL  = 'https://ybrbhtcmhhxbtrkrhpyb.supabase.co';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlicmJodGNtaGh4YnRya3JocHliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMTgzNzEsImV4cCI6MjA5NTY5NDM3MX0.HqYdZCGXGF7GlOvZr17Sc-V2JYe7UZQ_UG11Kn7QwL4';
+const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
+
+// ── SESSION: restore login state on page load ─────────────────────────────────
+async function supaRestoreSession() {
+  const { data: { session } } = await supa.auth.getSession();
+  if (!session) return;
+  await supaLoadUserIntoAUTH(session.user);
+}
+
+// ── Load user profile from DB into AUTH state ─────────────────────────────────
+async function supaLoadUserIntoAUTH(user) {
+  const { data: profile } = await supa.from('users').select('*').eq('id', user.id).single();
+  if (!profile) return;
+
+  AUTH = { in: true, role: profile.role, plan: 'pro', name: profile.full_name || profile.email, id: user.id };
+
+  // Load display name from sub-profile
+  if (profile.role === 'employer') {
+    const { data: ep } = await supa.from('employer_profiles').select('company_name').eq('user_id', user.id).single();
+    if (ep) AUTH.name = ep.company_name;
+  } else {
+    const { data: cp } = await supa.from('candidate_profiles').select('*').eq('user_id', user.id).single();
+    if (cp) { AUTH.candidateProfile = cp; }
+  }
+
+  // Load active subscription
+  const { data: sub } = await supa.from('subscriptions').select('*').eq('user_id', user.id).eq('status', 'active').order('created_at', { ascending: false }).limit(1).single();
+  if (sub) {
+    RZP_SUB.id = sub.razorpay_payment_id;
+    RZP_SUB.status = sub.status;
+    RZP_SUB.email = profile.email;
+    RZP_SUB.nextBilling = sub.current_period_end ? new Date(sub.current_period_end).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : rzpNextBillingDate();
+  }
+
+  setLoggedIn();
+  if (AUTH.role === 'employer') { navTo('employer'); setTimeout(() => { renderAll(); rzpUpdateBillingUI(); }, 300); }
+  else { initCandDash(); navTo('cdash'); }
+}
+
+// ── EMPLOYER SIGN UP ──────────────────────────────────────────────────────────
+async function supaEmpSignup(formData, paymentId, planId) {
+  const { company, industry, email, phone, password } = formData;
+
+  // 1. Create auth user
+  const { data: authData, error: authErr } = await supa.auth.signUp({
+    email, password,
+    options: { data: { role: 'employer', full_name: company, phone } }
+  });
+  if (authErr) throw authErr;
+
+  const userId = authData.user.id;
+
+  // 2. Create employer profile
+  const { data: ep, error: epErr } = await supa.from('employer_profiles').insert({
+    user_id: userId, company_name: company, industry
+  }).select().single();
+  if (epErr) throw epErr;
+
+  // 3. Save subscription
+  await supa.from('subscriptions').insert({
+    user_id: userId,
+    razorpay_payment_id: paymentId,
+    plan_id: planId,
+    plan_name: planId === RZP.plans.employer_launch ? 'employer_launch' : 'employer_standard',
+    amount: planId === RZP.plans.employer_launch ? 199900 : 299900,
+    status: 'active',
+    current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+  });
+
+  return { userId, companyName: company };
+}
+
+// ── CANDIDATE SIGN UP ─────────────────────────────────────────────────────────
+async function supaCandSignup(formData, paymentId = null) {
+  const { name, phone, email, password } = formData;
+
+  // 1. Create auth user
+  const { data: authData, error: authErr } = await supa.auth.signUp({
+    email, password,
+    options: { data: { role: 'candidate', full_name: name, phone } }
+  });
+  if (authErr) throw authErr;
+
+  const userId = authData.user.id;
+
+  // 2. Create candidate profile
+  await supa.from('candidate_profiles').insert({ user_id: userId });
+
+  // 3. Save subscription if paid
+  if (paymentId) {
+    await supa.from('subscriptions').insert({
+      user_id: userId,
+      razorpay_payment_id: paymentId,
+      plan_id: RZP.plans.candidate,
+      plan_name: 'candidate',
+      amount: 19900,
+      status: 'active',
+      current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+    });
+  }
+
+  return { userId, name };
+}
+
+// ── SIGN IN ───────────────────────────────────────────────────────────────────
+async function supaSignIn(email, password) {
+  const { data, error } = await supa.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  return data.user;
+}
+
+// ── SIGN OUT ──────────────────────────────────────────────────────────────────
+async function supaSignOut() {
+  await supa.auth.signOut();
+  AUTH = { in: false, role: null, plan: null, name: '' };
+  RZP_SUB = { id: null, status: null, method: null, nextBilling: null, email: null };
+  document.getElementById('nav-guest').style.display = '';
+  document.getElementById('nav-user-bar').classList.remove('show');
+  navTo('landing');
+  toast('Signed out successfully', 'ti');
+}
+
+// ── Save subscription after Razorpay payment (for existing users / renewals) ──
+async function supaSaveSubscription(userId, paymentId, planId, planName, amount) {
+  await supa.from('subscriptions').insert({
+    user_id: userId,
+    razorpay_payment_id: paymentId,
+    plan_id: planId,
+    plan_name: planName,
+    amount,
+    status: 'active',
+    current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+  });
+}
+
+// ══════════════════════════════════════════
 //  RAZORPAY CONFIG
 // ══════════════════════════════════════════
 const RZP = {
@@ -2467,23 +2609,28 @@ function rzpOpenEmployerCheckout() {
     },
     theme: { color: RZP.theme },
     modal: { ondismiss: function() { toast('Payment window closed. No charge was made.', 'ti'); } },
-    handler: function(response) {
-      // Payment captured — store details and complete signup
-      RZP_SUB.id = response.razorpay_payment_id;
-      RZP_SUB.status = 'active';
-      RZP_SUB.method = '—';
-      RZP_SUB.email = d.email;
-      RZP_SUB.nextBilling = rzpNextBillingDate();
-      rzpUpdateBillingUI();
-
-      AUTH = { in: true, role: 'employer', plan: 'pro', name: d.company || 'Success Fusion HR' };
-      closeModal('modal-auth');
-      setLoggedIn();
-      navTo('employer');
-      setTimeout(() => renderAll(), 300);
-      toast('Payment successful! Employer account active ✓', 'ts');
-      // TODO: POST to backend — save user + subscription to Supabase
-      console.log('Razorpay payment:', response);
+    handler: async function(response) {
+      const d = rzpGetEmpFormData();
+      const planId = rzpGetEmployerPlan();
+      try {
+        const { companyName } = await supaEmpSignup(d, response.razorpay_payment_id, planId);
+        RZP_SUB.id = response.razorpay_payment_id;
+        RZP_SUB.status = 'active';
+        RZP_SUB.email = d.email;
+        RZP_SUB.nextBilling = rzpNextBillingDate();
+        rzpUpdateBillingUI();
+        AUTH = { in: true, role: 'employer', plan: 'pro', name: companyName || d.company };
+        closeModal('modal-auth');
+        setLoggedIn();
+        navTo('employer');
+        setTimeout(() => renderAll(), 300);
+        toast('Payment successful! Employer account active ✓', 'ts');
+      } catch(err) {
+        const msg = err.message?.includes('already registered') ? 'This email is already registered. Please log in instead.' : ('Account setup failed: ' + (err.message || 'Please contact support.'));
+        const errEl = document.getElementById('emp-signup-error');
+        if (errEl) { errEl.style.display=''; errEl.textContent=msg; }
+        toast(msg, 'te');
+      }
     },
   };
 
@@ -2512,18 +2659,23 @@ function rzpOpenCandidateCheckout() {
     notes: { role: 'candidate', plan_id: RZP.plans.candidate },
     theme: { color: '#c8860a' },
     modal: { ondismiss: function() { toast('Payment window closed.', 'ti'); } },
-    handler: function(response) {
-      RZP_SUB.id = response.razorpay_payment_id;
-      RZP_SUB.status = 'active';
-      RZP_SUB.email = d.email;
-      RZP_SUB.nextBilling = rzpNextBillingDate();
-
-      AUTH = { in: true, role: 'candidate', plan: 'pro', name: d.name || 'Rubina Solkar' };
-      closeModal('modal-auth');
-      setLoggedIn();
-      initCandDash(); navTo('cdash');
-      toast('Payment successful! Candidate Pro active ✓', 'ts');
-      console.log('Razorpay payment:', response);
+    handler: async function(response) {
+      const d = rzpGetCandFormData();
+      try {
+        const { name } = await supaCandSignup(d, response.razorpay_payment_id);
+        RZP_SUB.id = response.razorpay_payment_id;
+        RZP_SUB.status = 'active';
+        RZP_SUB.email = d.email;
+        RZP_SUB.nextBilling = rzpNextBillingDate();
+        AUTH = { in: true, role: 'candidate', plan: 'pro', name: name };
+        closeModal('modal-auth');
+        setLoggedIn();
+        initCandDash(); navTo('cdash');
+        toast('Payment successful! Candidate Pro active ✓', 'ts');
+      } catch(err) {
+        const msg = err.message?.includes('already registered') ? 'This email is already registered. Please log in.' : ('Sign up failed: ' + (err.message || 'Please try again.'));
+        toast(msg, 'te');
+      }
     },
   };
   const rzp = new Razorpay(options);
@@ -2668,32 +2820,57 @@ function doEmpSignup() {
 
 function doCandSignup() {
   const d = rzpGetCandFormData();
-
   if (!d.name) { toast('Please enter your full name', 'tw2'); return; }
+  if (!d.email || !d.email.includes('@')) { toast('Please enter a valid email address', 'tw2'); return; }
   if (!d.phone || d.phone.replace(/\D/g,'').length < 10) { toast('Please enter a valid mobile number', 'tw2'); return; }
+  if (!d.password || d.password.length < 8) { toast('Password must be at least 8 characters', 'tw2'); return; }
 
   // Free until 30 June 2026 — automatically routes to Razorpay from 1 July onwards
   const isFreeperiod = new Date() < new Date('2026-07-01');
 
   if (isFreeperiod) {
-    AUTH = { in: true, role: 'candidate', plan: 'pro', name: d.name || 'Rubina Solkar' };
-    candPlan = 'pro';
-    closeModal('modal-auth'); setLoggedIn();
-    initCandDash(); navTo('cdash');
-    toast('Welcome, ' + (d.name.split(' ')[0] || 'there') + '! Full access activated — free until 30 June 2026 ✓', 'ts');
-    setTimeout(() => toast('Your Marquee is ready — pin your best proof now!', 'ti'), 2500);
-    checkSuspensionWarning();
+    const btn = document.querySelector('#auth-cand button.btn.bp');
+    if (btn) { btn.disabled = true; btn.textContent = 'Creating account...'; }
+    supaCandSignup(d, null).then(({ name }) => {
+      AUTH = { in: true, role: 'candidate', plan: 'pro', name: name };
+      candPlan = 'pro';
+      closeModal('modal-auth'); setLoggedIn();
+      initCandDash(); navTo('cdash');
+      toast('Welcome, ' + (name.split(' ')[0] || 'there') + '! Full access activated — free until 30 June 2026 ✓', 'ts');
+      setTimeout(() => toast('Your Marquee is ready — pin your best proof now!', 'ti'), 2500);
+      checkSuspensionWarning();
+    }).catch(err => {
+      if (btn) { btn.disabled = false; btn.textContent = 'Create Free Account →'; }
+      const msg = err.message?.includes('already registered') ? 'This email is already registered. Please log in.' : (err.message || 'Sign up failed. Please try again.');
+      toast(msg, 'te');
+    });
   } else {
     rzpOpenCandidateCheckout();
   }
 }
 
-function doSignin() {
-  AUTH = { in: true, role: siSelectedRole, plan: 'pro', name: siSelectedRole === 'employer' ? 'Success Fusion HR' : 'Rubina Solkar' };
-  closeModal('modal-auth'); setLoggedIn();
-  if (siSelectedRole === 'employer') { navTo('employer'); setTimeout(() => { renderAll(); rzpUpdateBillingUI(); }, 300); }
-  else { initCandDash(); navTo('cdash'); checkSuspensionWarning(); }
-  toast('Welcome back! Signed in successfully ✓', 'ts');
+async function doSignin() {
+  const email = document.getElementById('si-email')?.value?.trim() || '';
+  const password = document.getElementById('si-password')?.value?.trim() || '';
+  const btn = document.getElementById('si-btn');
+  const errEl = document.getElementById('si-error');
+
+  if (!email || !password) { if(errEl){errEl.style.display='';errEl.textContent='Please enter your email and password.';} return; }
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Signing in...'; }
+  if (errEl) errEl.style.display = 'none';
+
+  try {
+    const user = await supaSignIn(email, password);
+    closeModal('modal-auth');
+    await supaLoadUserIntoAUTH(user);
+    toast('Welcome back! Signed in successfully ✓', 'ts');
+  } catch(err) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Sign In →'; }
+    const msg = err.message?.includes('Invalid login') ? 'Incorrect email or password.' : (err.message || 'Sign in failed. Please try again.');
+    if (errEl) { errEl.style.display = ''; errEl.textContent = msg; }
+    toast(msg, 'te');
+  }
 }
 
 function setLoggedIn() {
@@ -2704,12 +2881,7 @@ function setLoggedIn() {
   document.getElementById('nav-urole').textContent = AUTH.role === 'employer' ? 'Employer · Active' : 'Candidate · Pro';
 }
 
-function signOut() {
-  AUTH = { in: false, role: null, plan: null, name: '' };
-  document.getElementById('nav-guest').style.display = '';
-  document.getElementById('nav-user-bar').classList.remove('show');
-  navTo('landing'); toast('Signed out successfully', 'ti');
-}
+function signOut() { supaSignOut(); }
 
 // ══════════════════════════════════════════
 //  CHIP HELPERS
@@ -4792,6 +4964,9 @@ function confirmNewPassword() {
   closeModal('modal-forgot-pw');
   toast('Password reset successfully! You can now sign in with your new password ✓', 'ts', 5000);
 }
+
+// ── Restore session on page load (keeps user logged in after refresh) ─────────
+supaRestoreSession();
 </script>
 
 </body>
