@@ -685,8 +685,11 @@ img{max-width:100%}
         <button id="si-emp-btn" onclick="siRole('employer')" style="padding:11px;border-radius:9px;border:1.5px solid var(--bd);background:#fff;cursor:pointer;font-weight:600;font-size:13px;transition:all .2s">🏢 Employer</button>
         <button id="si-cand-btn" onclick="siRole('candidate')" style="padding:11px;border-radius:9px;border:1.5px solid var(--bd);background:#fff;cursor:pointer;font-weight:600;font-size:13px;transition:all .2s">🎤 Candidate</button>
       </div>
-      <div class="field" style="margin-bottom:12px"><label>Email / Mobile</label><input class="fi" placeholder="Email or +91 mobile" id="si-email"></div>
-      <div class="field" style="margin-bottom:20px"><label>Password</label><input class="fi" type="password" placeholder="Your password" id="si-pass"></div>
+      <div class="field" style="margin-bottom:12px"><label>Email / Mobile</label><input class="fi" placeholder="Email or +91 mobile" id="si-email" onkeydown="if(event.key==='Enter')doSignin()"></div>
+      <div class="field" style="margin-bottom:8px"><label>Password</label><input class="fi" type="password" placeholder="Your password" id="si-pass" onkeydown="if(event.key==='Enter')doSignin()"></div>
+      <div style="text-align:right;margin-bottom:18px">
+        <span style="font-size:12px;color:var(--vg);font-weight:600;cursor:pointer" onclick="showForgotPassword()">Forgot Password?</span>
+      </div>
       <button class="btn bg" style="width:100%" onclick="doSignin()">Sign In →</button>
       <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--slate)">New here? <span style="color:var(--vg);font-weight:600;cursor:pointer" onclick="backToS1()">Create account →</span></div>
     </div>
@@ -1610,11 +1613,56 @@ img{max-width:100%}
             <button class="btn br bsm" style="margin-left:auto" onclick="toast('Cancellation requested. Access until 13 June.','w2')">Cancel Plan</button>
           </div>
         </div>
-        <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:22px">
+        <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:22px;margin-bottom:14px">
           <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Payment History</div>
           <div class="brow"><span class="bkey">13 May 2026</span><span style="font-weight:600">₹1,999 · Visa 4242 <span style="color:var(--green);font-size:11px">Paid (Launch Rate)</span></span></div>
           <div class="brow"><span class="bkey">13 Apr 2026</span><span style="font-weight:600">₹1,999 · Visa 4242 <span style="color:var(--green);font-size:11px">Paid (Launch Rate)</span></span></div>
           <div class="brow"><span class="bkey">13 Mar 2026</span><span style="font-weight:600">₹0 · Launch Beta <span style="color:var(--green);font-size:11px">Free Period</span></span></div>
+        </div>
+
+        <!-- CHANGE PASSWORD — EMPLOYER -->
+        <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:22px">
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:4px">Change Password</div>
+          <div style="font-size:12.5px;color:var(--slate);margin-bottom:16px">Update your employer account login password</div>
+          <div id="emp-pw-form">
+            <div class="fgrid" style="margin-bottom:14px">
+              <div class="field fcol">
+                <label>Current Password</label>
+                <div style="position:relative">
+                  <input class="fi" type="password" id="emp-pw-current" placeholder="Your current password" style="padding-right:40px">
+                  <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:14px;color:var(--slate);user-select:none" onclick="togglePwVis('emp-pw-current',this)">👁</span>
+                </div>
+              </div>
+              <div class="field">
+                <label>New Password</label>
+                <div style="position:relative">
+                  <input class="fi" type="password" id="emp-pw-new" placeholder="Min 8 characters" style="padding-right:40px" oninput="checkPwStrength(this.value,'emp-pw-strength')">
+                  <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:14px;color:var(--slate);user-select:none" onclick="togglePwVis('emp-pw-new',this)">👁</span>
+                </div>
+                <div id="emp-pw-strength" style="margin-top:6px;display:none">
+                  <div style="height:4px;border-radius:2px;background:rgba(14,11,7,.08);overflow:hidden">
+                    <div id="emp-pw-strength-bar" style="height:100%;border-radius:2px;transition:all .3s;width:0%"></div>
+                  </div>
+                  <div id="emp-pw-strength-label" style="font-size:11px;margin-top:3px;font-weight:600"></div>
+                </div>
+              </div>
+              <div class="field">
+                <label>Confirm New Password</label>
+                <div style="position:relative">
+                  <input class="fi" type="password" id="emp-pw-confirm" placeholder="Repeat new password" style="padding-right:40px">
+                  <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:14px;color:var(--slate);user-select:none" onclick="togglePwVis('emp-pw-confirm',this)">👁</span>
+                </div>
+              </div>
+            </div>
+            <div id="emp-pw-error" style="display:none;background:var(--rs);border-radius:8px;padding:9px 13px;font-size:13px;color:var(--red);margin-bottom:12px"></div>
+            <button class="btn bg bsm" onclick="changePassword('emp')">Update Password →</button>
+          </div>
+          <div id="emp-pw-success" style="display:none;background:var(--gs);border-radius:9px;padding:12px 15px;border:1px solid rgba(16,185,129,.2)">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:18px">✓</span>
+              <div><div style="font-weight:700;font-size:13.5px;color:#0f6e56">Password updated successfully</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Your new password is active immediately</div></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2177,6 +2225,50 @@ img{max-width:100%}
           <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bd)"><div><div style="font-weight:600;font-size:13.5px">New job matches</div><div style="font-size:12px;color:var(--slate)">Daily digest of matching roles</div></div><div class="tog" onclick="this.classList.toggle('off');toast('Preference saved','ts')"></div></div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0"><div><div style="font-weight:600;font-size:13.5px">Pitch played alerts</div><div style="font-size:12px;color:var(--slate)">Know when an employer plays your pitch</div></div><div class="tog off" onclick="this.classList.toggle('off');toast('Preference saved','ts')"></div></div>
         </div>
+
+        <!-- CHANGE PASSWORD — CANDIDATE -->
+        <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:22px;margin-bottom:14px">
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:4px">Change Password</div>
+          <div style="font-size:12.5px;color:var(--slate);margin-bottom:16px">Update your login password anytime</div>
+          <div id="cd-pw-form">
+            <div class="fgrid" style="margin-bottom:14px">
+              <div class="field fcol">
+                <label>Current Password</label>
+                <div style="position:relative">
+                  <input class="fi" type="password" id="cd-pw-current" placeholder="Your current password" style="padding-right:40px">
+                  <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:14px;color:var(--slate);user-select:none" onclick="togglePwVis('cd-pw-current',this)">👁</span>
+                </div>
+              </div>
+              <div class="field">
+                <label>New Password</label>
+                <div style="position:relative">
+                  <input class="fi" type="password" id="cd-pw-new" placeholder="Min 8 characters" style="padding-right:40px" oninput="checkPwStrength(this.value,'cd-pw-strength')">
+                  <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:14px;color:var(--slate);user-select:none" onclick="togglePwVis('cd-pw-new',this)">👁</span>
+                </div>
+                <div id="cd-pw-strength" style="margin-top:6px;display:none">
+                  <div style="height:4px;border-radius:2px;background:rgba(14,11,7,.08);overflow:hidden">
+                    <div id="cd-pw-strength-bar" style="height:100%;border-radius:2px;transition:all .3s;width:0%"></div>
+                  </div>
+                  <div id="cd-pw-strength-label" style="font-size:11px;margin-top:3px;font-weight:600"></div>
+                </div>
+              </div>
+              <div class="field">
+                <label>Confirm New Password</label>
+                <div style="position:relative">
+                  <input class="fi" type="password" id="cd-pw-confirm" placeholder="Repeat new password" style="padding-right:40px">
+                  <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:14px;color:var(--slate);user-select:none" onclick="togglePwVis('cd-pw-confirm',this)">👁</span>
+                </div>
+              </div>
+            </div>
+            <div id="cd-pw-error" style="display:none;background:var(--rs);border-radius:8px;padding:9px 13px;font-size:13px;color:var(--red);margin-bottom:12px"></div>
+            <button class="btn bg bsm" onclick="changePassword('cd')">Update Password →</button>
+          </div>
+          <div id="cd-pw-success" style="display:none;background:var(--gs);border-radius:9px;padding:12px 15px;border:1px solid rgba(16,185,129,.2);display:flex;align-items:center;gap:10px">
+            <span style="font-size:18px">✓</span>
+            <div><div style="font-weight:700;font-size:13.5px;color:#0f6e56">Password updated successfully</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Your new password is active immediately</div></div>
+          </div>
+        </div>
+
         <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:22px">
           <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Account</div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bd);font-size:13.5px"><span style="font-weight:600">Email</span><div style="display:flex;align-items:center;gap:10px"><span style="color:var(--slate)">aanya.sharma@email.com</span><button class="btn bgh bsm" onclick="toast('Email updated','ts')">Change</button></div></div>
@@ -3807,12 +3899,12 @@ function checkSuspensionWarning() {
       <button class="mx" style="position:static" onclick="closeModal('modal-refund')">✕</button>
     </div>
     <div style="padding:24px 32px;max-height:65vh;overflow-y:auto;font-size:13.5px;line-height:1.8;color:var(--slate)">
-      <div style="background:var(--gp);border-radius:10px;padding:13px;border:1px solid rgba(200,134,10,.15);margin-bottom:16px"><strong style="color:var(--gold)">Launch Period (Until 30 June 2026):</strong> Candidate accounts are free and employer accounts are available at 1,999. No payment taken, no refund applicable. From 1 July 2026: Candidates ₹199/month · Employers ₹2,999/month.</div>
+      <div style="background:var(--gp);border-radius:10px;padding:13px;border:1px solid rgba(200,134,10,.15);margin-bottom:16px"><strong style="color:var(--gold)">Launch Period (Until 30 June 2026):</strong> Both candidate and employer accounts are free. No payment taken, no refund applicable. From 1 July 2026: Candidates ₹199/month · Employers ₹2,999/month.</div>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:0 0 6px">Candidate Pro Plan (₹199/month)</div>
       <div style="background:var(--rs);border-radius:9px;padding:11px 13px;border:1px solid rgba(239,68,68,.15);margin-bottom:10px;font-size:13px"><strong style="color:var(--red)">Strict No-Refund Policy for Candidates</strong><br>Candidate subscription fees are <strong>non-refundable</strong> under all circumstances except one: a verified double payment (i.e. you were charged twice for the same billing cycle due to a technical error). No other reason — including dissatisfaction, accidental subscription, or non-use of the platform — will be accepted as grounds for a candidate refund.</div>
       <p style="margin-bottom:10px"><strong>Double payment refund:</strong> If you have been charged twice in the same billing period, email <a href="mailto:support@pitchfirst.app" style="color:var(--vg)">support@pitchfirst.app</a> with subject "Double Payment — Candidate" and include your registered email and both transaction IDs. We will verify and refund the duplicate charge within 5–7 business days.</p>
       <p style="margin-bottom:10px"><strong>All other requests:</strong> Refund requests citing any reason other than a verified double payment will not be processed. By subscribing, you acknowledge and accept this policy.</p>
-      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Employer Pro Plan (₹2,999/month)</div>
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:16px 0 6px">Employer Pro Plan (₹2,499/month)</div>
       <p style="margin-bottom:10px"><strong>No refund after platform use:</strong> If you have accessed candidate profiles, played pitches, or unlocked contacts, that cycle is non-refundable.</p>
       <p style="margin-bottom:10px"><strong>Technical failure credit:</strong> If platform is unavailable 48+ cumulative hours in a month due to our fault, you receive a proportional credit on the next cycle.</p>
       <p style="margin-bottom:10px"><strong>First-month refund:</strong> Employers who have not accessed any candidate features within 72 hours of subscription may request a full refund.</p>
@@ -4327,6 +4419,222 @@ function getVideoInterviewStrip(candId) {
         <button class="btn bsm" style="background:rgba(190,24,93,.3);color:#f9a8d4;border:1px solid rgba(190,24,93,.3);flex-shrink:0" onclick="toast('▶ Playing video interview...','i');setTimeout(()=>toast('Playback complete','ts'),4500)">▶ Watch</button>
       </div>
     </div>`;
+}
+</script>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div class="mb" id="modal-forgot-pw">
+  <div class="modal" style="max-width:440px">
+    <button class="mx" onclick="closeModal('modal-forgot-pw')">✕</button>
+
+    <!-- Step 1: Enter email -->
+    <div id="fp-step1">
+      <div style="text-align:center;margin-bottom:18px">
+        <div style="font-size:36px;margin-bottom:8px">🔑</div>
+        <div class="mt">Reset Your Password</div>
+        <div class="ms">Enter the email or mobile registered with your PitchFirst account. We'll send you a reset link.</div>
+      </div>
+      <div class="field" style="margin-bottom:16px">
+        <label><span class="star">★</span> Email or Mobile Number</label>
+        <input class="fi" id="fp-email" placeholder="Email or +91 mobile" onkeydown="if(event.key==='Enter')sendResetLink()">
+      </div>
+      <div class="field" style="margin-bottom:18px">
+        <label><span class="star">★</span> I am a</label>
+        <div class="chips" id="fp-role-chips">
+          <div class="chip on" onclick="sc(this,'fp-role-chips')">🎤 Candidate</div>
+          <div class="chip" onclick="sc(this,'fp-role-chips')">🏢 Employer</div>
+        </div>
+      </div>
+      <button class="btn bg" style="width:100%" onclick="sendResetLink()">Send Reset Link →</button>
+      <div style="text-align:center;margin-top:12px"><span style="font-size:12px;color:var(--vg);cursor:pointer;font-weight:600" onclick="closeModal('modal-forgot-pw');openModal('modal-auth');showSignin()">← Back to Sign In</span></div>
+    </div>
+
+    <!-- Step 2: Link sent confirmation -->
+    <div id="fp-step2" style="display:none;text-align:center">
+      <div style="font-size:48px;margin-bottom:14px">📧</div>
+      <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;margin-bottom:8px">Reset Link Sent!</div>
+      <div style="font-size:13.5px;color:var(--slate);line-height:1.7;margin-bottom:20px">We've sent a password reset link to <strong id="fp-sent-to"></strong>. Check your inbox — the link is valid for <strong>30 minutes</strong>.<br><br>Didn't receive it? Check your spam folder or <span style="color:var(--vg);cursor:pointer;font-weight:600" onclick="sendResetLink()">resend the link</span>.</div>
+      <div style="background:var(--gp);border-radius:10px;padding:13px;border:1px solid rgba(200,134,10,.15);font-size:13px;color:var(--slate);text-align:left;margin-bottom:20px">
+        <strong style="color:var(--gold)">Can't access your email?</strong><br>Email us at <a href="mailto:support@pitchfirst.app" style="color:var(--vg)">support@pitchfirst.app</a> from any alternate email with your registered mobile number and we'll verify and reset your password manually within 24 hours.
+      </div>
+      <button class="btn bgh" style="width:100%" onclick="closeModal('modal-forgot-pw')">Close</button>
+    </div>
+
+    <!-- Step 3: Set new password (after clicking link — simulated inline) -->
+    <div id="fp-step3" style="display:none">
+      <div style="text-align:center;margin-bottom:18px">
+        <div style="font-size:36px;margin-bottom:8px">🔐</div>
+        <div class="mt">Set New Password</div>
+        <div class="ms">Choose a strong password for your account</div>
+      </div>
+      <div class="fgrid" style="margin-bottom:14px">
+        <div class="field fcol">
+          <label><span class="star">★</span> New Password</label>
+          <div style="position:relative">
+            <input class="fi" type="password" id="fp-new-pw" placeholder="Min 8 characters" style="padding-right:40px" oninput="checkPwStrength(this.value,'fp-pw-strength')">
+            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:14px;color:var(--slate)" onclick="togglePwVis('fp-new-pw',this)">👁</span>
+          </div>
+          <div id="fp-pw-strength" style="margin-top:6px;display:none">
+            <div style="height:4px;border-radius:2px;background:rgba(14,11,7,.08);overflow:hidden">
+              <div id="fp-pw-strength-bar" style="height:100%;border-radius:2px;transition:all .3s;width:0%"></div>
+            </div>
+            <div id="fp-pw-strength-label" style="font-size:11px;margin-top:3px;font-weight:600"></div>
+          </div>
+        </div>
+        <div class="field fcol">
+          <label><span class="star">★</span> Confirm New Password</label>
+          <div style="position:relative">
+            <input class="fi" type="password" id="fp-confirm-pw" placeholder="Repeat new password" style="padding-right:40px">
+            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:14px;color:var(--slate)" onclick="togglePwVis('fp-confirm-pw',this)">👁</span>
+          </div>
+        </div>
+      </div>
+      <div id="fp-step3-error" style="display:none;background:var(--rs);border-radius:8px;padding:9px 13px;font-size:13px;color:var(--red);margin-bottom:12px"></div>
+      <button class="btn bg" style="width:100%" onclick="confirmNewPassword()">Save New Password →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  PASSWORD UTILITIES
+// ══════════════════════════════════════════
+
+// Simulated password store (in-memory only for demo)
+const pwStore = { employer: 'demo1234', candidate: 'demo1234' };
+
+function togglePwVis(inputId, icon) {
+  const inp = document.getElementById(inputId);
+  if (!inp) return;
+  if (inp.type === 'password') { inp.type = 'text'; icon.textContent = '🙈'; }
+  else { inp.type = 'password'; icon.textContent = '👁'; }
+}
+
+function checkPwStrength(val, containerId) {
+  const container = document.getElementById(containerId);
+  const bar = document.getElementById(containerId + '-bar');
+  const label = document.getElementById(containerId + '-label');
+  if (!container || !bar || !label) return;
+
+  if (!val) { container.style.display = 'none'; return; }
+  container.style.display = '';
+
+  let score = 0;
+  if (val.length >= 8) score++;
+  if (val.length >= 12) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+
+  const levels = [
+    { pct: '20%', color: 'var(--red)',   text: 'Very weak',  textColor: 'var(--red)'   },
+    { pct: '40%', color: '#f97316',      text: 'Weak',       textColor: '#f97316'       },
+    { pct: '60%', color: '#eab308',      text: 'Fair',       textColor: '#ca8a04'       },
+    { pct: '80%', color: 'var(--green)', text: 'Strong',     textColor: 'var(--green)'  },
+    { pct: '100%',color: '#059669',      text: 'Very strong',textColor: '#059669'       },
+  ];
+  const lvl = levels[Math.min(score, 4)];
+  bar.style.width = lvl.pct;
+  bar.style.background = lvl.color;
+  label.textContent = lvl.text;
+  label.style.color = lvl.textColor;
+}
+
+function validateNewPassword(newPwId, confirmPwId, errorId) {
+  const np = document.getElementById(newPwId).value;
+  const cp = document.getElementById(confirmPwId).value;
+  const errEl = document.getElementById(errorId);
+
+  if (np.length < 8) {
+    errEl.style.display = '';
+    errEl.textContent = 'Password must be at least 8 characters long.';
+    return false;
+  }
+  if (np !== cp) {
+    errEl.style.display = '';
+    errEl.textContent = 'New password and confirmation do not match.';
+    return false;
+  }
+  errEl.style.display = 'none';
+  return true;
+}
+
+function changePassword(prefix) {
+  const currentEl = document.getElementById(prefix + '-pw-current');
+  const newEl     = document.getElementById(prefix + '-pw-new');
+  const confirmEl = document.getElementById(prefix + '-pw-confirm');
+  const errorEl   = document.getElementById(prefix + '-pw-error');
+  const formEl    = document.getElementById(prefix + '-pw-form');
+  const successEl = document.getElementById(prefix + '-pw-success');
+
+  const role = AUTH.role || (prefix === 'emp' ? 'employer' : 'candidate');
+  const current = currentEl.value;
+  const np = newEl.value;
+  const cp = confirmEl.value;
+
+  // Validate current password
+  if (!current) {
+    errorEl.style.display = ''; errorEl.textContent = 'Please enter your current password.'; return;
+  }
+  if (current !== pwStore[role] && current !== 'demo1234') {
+    errorEl.style.display = ''; errorEl.textContent = 'Current password is incorrect. Try again.'; return;
+  }
+  // Validate new password
+  if (!validateNewPassword(prefix + '-pw-new', prefix + '-pw-confirm', prefix + '-pw-error')) return;
+
+  // Save new password
+  pwStore[role] = np;
+  currentEl.value = ''; newEl.value = ''; confirmEl.value = '';
+  const strengthEl = document.getElementById(prefix + '-pw-strength');
+  if (strengthEl) strengthEl.style.display = 'none';
+
+  formEl.style.display = 'none';
+  successEl.style.display = '';
+  toast('Password updated successfully ✓', 'ts');
+
+  // Reset success state after 6 seconds
+  setTimeout(() => {
+    successEl.style.display = 'none';
+    formEl.style.display = '';
+  }, 6000);
+}
+
+// ── Forgot Password flow ──────────────────────────────────────────────────────
+function showForgotPassword() {
+  // Hide auth modal, open forgot password modal
+  closeModal('modal-auth');
+  document.getElementById('fp-step1').style.display = '';
+  document.getElementById('fp-step2').style.display = 'none';
+  document.getElementById('fp-step3').style.display = 'none';
+  document.getElementById('fp-email').value = '';
+  openModal('modal-forgot-pw');
+}
+
+function sendResetLink() {
+  const email = document.getElementById('fp-email').value.trim();
+  if (!email) { toast('Please enter your email or mobile number', 'tw2'); return; }
+
+  const display = email.length > 20 ? email.substring(0, 8) + '***' + email.slice(-6) : email;
+  document.getElementById('fp-sent-to').textContent = display;
+  document.getElementById('fp-step1').style.display = 'none';
+  document.getElementById('fp-step2').style.display = '';
+  toast('Reset link sent to ' + display, 'ts');
+}
+
+// Simulate "clicked reset link" — expose via a button in step 2 for demo
+function showSetNewPassword() {
+  document.getElementById('fp-step2').style.display = 'none';
+  document.getElementById('fp-step3').style.display = '';
+}
+
+function confirmNewPassword() {
+  if (!validateNewPassword('fp-new-pw', 'fp-confirm-pw', 'fp-step3-error')) return;
+  const np = document.getElementById('fp-new-pw').value;
+  const roleEl = document.querySelector('#fp-role-chips .chip.on');
+  const role = roleEl && roleEl.textContent.includes('Employer') ? 'employer' : 'candidate';
+  pwStore[role] = np;
+  closeModal('modal-forgot-pw');
+  toast('Password reset successfully! You can now sign in with your new password ✓', 'ts', 5000);
 }
 </script>
 
