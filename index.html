@@ -2526,6 +2526,144 @@ async function supaSaveSubscription(userId, paymentId, planId, planName, amount)
 }
 
 // ══════════════════════════════════════════
+//  RESEND EMAIL CONFIG
+// ══════════════════════════════════════════
+const RESEND_API = 'https://api.resend.com/emails';
+const RESEND_KEY = 're_YNSP9H3E_BwfTyF5CmqUs7w7UDuuroVUj';
+const FROM_EMAIL = 'PitchFirst <hello@pitchfirst.app>';
+const SUPPORT_EMAIL = 'support@pitchfirst.app';
+
+// ── Core send function ────────────────────────────────────────────────────────
+async function sendEmail({ to, subject, html }) {
+  try {
+    const res = await fetch(RESEND_API, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: FROM_EMAIL, to, subject, html })
+    });
+    const data = await res.json();
+    if (!res.ok) console.error('Resend error:', data);
+    return data;
+  } catch(e) { console.error('Resend failed:', e); }
+}
+
+// ── Email templates ───────────────────────────────────────────────────────────
+function emailBase(content) {
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+    body{margin:0;padding:0;background:#f5f0e8;font-family:'DM Sans',Arial,sans-serif;color:#0e0b07}
+    .wrap{max-width:560px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+    .header{background:#1a0a2e;padding:28px 32px;text-align:center}
+    .logo{font-size:22px;font-weight:900;color:#f0a832;letter-spacing:-0.5px}
+    .logo span{color:#fff;font-weight:300}
+    .body{padding:32px}
+    .title{font-size:22px;font-weight:700;margin-bottom:8px;color:#0e0b07}
+    .sub{font-size:14px;color:#4a4540;line-height:1.6;margin-bottom:24px}
+    .btn{display:inline-block;background:#7c3aed;color:#fff;padding:13px 28px;border-radius:10px;font-weight:700;font-size:14px;text-decoration:none;margin:8px 0}
+    .btn-gold{background:#c8860a}
+    .divider{height:1px;background:#f0ebe3;margin:24px 0}
+    .stat{display:inline-block;background:#ede9fe;border-radius:10px;padding:14px 20px;margin:6px;text-align:center;min-width:100px}
+    .stat-val{font-size:22px;font-weight:700;color:#7c3aed}
+    .stat-lbl{font-size:11px;color:#4a4540;margin-top:3px}
+    .tip{background:#fef3dc;border-left:3px solid #c8860a;padding:12px 16px;border-radius:0 8px 8px 0;font-size:13px;color:#633806;margin:16px 0}
+    .footer{background:#f5f0e8;padding:20px 32px;text-align:center;font-size:11px;color:#9e9590}
+    .footer a{color:#7c3aed;text-decoration:none}
+  </style></head><body>
+  <div class="wrap">
+    <div class="header"><div class="logo">Pitch<span>First</span></div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px">pitchfirst.app</div></div>
+    <div class="body">${content}</div>
+    <div class="footer">PitchFirst · India's Voice-First Hiring Platform<br><a href="https://pitchfirst.app">pitchfirst.app</a> · <a href="mailto:${SUPPORT_EMAIL}">support@pitchfirst.app</a><br><br>You're receiving this because you signed up at PitchFirst.<br><a href="https://pitchfirst.app">Unsubscribe</a></div>
+  </div></body></html>`;
+}
+
+// 1. Welcome — Employer
+async function emailWelcomeEmployer(to, companyName) {
+  const html = emailBase(`
+    <div class="title">Welcome to PitchFirst, ${companyName}! 🎉</div>
+    <div class="sub">Your employer account is active. You can now browse verified telecaller candidates, hear their voice pitches, and post roles — all in one place.</div>
+    <a href="https://pitchfirst.app" class="btn">Open Your Dashboard →</a>
+    <div class="divider"></div>
+    <div style="font-size:13px;font-weight:700;margin-bottom:12px">Your next 3 steps:</div>
+    <div class="tip">📋 <strong>Post your first role</strong> — takes 2 minutes. Candidates will start applying immediately.</div>
+    <div class="tip">🎤 <strong>Browse the candidate pool</strong> — filter by city, language, WPM score and listen to voice pitches before shortlisting.</div>
+    <div class="tip">📅 <strong>Schedule interviews</strong> — invite shortlisted candidates directly from the platform.</div>
+    <div class="divider"></div>
+    <div style="font-size:12px;color:#4a4540">Questions? Reply to this email or write to <a href="mailto:${SUPPORT_EMAIL}" style="color:#7c3aed">${SUPPORT_EMAIL}</a></div>
+  `);
+  return sendEmail({ to, subject: `Welcome to PitchFirst, ${companyName}!`, html });
+}
+
+// 2. Welcome — Candidate
+async function emailWelcomeCandidate(to, firstName) {
+  const html = emailBase(`
+    <div class="title">You're in, ${firstName}! 🎤</div>
+    <div class="sub">Your PitchFirst profile is live. Complete it now to start getting noticed by employers — the more complete your profile, the higher you rank in search results.</div>
+    <a href="https://pitchfirst.app" class="btn btn-gold">Complete My Profile →</a>
+    <div class="divider"></div>
+    <div style="font-size:13px;font-weight:700;margin-bottom:12px">Complete these to go live:</div>
+    <div class="tip">🎤 <strong>Record your voice pitch</strong> — 60–90 seconds. This is your biggest advantage over other candidates.</div>
+    <div class="tip">⌨️ <strong>Take the typing test</strong> — verified WPM score builds employer trust instantly.</div>
+    <div class="tip">📄 <strong>Upload your resume</strong> — PDF only, max 5MB.</div>
+    <div class="divider"></div>
+    <div style="font-size:12px;color:#4a4540">Free until 30 June 2026 · No credit card needed · <a href="mailto:${SUPPORT_EMAIL}" style="color:#7c3aed">Contact support</a></div>
+  `);
+  return sendEmail({ to, subject: `You're on PitchFirst, ${firstName}! Complete your profile now`, html });
+}
+
+// 3. New application alert — to Employer
+async function emailNewApplication(to, companyName, candidateName, roleTitle, candidateCity) {
+  const html = emailBase(`
+    <div class="title">New application received 📬</div>
+    <div class="sub"><strong>${candidateName}</strong> from ${candidateCity} has applied for <strong>${roleTitle}</strong> at ${companyName}.</div>
+    <a href="https://pitchfirst.app" class="btn">Review Application →</a>
+    <div class="divider"></div>
+    <div style="display:flex;flex-wrap:wrap;margin:-6px">
+      <div class="stat"><div class="stat-val">🎤</div><div class="stat-lbl">Voice pitch ready</div></div>
+      <div class="stat"><div class="stat-val">⌨️</div><div class="stat-lbl">Typing score</div></div>
+      <div class="stat"><div class="stat-val">✓</div><div class="stat-lbl">AI verified</div></div>
+    </div>
+    <div class="divider"></div>
+    <div style="font-size:12px;color:#4a4540">Log in to PitchFirst to hear their voice pitch and shortlist or schedule an interview.</div>
+  `);
+  return sendEmail({ to, subject: `New application: ${candidateName} applied for ${roleTitle}`, html });
+}
+
+// 4. Application status update — to Candidate
+async function emailApplicationUpdate(to, firstName, roleTitle, companyName, status) {
+  const statusMap = {
+    viewed:      { emoji: '👀', title: 'Your application was viewed!',      msg: `${companyName} has viewed your application for <strong>${roleTitle}</strong>. Make sure your voice pitch is recorded to stand out.` },
+    shortlisted: { emoji: '⭐', title: 'You have been shortlisted!',        msg: `Great news! ${companyName} has shortlisted you for <strong>${roleTitle}</strong>. They may reach out to schedule an interview soon.` },
+    rejected:    { emoji: '📭', title: 'Application update',                msg: `${companyName} has moved forward with other candidates for <strong>${roleTitle}</strong>. Don't give up — there are more roles waiting for you.` },
+    hired:       { emoji: '🎉', title: 'Congratulations — you got the job!', msg: `${companyName} has selected you for <strong>${roleTitle}</strong>. They will contact you shortly with next steps.` },
+  };
+  const s = statusMap[status] || statusMap.viewed;
+  const html = emailBase(`
+    <div class="title">${s.emoji} ${s.title}</div>
+    <div class="sub">Hi ${firstName}, ${s.msg}</div>
+    <a href="https://pitchfirst.app" class="btn btn-gold">View My Applications →</a>
+    <div class="divider"></div>
+    <div style="font-size:12px;color:#4a4540">Keep applying to more roles to increase your chances. New roles are posted daily on PitchFirst.</div>
+  `);
+  return sendEmail({ to, subject: `${s.emoji} ${s.title} — ${roleTitle} at ${companyName}`, html });
+}
+
+// 5. Interview scheduled — to Candidate
+async function emailInterviewScheduled(to, firstName, roleTitle, companyName, dateStr, timeStr, mode) {
+  const html = emailBase(`
+    <div class="title">Interview scheduled 📅</div>
+    <div class="sub">Hi ${firstName}, your interview for <strong>${roleTitle}</strong> at <strong>${companyName}</strong> has been confirmed.</div>
+    <div style="background:#ede9fe;border-radius:12px;padding:20px;margin:16px 0">
+      <div style="font-size:13px;color:#4a4540;margin-bottom:6px">Interview details</div>
+      <div style="font-size:16px;font-weight:700;color:#1a0a2e">${dateStr} · ${timeStr}</div>
+      <div style="font-size:13px;color:#7c3aed;margin-top:4px">${mode === 'video' ? '📹 Video call' : mode === 'phone' ? '📞 Phone call' : '🏢 In-person'}</div>
+    </div>
+    <a href="https://pitchfirst.app" class="btn">View Interview Details →</a>
+    <div class="divider"></div>
+    <div class="tip">💡 <strong>Tip:</strong> Re-listen to your voice pitch before the interview to remind yourself of your key talking points.</div>
+  `);
+  return sendEmail({ to, subject: `Interview confirmed: ${roleTitle} at ${companyName} — ${dateStr}`, html });
+}
+
+// ══════════════════════════════════════════
 //  RAZORPAY CONFIG
 // ══════════════════════════════════════════
 const RZP = {
@@ -2626,6 +2764,8 @@ function rzpOpenEmployerCheckout() {
         navTo('employer');
         setTimeout(() => renderAll(), 300);
         toast('Payment successful! Employer account active ✓', 'ts');
+        // Send welcome email
+        emailWelcomeEmployer(d.email, companyName || d.company);
       } catch(err) {
         const msg = err.message?.includes('already registered') ? 'This email is already registered. Please log in instead.' : ('Account setup failed: ' + (err.message || 'Please contact support.'));
         const errEl = document.getElementById('emp-signup-error');
@@ -2673,6 +2813,8 @@ function rzpOpenCandidateCheckout() {
         setLoggedIn();
         initCandDash(); navTo('cdash');
         toast('Payment successful! Candidate Pro active ✓', 'ts');
+        // Send welcome email
+        if (d.email) emailWelcomeCandidate(d.email, name.split(' ')[0] || name);
       } catch(err) {
         const msg = err.message?.includes('already registered') ? 'This email is already registered. Please log in.' : ('Sign up failed: ' + (err.message || 'Please try again.'));
         toast(msg, 'te');
@@ -2840,6 +2982,8 @@ function doCandSignup() {
       toast('Welcome, ' + (name.split(' ')[0] || 'there') + '! Full access activated — free until 30 June 2026 ✓', 'ts');
       setTimeout(() => toast('Your Marquee is ready — pin your best proof now!', 'ti'), 2500);
       checkSuspensionWarning();
+      // Send welcome email
+      if (d.email) emailWelcomeCandidate(d.email, name.split(' ')[0] || name);
     }).catch(err => {
       if (btn) { btn.disabled = false; btn.textContent = 'Create Free Account →'; }
       const msg = err.message?.includes('already registered') ? 'This email is already registered. Please log in.' : (err.message || 'Sign up failed. Please try again.');
@@ -3365,10 +3509,27 @@ function aiCoverLetter() {
   }, 1800);
 }
 
-function submitApp() {
+async function submitApp() {
+  const roleTitle = document.getElementById('apply-title').textContent;
+  const meta      = document.getElementById('apply-meta').textContent;
+  const coverNote = document.getElementById('cl-area')?.value || '';
+
+  // Save application to Supabase if logged in
+  if (AUTH.id) {
+    try {
+      // We don't have role_id/employer_id in this modal yet — that comes
+      // when roles are fully loaded from DB. For now log the intent.
+      console.log('Application submitted:', { roleTitle, meta, candidateId: AUTH.id });
+    } catch(e) { console.warn('App save error:', e); }
+  }
+
   closeModal('modal-apply');
   toast('Application submitted with resume + voice pitch 🎉', 'ts');
   setTimeout(() => toast('The employer has been notified of your application', 'ti'), 2000);
+
+  // Email the employer — uses placeholder employer email until roles are DB-driven
+  // emailNewApplication(employerEmail, companyName, AUTH.name, roleTitle, city);
+  // (Uncomment and populate once roles are loaded from Supabase)
 }
 
 // ══════════════════════════════════════════
