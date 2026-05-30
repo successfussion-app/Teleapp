@@ -2664,6 +2664,246 @@ async function emailInterviewScheduled(to, firstName, roleTitle, companyName, da
 }
 
 // ══════════════════════════════════════════
+//  ASSEMBLYAI — Voice Pitch Scoring
+// ══════════════════════════════════════════
+const AAI_KEY = '1a69160fc05e4cc5b45d46cff205fb2c';
+const AAI_BASE = 'https://api.assemblyai.com/v2';
+
+// ── Step 1: Upload audio blob to AssemblyAI ───────────────────────────────────
+async function aaiUploadAudio(audioBlob) {
+  const res = await fetch(`${AAI_BASE}/upload`, {
+    method: 'POST',
+    headers: { 'authorization': AAI_KEY, 'content-type': 'application/octet-stream' },
+    body: audioBlob
+  });
+  if (!res.ok) throw new Error('AssemblyAI upload failed: ' + res.status);
+  const data = await res.json();
+  return data.upload_url;
+}
+
+// ── Step 2: Submit transcript request with all features ───────────────────────
+async function aaiSubmitTranscript(audioUrl) {
+  const res = await fetch(`${AAI_BASE}/transcript`, {
+    method: 'POST',
+    headers: { 'authorization': AAI_KEY, 'content-type': 'application/json' },
+    body: JSON.stringify({
+      audio_url: audioUrl,
+      sentiment_analysis: true,
+      auto_highlights: true,       // key phrases
+      filter_profanity: true,
+      language_code: 'en',
+    })
+  });
+  if (!res.ok) throw new Error('AssemblyAI transcript request failed: ' + res.status);
+  const data = await res.json();
+  return data.id;
+}
+
+// ── Step 3: Poll until transcript is ready ────────────────────────────────────
+async function aaiPollTranscript(transcriptId) {
+  const maxAttempts = 30; // max ~60 seconds of polling
+  for (let i = 0; i < maxAttempts; i++) {
+    await new Promise(r => setTimeout(r, 2000)); // wait 2s between polls
+    const res = await fetch(`${AAI_BASE}/transcript/${transcriptId}`, {
+      headers: { 'authorization': AAI_KEY }
+    });
+    const data = await res.json();
+    if (data.status === 'completed') return data;
+    if (data.status === 'error') throw new Error('AssemblyAI error: ' + data.error);
+  }
+  throw new Error('AssemblyAI timed out — please try again');
+}
+
+// ── Step 4: Derive PitchFirst scores from AssemblyAI result ──────────────────
+function aaiDeriveScores(transcript) {
+  const words      = transcript.words || [];
+  const duration   = transcript.audio_duration || 1;
+  const text       = transcript.text || '';
+  const sentiment  = transcript.sentiment_analysis_results || [];
+  const highlights = transcript.auto_highlights_result?.results || [];
+  const confidence = transcript.confidence || 0;
+
+  // Words per minute
+  const wpm = Math.round((words.length / duration) * 60);
+
+  // Filler words
+  const fillerList = ['um','uh','like','you know','basically','literally','actually','so','right'];
+  const lowerText  = text.toLowerCase();
+  const fillerHits = fillerList.filter(f => lowerText.includes(f));
+  const fillerCount = fillerList.reduce((acc, f) => {
+    const rx = new RegExp('\\b' + f + '\\b', 'gi');
+    return acc + (text.match(rx) || []).length;
+  }, 0);
+
+  // Sentiment breakdown
+  const posCount  = sentiment.filter(s => s.sentiment === 'POSITIVE').length;
+  const negCount  = sentiment.filter(s => s.sentiment === 'NEGATIVE').length;
+  const sentTotal = sentiment.length || 1;
+  const posRatio  = posCount / sentTotal;
+  const negRatio  = negCount / sentTotal;
+
+  // ── Score: Clarity (0–100) ────────────────────────────────────────────────
+  // Based on: ASR confidence + filler word density + WPM (80-160 is ideal range)
+  const fillerPenalty  = Math.min(fillerCount * 3, 30);
+  const wpmScore       = wpm >= 80 && wpm <= 160 ? 20 : wpm < 60 || wpm > 200 ? 5 : 12;
+  const clarityRaw     = (confidence * 70) + wpmScore - fillerPenalty;
+  const score_clarity  = Math.min(100, Math.max(10, Math.round(clarityRaw)));
+
+  // ── Score: Confidence (0–100) ─────────────────────────────────────────────
+  // Based on: positive sentiment ratio + confidence + low filler words
+  const confRaw       = (confidence * 50) + (posRatio * 30) + (20 - Math.min(fillerCount * 2, 20));
+  const score_confidence = Math.min(100, Math.max(10, Math.round(confRaw)));
+
+  // ── Score: Relevance (0–100) ──────────────────────────────────────────────
+  // Based on: key phrase density + transcript length (longer = more substance)
+  const wordCount     = words.length;
+  const lengthScore   = Math.min(wordCount / 1.5, 40);
+  const phraseScore   = Math.min(highlights.length * 5, 40);
+  const score_relevance = Math.min(100, Math.max(10, Math.round(lengthScore + phraseScore + 10)));
+
+  // ── Score: Energy (0–100) ─────────────────────────────────────────────────
+  // Based on: positive sentiment + speaking pace + absence of long silences
+  const energyRaw    = (posRatio * 50) + (wpm > 120 ? 25 : wpm > 90 ? 15 : 5) + (negRatio < 0.1 ? 20 : 10);
+  const score_energy = Math.min(100, Math.max(10, Math.round(energyRaw)));
+
+  // ── Overall score (weighted average) ─────────────────────────────────────
+  const score_overall = Math.round(
+    (score_clarity * 0.30) + (score_confidence * 0.30) +
+    (score_relevance * 0.20) + (score_energy * 0.20)
+  );
+
+  // Key phrases (top 5)
+  const key_phrases = highlights.slice(0, 5).map(h => h.text);
+
+  return {
+    wpm, confidence, score_clarity, score_confidence,
+    score_relevance, score_energy, score_overall,
+    filler_word_count: fillerCount, filler_words: fillerHits,
+    key_phrases, sentiment_overall: posRatio > 0.5 ? 'POSITIVE' : negRatio > 0.4 ? 'NEGATIVE' : 'NEUTRAL',
+    sentiment_positive: posRatio, sentiment_neutral: 1 - posRatio - negRatio, sentiment_negative: negRatio,
+    transcript_text: text, audio_duration: duration,
+  };
+}
+
+// ── Step 5: Save scores to Supabase + update candidate profile ────────────────
+async function aaiSaveScores(candidateId, transcriptId, scores) {
+  // Upsert into voice_scores
+  const { data: vs, error } = await supa.from('voice_scores').upsert({
+    candidate_id:       candidateId,
+    assemblyai_id:      transcriptId,
+    status:             'completed',
+    transcript_text:    scores.transcript_text,
+    confidence:         scores.confidence,
+    words_per_minute:   scores.wpm,
+    audio_duration:     scores.audio_duration,
+    sentiment_overall:  scores.sentiment_overall,
+    sentiment_positive: scores.sentiment_positive,
+    sentiment_neutral:  scores.sentiment_neutral,
+    sentiment_negative: scores.sentiment_negative,
+    score_clarity:      scores.score_clarity,
+    score_confidence:   scores.score_confidence,
+    score_relevance:    scores.score_relevance,
+    score_energy:       scores.score_energy,
+    score_overall:      scores.score_overall,
+    key_phrases:        scores.key_phrases,
+    filler_word_count:  scores.filler_word_count,
+    filler_words:       scores.filler_words,
+  }, { onConflict: 'candidate_id' }).select().single();
+
+  if (error) throw error;
+
+  // Update candidate_profiles with WPM + overall AI score
+  await supa.from('candidate_profiles').update({
+    wpm:           scores.wpm,
+    voice_score:   scores.score_overall,
+    ai_score:      scores.score_overall,
+    ai_verified:   true,
+    voice_score_id: vs.id,
+  }).eq('user_id', AUTH.id);
+
+  return vs;
+}
+
+// ── Main: run full AssemblyAI pipeline after voice upload ─────────────────────
+async function aaiProcessPitch(audioBlob, candidateId) {
+  const statusEl = document.getElementById('vrec-txt');
+  const scoresEl = document.getElementById('ai-scores-el');
+
+  try {
+    // Upload audio
+    statusEl.textContent = 'Uploading to AI engine...';
+    const uploadUrl = await aaiUploadAudio(audioBlob);
+
+    // Submit for transcription
+    statusEl.textContent = 'AI is analysing your pitch...';
+    const transcriptId = await aaiSubmitTranscript(uploadUrl);
+
+    // Poll for result
+    statusEl.textContent = 'Scoring your pitch (this takes ~20 seconds)...';
+    const transcript = await aaiPollTranscript(transcriptId);
+
+    // Derive scores
+    const scores = aaiDeriveScores(transcript);
+
+    // Save to Supabase
+    await aaiSaveScores(candidateId, transcriptId, scores);
+
+    // ── Update UI with real scores ──────────────────────────────────────────
+    scoresEl.style.display = 'grid';
+    const scoreMap = {
+      'sc-clar': scores.score_clarity,
+      'sc-conf': scores.score_confidence,
+      'sc-rel':  scores.score_relevance,
+      'sc-ene':  scores.score_energy,
+    };
+    Object.entries(scoreMap).forEach(([id, val]) => {
+      let v = 0;
+      const iv = setInterval(() => {
+        v += 3; if (v >= val) { v = val; clearInterval(iv); }
+        const el = document.getElementById(id); if (el) el.textContent = v;
+      }, 25);
+    });
+
+    // WPM display
+    const wpmEl = document.getElementById('cd-wpm-val');
+    if (wpmEl) wpmEl.textContent = scores.wpm;
+
+    // Filler word feedback
+    if (scores.filler_word_count > 5) {
+      setTimeout(() => toast(`Tip: You used ${scores.filler_word_count} filler words (${scores.filler_words.slice(0,3).join(', ')}). Try to reduce these for a stronger pitch.`, 'ti', 6000), 1000);
+    }
+
+    // Key phrases feedback
+    if (scores.key_phrases.length > 0) {
+      setTimeout(() => toast(`✓ Strong phrases detected: "${scores.key_phrases[0]}"`, 'ts', 4000), 2500);
+    }
+
+    statusEl.textContent = `AI scores ready · ${scores.wpm} WPM · Overall: ${scores.score_overall}/100 ✓`;
+
+    // Update profile completion bar
+    const pb = document.getElementById('pbar-voice'); if (pb) pb.style.width = scores.score_overall + '%';
+    document.getElementById('pcc-voice-chk').className = 'pcc-chk pcc-done';
+    document.getElementById('pcc-voice-chk').textContent = '✓';
+    document.getElementById('pcc-voice-lbl').style.color = '';
+
+    return scores;
+
+  } catch(err) {
+    statusEl.textContent = 'AI scoring failed — pitch saved, scores pending';
+    console.error('AssemblyAI error:', err);
+    toast('Voice pitch saved. AI scoring will retry shortly.', 'tw2', 5000);
+
+    // Mark as processing in DB so we can retry later
+    if (candidateId) {
+      await supa.from('voice_scores').upsert({
+        candidate_id: candidateId,
+        status: 'failed',
+      }, { onConflict: 'candidate_id' });
+    }
+  }
+}
+
+// ══════════════════════════════════════════
 //  RAZORPAY CONFIG
 // ══════════════════════════════════════════
 const RZP = {
@@ -3630,45 +3870,38 @@ async function submitPitch() {
   if (recSec < 3)  { toast('Record at least a few seconds first!', 'tw2'); return; }
   if (!AUTH.id)    { toast('Please sign in to save your voice pitch.', 'tw2'); return; }
 
-  const btn = document.querySelector('#auth-cand button') || document.getElementById('rec-btn');
-  document.getElementById('vrec-txt').textContent = 'Uploading pitch...';
+  const statusEl = document.getElementById('vrec-txt');
+  const submitBtn = document.querySelector('[onclick="submitPitch()"]');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing...'; }
 
   try {
-    // ── Upload to Supabase Storage: voice-pitches/{user-id}/pitch.webm ──
+    // ── 1. Upload audio to Supabase Storage ──────────────────────────────────
+    statusEl.textContent = 'Saving your pitch...';
     const path = `${AUTH.id}/pitch.webm`;
     const { error: upErr } = await supa.storage
       .from('voice-pitches')
       .upload(path, audioBlob, { contentType: 'audio/webm', upsert: true });
     if (upErr) throw upErr;
 
-    // ── Get public URL ──
+    // ── 2. Get public URL + save to profile ───────────────────────────────────
     const { data: urlData } = supa.storage.from('voice-pitches').getPublicUrl(path);
-    const voiceUrl = urlData.publicUrl;
-
-    // ── Save URL to candidate_profiles ──
     await supa.from('candidate_profiles')
-      .update({ voice_url: voiceUrl, wpm: 0 })
+      .update({ voice_url: urlData.publicUrl })
       .eq('user_id', AUTH.id);
 
-    // ── Update UI with AI scores (AssemblyAI integration comes in a later step) ──
-    document.getElementById('vrec-txt').textContent = 'Processing AI scores...';
-    setTimeout(() => {
-      const el = document.getElementById('ai-scores-el'); el.style.display = 'grid';
-      const vals = [82, 78, 91, 85], ids = ['sc-clar', 'sc-conf', 'sc-rel', 'sc-ene'];
-      ids.forEach((id, i) => { let v = 0; const iv = setInterval(() => { v += 4; if (v >= vals[i]) { v = vals[i]; clearInterval(iv); } document.getElementById(id).textContent = v; }, 30); });
-      document.getElementById('vrec-txt').textContent = 'Voice pitch saved ✓';
-      const pb = document.getElementById('pbar-voice'); if (pb) pb.style.width = '84%';
-      document.getElementById('pcc-voice-chk').className = 'pcc-chk pcc-done';
-      document.getElementById('pcc-voice-chk').textContent = '✓';
-      document.getElementById('pcc-voice-lbl').style.color = '';
-      document.getElementById('pcc-voice-lbl').style.fontWeight = '';
-      toast('Voice pitch uploaded to Supabase ✓', 'ts');
-    }, 1200);
+    // ── 3. Run AssemblyAI scoring pipeline ───────────────────────────────────
+    // Get candidate profile id first
+    const { data: cp } = await supa.from('candidate_profiles')
+      .select('id').eq('user_id', AUTH.id).single();
+
+    if (cp) await aaiProcessPitch(audioBlob, cp.id);
 
   } catch(err) {
-    document.getElementById('vrec-txt').textContent = 'Upload failed — try again';
+    statusEl.textContent = 'Upload failed — please try again';
     toast('Upload failed: ' + (err.message || 'Please try again'), 'te');
-    console.error('Voice upload error:', err);
+    console.error('submitPitch error:', err);
+  } finally {
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit Pitch →'; }
   }
 }
 
