@@ -2672,9 +2672,8 @@ function doCandSignup() {
   if (!d.name) { toast('Please enter your full name', 'tw2'); return; }
   if (!d.phone || d.phone.replace(/\D/g,'').length < 10) { toast('Please enter a valid mobile number', 'tw2'); return; }
 
-  // TESTING MODE: always open Razorpay regardless of date
-  // TODO: restore date check before go-live → const isFreeperiod = new Date() < new Date('2026-07-01');
-  const isFreeperiod = false;
+  // Free until 30 June 2026 — automatically routes to Razorpay from 1 July onwards
+  const isFreeperiod = new Date() < new Date('2026-07-01');
 
   if (isFreeperiod) {
     AUTH = { in: true, role: 'candidate', plan: 'pro', name: d.name || 'Rubina Solkar' };
