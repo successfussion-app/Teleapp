@@ -2317,6 +2317,7 @@ img{max-width:100%}
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;color:#fff">Record Your 90-Second Pitch</div><div style="font-size:12px;color:rgba(237,233,254,.4);margin-top:2px">Re-record anytime · AI analyses it instantly</div></div><div style="display:flex;align-items:center;gap:6px;background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.3);padding:5px 12px;border-radius:100px;font-size:12px;color:#c4b5fd"><span id="vrec-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(124,58,237,.6)"></span><span id="vrec-txt">Ready to record</span></div></div>
           <div class="waveform" id="waveform-el"></div>
           <div style="display:flex;align-items:center;gap:14px"><button class="rec-btn idle" id="rec-btn" onclick="toggleRec()">🎤</button><div><div style="font-family:'DM Mono',monospace;font-size:22px;color:#fff;letter-spacing:2px" id="rec-time">0:00</div><div style="font-size:11px;color:rgba(237,233,254,.35);margin-top:2px">max 1:30</div></div><button class="btn bg" style="margin-left:auto" onclick="submitPitch()">Submit Pitch →</button></div>
+          <audio id="voice-preview" controls style="display:none;width:100%;margin-top:12px;border-radius:8px;height:36px;filter:invert(0)"></audio>
           <div class="ai-scores" id="ai-scores-el" style="display:none"><div class="ai-sb"><div class="ai-sv" id="sc-clar">-</div><div class="ai-sl">Clarity</div></div><div class="ai-sb"><div class="ai-sv" id="sc-conf">-</div><div class="ai-sl">Confidence</div></div><div class="ai-sb"><div class="ai-sv" id="sc-rel">-</div><div class="ai-sl">Relevance</div></div><div class="ai-sb"><div class="ai-sv" id="sc-ene">-</div><div class="ai-sl">Energy</div></div></div>
         </div>
       </div>
@@ -2325,7 +2326,7 @@ img{max-width:100%}
     </div>
     <div class="sec" id="sec-3">
       <div class="sec-hdr"><div><div class="sec-title">4. Resume & Documents</div><div class="sec-sub">AI parses and extracts key fields</div></div><span class="sec-badge sbb-ai">AI Parsed</span></div>
-      <div class="fgrid"><div class="field"><label><span class="star">★</span> Resume Upload</label><input class="fi" value="aanya_sharma_resume.pdf" placeholder="PDF only · Max 5MB"></div><div class="field"><label>Last Updated</label><input class="fi" type="date" value="2025-11-01"></div><div class="field"><label><span class="star">★</span> Notice Period</label><select class="fi"><option>Immediate</option><option>15 days</option><option>30 days</option><option>60 days</option><option>90 days</option></select></div><div class="field"><label><span class="star">★</span> Work Preference</label><div class="chips" id="rwp-c"><div class="chip on" onclick="sc(this,'rwp-c')">Remote</div><div class="chip" onclick="sc(this,'rwp-c')">Hybrid</div><div class="chip" onclick="sc(this,'rwp-c')">In-office</div></div></div></div>
+      <div class="fgrid"><div class="field"><label><span class="star">★</span> Resume Upload</label><div style="display:flex;gap:8px;align-items:center"><input class="fi" id="resume-name-display" placeholder="No file chosen" readonly style="flex:1;cursor:pointer" onclick="document.getElementById('resume-file-input').click()"><button class="btn bgh bsm" onclick="document.getElementById('resume-file-input').click()" style="white-space:nowrap;flex-shrink:0">Choose PDF</button></div><input type="file" id="resume-file-input" accept=".pdf,application/pdf" style="display:none" onchange="handleResumeSelect(this)"><div id="resume-upload-status" style="font-size:11px;color:var(--slate);margin-top:4px"></div></div><div class="field"><label>Last Updated</label><input class="fi" type="date" id="resume-updated-date"></div><div class="field"><label><span class="star">★</span> Notice Period</label><select class="fi"><option>Immediate</option><option>15 days</option><option>30 days</option><option>60 days</option><option>90 days</option></select></div><div class="field"><label><span class="star">★</span> Work Preference</label><div class="chips" id="rwp-c"><div class="chip on" onclick="sc(this,'rwp-c')">Remote</div><div class="chip" onclick="sc(this,'rwp-c')">Hybrid</div><div class="chip" onclick="sc(this,'rwp-c')">In-office</div></div></div></div>
       <div class="step-nav"><button class="btn bgh bsm" onclick="goSec(2)">← Back</button><div class="step-prog">4 of 10</div><button class="btn bg bsm" onclick="goSec(4)">Next →</button></div>
     </div>
     <div class="sec" id="sec-4">
@@ -3413,32 +3414,155 @@ function buildWave(id, count) {
   for (let i = 0; i < count; i++) { const b = document.createElement('div'); b.className = 'wvbar'; b.style.animationDelay = (i * 0.06) + 's'; el.appendChild(b); }
 }
 
-function toggleRec() {
-  recRun = !recRun;
-  const btn = document.getElementById('rec-btn'), dot = document.getElementById('vrec-dot'), txt = document.getElementById('vrec-txt');
-  if (recRun) {
-    btn.className = 'rec-btn recording'; btn.textContent = '⏹'; dot.style.background = 'var(--red)'; txt.textContent = 'Recording...';
-    recTmr = setInterval(() => { recSec++; const m = Math.floor(recSec / 60), s = recSec % 60; document.getElementById('rec-time').textContent = `${m}:${s.toString().padStart(2, '0')}`; if (recSec >= 90) toggleRec(); }, 1000);
+// ══════════════════════════════════════════
+//  VOICE RECORDER — MediaRecorder + Supabase Storage
+// ══════════════════════════════════════════
+let mediaRecorder = null, audioChunks = [], audioBlob = null, audioStream = null;
+
+async function toggleRec() {
+  const btn = document.getElementById('rec-btn');
+  const dot = document.getElementById('vrec-dot');
+  const txt = document.getElementById('vrec-txt');
+
+  if (!recRun) {
+    // ── START recording ──
+    try {
+      audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch(e) {
+      toast('Microphone access denied. Please allow microphone in your browser settings.', 'te', 5000);
+      return;
+    }
+    audioChunks = []; audioBlob = null;
+    mediaRecorder = new MediaRecorder(audioStream);
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      // Show playback preview
+      const prev = document.getElementById('voice-preview');
+      if (prev) { prev.src = URL.createObjectURL(audioBlob); prev.style.display = 'block'; }
+      // Stop all mic tracks
+      audioStream?.getTracks().forEach(t => t.stop());
+    };
+    mediaRecorder.start();
+    recRun = true;
+    btn.className = 'rec-btn recording'; btn.textContent = '⏹';
+    dot.style.background = 'var(--red)'; txt.textContent = 'Recording...';
+    recTmr = setInterval(() => {
+      recSec++;
+      const m = Math.floor(recSec / 60), s = recSec % 60;
+      document.getElementById('rec-time').textContent = `${m}:${s.toString().padStart(2, '0')}`;
+      if (recSec >= 90) toggleRec();
+    }, 1000);
   } else {
-    clearInterval(recTmr); btn.className = 'rec-btn idle'; btn.textContent = '🎤'; dot.style.background = recSec > 0 ? 'var(--green)' : 'rgba(124,58,237,.6)'; txt.textContent = recSec > 0 ? `Recorded ${recSec}s - submit below` : 'Ready to record';
+    // ── STOP recording ──
+    recRun = false;
+    clearInterval(recTmr);
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+    btn.className = 'rec-btn idle'; btn.textContent = '🎤';
+    dot.style.background = recSec > 0 ? 'var(--green)' : 'rgba(124,58,237,.6)';
+    txt.textContent = recSec > 0 ? `Recorded ${recSec}s — preview below, then submit` : 'Ready to record';
   }
 }
 
-function submitPitch() {
-  if (recSec < 3) { toast('Record at least a few seconds first!', 'tw2'); return; }
-  clearInterval(recTmr); recRun = false;
-  document.getElementById('rec-btn').className = 'rec-btn idle'; document.getElementById('rec-btn').textContent = '✓';
-  document.getElementById('vrec-txt').textContent = 'Processing AI scores...';
-  setTimeout(() => {
-    const el = document.getElementById('ai-scores-el'); el.style.display = 'grid';
-    const vals = [82, 78, 91, 85], ids = ['sc-clar', 'sc-conf', 'sc-rel', 'sc-ene'];
-    ids.forEach((id, i) => { let v = 0; const iv = setInterval(() => { v += 4; if (v >= vals[i]) { v = vals[i]; clearInterval(iv); } document.getElementById(id).textContent = v; }, 30); });
-    document.getElementById('vrec-txt').textContent = 'AI scores ready ✓';
-    const pb = document.getElementById('pbar-voice'); if (pb) pb.style.width = '84%';
-    document.getElementById('pcc-voice-chk').className = 'pcc-chk pcc-done'; document.getElementById('pcc-voice-chk').textContent = '✓';
-    document.getElementById('pcc-voice-lbl').style.color = ''; document.getElementById('pcc-voice-lbl').style.fontWeight = '';
-    toast('Voice pitch submitted! AI scores ready ✓', 'ts');
-  }, 1800);
+async function submitPitch() {
+  if (!audioBlob) { toast('Please record your pitch first!', 'tw2'); return; }
+  if (recSec < 3)  { toast('Record at least a few seconds first!', 'tw2'); return; }
+  if (!AUTH.id)    { toast('Please sign in to save your voice pitch.', 'tw2'); return; }
+
+  const btn = document.querySelector('#auth-cand button') || document.getElementById('rec-btn');
+  document.getElementById('vrec-txt').textContent = 'Uploading pitch...';
+
+  try {
+    // ── Upload to Supabase Storage: voice-pitches/{user-id}/pitch.webm ──
+    const path = `${AUTH.id}/pitch.webm`;
+    const { error: upErr } = await supa.storage
+      .from('voice-pitches')
+      .upload(path, audioBlob, { contentType: 'audio/webm', upsert: true });
+    if (upErr) throw upErr;
+
+    // ── Get public URL ──
+    const { data: urlData } = supa.storage.from('voice-pitches').getPublicUrl(path);
+    const voiceUrl = urlData.publicUrl;
+
+    // ── Save URL to candidate_profiles ──
+    await supa.from('candidate_profiles')
+      .update({ voice_url: voiceUrl, wpm: 0 })
+      .eq('user_id', AUTH.id);
+
+    // ── Update UI with AI scores (AssemblyAI integration comes in a later step) ──
+    document.getElementById('vrec-txt').textContent = 'Processing AI scores...';
+    setTimeout(() => {
+      const el = document.getElementById('ai-scores-el'); el.style.display = 'grid';
+      const vals = [82, 78, 91, 85], ids = ['sc-clar', 'sc-conf', 'sc-rel', 'sc-ene'];
+      ids.forEach((id, i) => { let v = 0; const iv = setInterval(() => { v += 4; if (v >= vals[i]) { v = vals[i]; clearInterval(iv); } document.getElementById(id).textContent = v; }, 30); });
+      document.getElementById('vrec-txt').textContent = 'Voice pitch saved ✓';
+      const pb = document.getElementById('pbar-voice'); if (pb) pb.style.width = '84%';
+      document.getElementById('pcc-voice-chk').className = 'pcc-chk pcc-done';
+      document.getElementById('pcc-voice-chk').textContent = '✓';
+      document.getElementById('pcc-voice-lbl').style.color = '';
+      document.getElementById('pcc-voice-lbl').style.fontWeight = '';
+      toast('Voice pitch uploaded to Supabase ✓', 'ts');
+    }, 1200);
+
+  } catch(err) {
+    document.getElementById('vrec-txt').textContent = 'Upload failed — try again';
+    toast('Upload failed: ' + (err.message || 'Please try again'), 'te');
+    console.error('Voice upload error:', err);
+  }
+}
+
+// ══════════════════════════════════════════
+//  RESUME UPLOAD — Supabase Storage
+// ══════════════════════════════════════════
+let pendingResumeFile = null;
+
+function handleResumeSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.type !== 'application/pdf') { toast('Please upload a PDF file only.', 'tw2'); input.value = ''; return; }
+  if (file.size > 5 * 1024 * 1024) { toast('File too large. Maximum size is 5MB.', 'tw2'); input.value = ''; return; }
+  pendingResumeFile = file;
+  document.getElementById('resume-name-display').value = file.name;
+  document.getElementById('resume-updated-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('resume-upload-status').textContent = '✓ Ready to upload — click Save Profile to confirm';
+  document.getElementById('resume-upload-status').style.color = 'var(--green)';
+}
+
+async function uploadResume() {
+  if (!pendingResumeFile) return null;
+  if (!AUTH.id) { toast('Please sign in to upload your resume.', 'tw2'); return null; }
+
+  document.getElementById('resume-upload-status').textContent = 'Uploading...';
+  document.getElementById('resume-upload-status').style.color = 'var(--slate)';
+
+  try {
+    const path = `${AUTH.id}/resume.pdf`;
+    const { error: upErr } = await supa.storage
+      .from('resumes')
+      .upload(path, pendingResumeFile, { contentType: 'application/pdf', upsert: true });
+    if (upErr) throw upErr;
+
+    // Get signed URL (private bucket — 1 year expiry)
+    const { data: urlData } = await supa.storage
+      .from('resumes')
+      .createSignedUrl(path, 60 * 60 * 24 * 365);
+    const resumeUrl = urlData?.signedUrl || path;
+
+    // Save to candidate_profiles
+    await supa.from('candidate_profiles')
+      .update({ resume_url: path })
+      .eq('user_id', AUTH.id);
+
+    document.getElementById('resume-upload-status').textContent = '✓ Resume uploaded successfully';
+    document.getElementById('resume-upload-status').style.color = 'var(--green)';
+    pendingResumeFile = null;
+    return resumeUrl;
+  } catch(err) {
+    document.getElementById('resume-upload-status').textContent = '✗ Upload failed — try again';
+    document.getElementById('resume-upload-status').style.color = 'var(--red)';
+    toast('Resume upload failed: ' + (err.message || 'Please try again'), 'te');
+    return null;
+  }
 }
 
 // ══════════════════════════════════════════
@@ -3524,7 +3648,25 @@ function ttReset() {
   document.getElementById('tt-pas').innerHTML = '<span style="color:var(--slate);font-size:13px">Click Start Test to begin...</span>';
 }
 
-function finishProfile() {
+async function finishProfile() {
+  // Upload resume if one was selected
+  if (pendingResumeFile) await uploadResume();
+
+  // Save core profile fields to Supabase
+  if (AUTH.id) {
+    const nameEl   = document.querySelector('#pf-step-0 input.fi');
+    const roleEl   = document.querySelector('#pf-step-1 input.fi');
+    try {
+      await supa.from('candidate_profiles').update({
+        profile_pct: 100,
+      }).eq('user_id', AUTH.id);
+      await supa.from('users').update({
+        full_name: nameEl?.value?.trim() || AUTH.name,
+        updated_at: new Date().toISOString(),
+      }).eq('id', AUTH.id);
+    } catch(e) { console.warn('Profile save partial error:', e); }
+  }
+
   toast('Profile submitted! You are now live on PitchFirst 🎉', 'ts');
   setTimeout(() => toast('🔥 3 employers already matched your profile!', 'ti'), 2000);
   setTimeout(() => {
