@@ -825,7 +825,8 @@ img{max-width:100%}
     <span class="logo-name"><span class="p">Pitch</span><span class="f">First</span></span>
   </div>
   <div class="nav-right">
-    <div id="nav-guest">
+    <div id="nav-guest" style="display:flex;align-items:center;gap:8px">
+      <button class="nav-signout" onclick="openModal('modal-auth');showSignin()" style="font-size:13px;font-weight:600;padding:9px 18px">Log In</button>
       <button class="nav-cta" onclick="openModal('modal-auth')">Get Started Free</button>
     </div>
     <div class="nav-user" id="nav-user-bar">
@@ -861,6 +862,7 @@ img{max-width:100%}
           <span class="lp-cta-sub">Free until 30 June 2026 · then ₹199/mo</span>
         </button>
       </div>
+      <div style="margin-bottom:20px;font-size:13px;color:var(--slate)">Already have an account? <span style="color:var(--gold);font-weight:700;cursor:pointer" onclick="openModal('modal-auth');showSignin()">Log in →</span></div>
       <div class="lp-social-proof">
         <div class="lp-avatars">
           <span>AS</span><span>RK</span><span>PM</span><span>SN</span><span>VR</span>
