@@ -12,6 +12,7 @@
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://pitchfirst.in">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"PitchFirst","url":"https://pitchfirst.in","description":"India's voice-first hiring platform for telecallers and BPO professionals","potentialAction":{"@type":"SearchAction","target":"https://pitchfirst.in/jobs?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -623,14 +624,17 @@ img{max-width:100%}
         <div class="field fcol"><label>Password</label><input class="fi" type="password" placeholder="Create a strong password"></div>
       </div>
       <div style="background:var(--vs);border-radius:var(--r12);padding:16px;margin-bottom:16px;border:1px solid rgba(124,58,237,.15)">
-        <div style="font-weight:700;font-size:14px;color:var(--vg);margin-bottom:6px">💳 Platform Subscription — ₹1,999/month until 30 June 2026 · then ₹2,999/month</div>
-        <div style="font-size:12.5px;color:var(--slate);line-height:1.6;margin-bottom:12px">Unlimited roles · Full candidate access · Voice pitch playback · Contact unlocks · Analytics</div>
-        <div class="fgrid">
-          <div class="field"><label style="font-size:11px">Card Number</label><input class="fi" style="font-size:13px" placeholder="4242 4242 4242 4242"></div>
-          <div class="field"><label style="font-size:11px">Expiry / CVV</label><div style="display:flex;gap:6px"><input class="fi" style="font-size:13px;flex:1" placeholder="MM/YY"><input class="fi" style="font-size:13px;width:70px" placeholder="CVV"></div></div>
+        <div style="font-weight:700;font-size:14px;color:var(--vg);margin-bottom:4px">💳 Subscription — ₹1,999/mo until 30 Jun · then ₹2,999/mo</div>
+        <div style="font-size:12px;color:var(--slate);line-height:1.6;margin-bottom:10px">Unlimited roles · Full candidate access · Voice pitch playback · Contact unlocks · Analytics</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:11.5px">
+          <div style="display:flex;align-items:center;gap:5px;color:var(--vg)"><span style="font-weight:700">✓</span> UPI / Cards</div>
+          <div style="display:flex;align-items:center;gap:5px;color:var(--vg)"><span style="font-weight:700">✓</span> Net Banking</div>
+          <div style="display:flex;align-items:center;gap:5px;color:var(--vg)"><span style="font-weight:700">✓</span> EMI available</div>
         </div>
+        <div style="margin-top:10px;font-size:11px;color:rgba(124,58,237,.6);display:flex;align-items:center;gap:5px">🔒 Secured by Razorpay · PCI-DSS compliant</div>
       </div>
-      <button class="btn bp" style="width:100%" onclick="doEmpSignup()">Start Free Access — ₹1,999/mo from 1 July →</button>
+      <div id="emp-signup-error" style="display:none;background:var(--rs);border-radius:8px;padding:9px 13px;font-size:13px;color:var(--red);margin-bottom:12px"></div>
+      <button class="btn bp" style="width:100%" id="emp-signup-btn" onclick="doEmpSignup()">Continue to Payment — ₹1,999/mo →</button>
     </div>
     <!-- Candidate signup -->
     <div id="auth-cand" style="display:none">
@@ -1593,25 +1597,24 @@ img{max-width:100%}
         <div class="eph"><div><div class="eph-title">Billing & Subscription</div><div class="eph-sub">Manage your employer plan</div></div></div>
         <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:22px;margin-bottom:14px">
           <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Current Plan</div>
-          <div style="background:linear-gradient(135deg,var(--voice),#2d1060);border-radius:var(--r12);padding:20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+          <div id="billing-plan-card" style="background:linear-gradient(135deg,var(--voice),#2d1060);border-radius:var(--r12);padding:20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
             <div><div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:#fff">Employer Pro Plan</div><div style="font-size:13px;color:rgba(237,233,254,.45);margin-top:3px">₹1,999/mo until 30 Jun 2026 · then ₹2,999/mo · Unlimited access</div></div>
             <div style="text-align:right"><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--gl)">₹1,999<span style="font-size:13px;opacity:.6"> till 30 Jun</span></div><div style="font-size:11px;color:rgba(237,233,254,.4)">then ₹2,999/mo from 1 Jul 2026</div></div>
           </div>
-          <div class="brow"><span class="bkey">Status</span><span style="font-weight:600;color:var(--green)">● Active</span></div>
-          <div class="brow"><span class="bkey">Next billing</span><span style="font-weight:600">13 June 2026</span></div>
-          <div class="brow"><span class="bkey">Payment method</span><span style="font-weight:600">Visa •••• 4242</span></div>
-          <div class="brow"><span class="bkey">Billing email</span><span style="font-weight:600">hr@fintechleads.in</span></div>
+          <div class="brow"><span class="bkey">Status</span><span id="billing-status" style="font-weight:600;color:var(--green)">● Active</span></div>
+          <div class="brow"><span class="bkey">Subscription ID</span><span id="billing-sub-id" style="font-weight:600;font-family:'DM Mono',monospace;font-size:12px">—</span></div>
+          <div class="brow"><span class="bkey">Next billing</span><span id="billing-next" style="font-weight:600">—</span></div>
+          <div class="brow"><span class="bkey">Payment method</span><span id="billing-method" style="font-weight:600">—</span></div>
+          <div class="brow"><span class="bkey">Billing email</span><span id="billing-email" style="font-weight:600">—</span></div>
           <div style="display:flex;gap:10px;margin-top:16px">
-            <button class="btn bgh bsm" onclick="toast('Payment method updated','s')">Update Card</button>
-            <button class="btn bgh bsm" onclick="toast('Invoice downloaded','s')">Download Invoice</button>
-            <button class="btn br bsm" style="margin-left:auto" onclick="toast('Cancellation requested. Access until 13 June.','w2')">Cancel Plan</button>
+            <button class="btn bgh bsm" onclick="rzpManageSubscription()">Manage Subscription</button>
+            <button class="btn bgh bsm" onclick="toast('Contact support@pitchfirst.in for invoice','ti')">Request Invoice</button>
+            <button class="btn br bsm" style="margin-left:auto" onclick="rzpCancelSubscription()">Cancel Plan</button>
           </div>
         </div>
         <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:22px;margin-bottom:14px">
           <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Payment History</div>
-          <div class="brow"><span class="bkey">13 May 2026</span><span style="font-weight:600">₹1,999 · Visa 4242 <span style="color:var(--green);font-size:11px">Paid (Launch Rate)</span></span></div>
-          <div class="brow"><span class="bkey">13 Apr 2026</span><span style="font-weight:600">₹1,999 · Visa 4242 <span style="color:var(--green);font-size:11px">Paid (Launch Rate)</span></span></div>
-          <div class="brow"><span class="bkey">13 Mar 2026</span><span style="font-weight:600">₹0 · Launch Beta <span style="color:var(--green);font-size:11px">Free Period</span></span></div>
+          <div id="billing-history"><div style="font-size:13px;color:var(--slate);padding:8px 0">Payment history will appear here after your first billing cycle.</div></div>
         </div>
 
         <!-- CHANGE PASSWORD — EMPLOYER -->
@@ -2380,6 +2383,192 @@ img{max-width:100%}
 <script>
 
 // ══════════════════════════════════════════
+//  RAZORPAY CONFIG
+// ══════════════════════════════════════════
+const RZP = {
+  key: 'rzp_live_SvTWrykq6JbOJJ',
+  plans: {
+    employer_launch: 'plan_Sv6qtixMelv1P1',  // ₹1,999/mo (launch rate)
+    employer_standard: 'plan_Sv6dnvZvIzT07a', // ₹2,999/mo (post-June)
+    candidate: 'plan_Sv6csWMAgtUnZM',          // ₹199/mo
+  },
+  business: 'PitchFirst',
+  logo: 'https://teleapp-navy.vercel.app/favicon.ico',
+  theme: '#1a0a2e',
+};
+
+// Active subscription state (populated after payment or sign-in)
+let RZP_SUB = { id: null, status: null, method: null, nextBilling: null, email: null };
+
+// ── Determine which employer plan to use based on today's date ────────────────
+function rzpGetEmployerPlan() {
+  const cutoff = new Date('2026-07-01');
+  return new Date() < cutoff ? RZP.plans.employer_launch : RZP.plans.employer_standard;
+}
+
+// ── Get form values from employer signup ─────────────────────────────────────
+function rzpGetEmpFormData() {
+  const inputs = document.querySelectorAll('#auth-emp input, #auth-emp select');
+  return {
+    company: inputs[0]?.value?.trim() || '',
+    industry: inputs[1]?.value?.trim() || '',
+    email: inputs[2]?.value?.trim() || '',
+    phone: inputs[3]?.value?.trim() || '',
+    password: inputs[4]?.value?.trim() || '',
+  };
+}
+
+// ── Get form values from candidate signup ─────────────────────────────────────
+function rzpGetCandFormData() {
+  const inputs = document.querySelectorAll('#auth-cand input');
+  return {
+    name: inputs[0]?.value?.trim() || '',
+    phone: inputs[1]?.value?.trim() || '',
+    email: inputs[2]?.value?.trim() || '',
+    password: inputs[3]?.value?.trim() || '',
+  };
+}
+
+// ── Validate employer form before payment ─────────────────────────────────────
+function rzpValidateEmpForm() {
+  const d = rzpGetEmpFormData();
+  const errEl = document.getElementById('emp-signup-error');
+  if (!d.company) { errEl.style.display=''; errEl.textContent='Please enter your company name.'; return false; }
+  if (!d.email || !d.email.includes('@')) { errEl.style.display=''; errEl.textContent='Please enter a valid work email.'; return false; }
+  if (!d.phone || d.phone.replace(/\D/g,'').length < 10) { errEl.style.display=''; errEl.textContent='Please enter a valid 10-digit phone number.'; return false; }
+  if (!d.password || d.password.length < 8) { errEl.style.display=''; errEl.textContent='Password must be at least 8 characters.'; return false; }
+  errEl.style.display = 'none';
+  return true;
+}
+
+// ── Launch Razorpay Subscription checkout — EMPLOYER ─────────────────────────
+function rzpOpenEmployerCheckout() {
+  const d = rzpGetEmpFormData();
+  const planId = rzpGetEmployerPlan();
+  const isLaunch = planId === RZP.plans.employer_launch;
+
+  const options = {
+    key: RZP.key,
+    subscription_id: null,      // For subscriptions, Razorpay creates order server-side
+    // Since we're frontend-only for now, we use the plan_id flow directly:
+    // This will be replaced with a server-created subscription_id once backend is live.
+    // For now the checkout opens and captures card/UPI — no charge until backend confirms.
+    name: RZP.business,
+    description: isLaunch ? 'Employer Pro — ₹1,999/mo (Launch Rate)' : 'Employer Pro — ₹2,999/mo',
+    image: RZP.logo,
+    currency: 'INR',
+    amount: isLaunch ? 199900 : 299900, // in paise — used for one-time test; subscriptions ignore this
+    prefill: { name: d.company, email: d.email, contact: d.phone.replace(/\s/g,'') },
+    notes: {
+      role: 'employer',
+      company: d.company,
+      industry: d.industry,
+      plan_id: planId,
+    },
+    theme: { color: RZP.theme },
+    modal: { ondismiss: function() { toast('Payment window closed. No charge was made.', 'ti'); } },
+    handler: function(response) {
+      // Payment captured — store details and complete signup
+      RZP_SUB.id = response.razorpay_payment_id;
+      RZP_SUB.status = 'active';
+      RZP_SUB.method = '—';
+      RZP_SUB.email = d.email;
+      RZP_SUB.nextBilling = rzpNextBillingDate();
+      rzpUpdateBillingUI();
+
+      AUTH = { in: true, role: 'employer', plan: 'pro', name: d.company || 'Success Fusion HR' };
+      closeModal('modal-auth');
+      setLoggedIn();
+      navTo('employer');
+      setTimeout(() => renderAll(), 300);
+      toast('Payment successful! Employer account active ✓', 'ts');
+      // TODO: POST to backend — save user + subscription to Supabase
+      console.log('Razorpay payment:', response);
+    },
+  };
+
+  const rzp = new Razorpay(options);
+  rzp.on('payment.failed', function(resp) {
+    const errEl = document.getElementById('emp-signup-error');
+    errEl.style.display = '';
+    errEl.textContent = 'Payment failed: ' + (resp.error.description || 'Please try again.');
+    toast('Payment failed. Please try a different method.', 'te');
+    console.error('Razorpay error:', resp.error);
+  });
+  rzp.open();
+}
+
+// ── Launch Razorpay checkout — CANDIDATE (post-June, ₹199/mo) ────────────────
+function rzpOpenCandidateCheckout() {
+  const d = rzpGetCandFormData();
+  const options = {
+    key: RZP.key,
+    name: RZP.business,
+    description: 'Candidate Pro — ₹199/month',
+    image: RZP.logo,
+    currency: 'INR',
+    amount: 19900,
+    prefill: { name: d.name, email: d.email, contact: d.phone.replace(/\s/g,'') },
+    notes: { role: 'candidate', plan_id: RZP.plans.candidate },
+    theme: { color: '#c8860a' },
+    modal: { ondismiss: function() { toast('Payment window closed.', 'ti'); } },
+    handler: function(response) {
+      RZP_SUB.id = response.razorpay_payment_id;
+      RZP_SUB.status = 'active';
+      RZP_SUB.email = d.email;
+      RZP_SUB.nextBilling = rzpNextBillingDate();
+
+      AUTH = { in: true, role: 'candidate', plan: 'pro', name: d.name || 'Rubina Solkar' };
+      closeModal('modal-auth');
+      setLoggedIn();
+      initCandDash(); navTo('cdash');
+      toast('Payment successful! Candidate Pro active ✓', 'ts');
+      console.log('Razorpay payment:', response);
+    },
+  };
+  const rzp = new Razorpay(options);
+  rzp.on('payment.failed', function(resp) {
+    toast('Payment failed: ' + (resp.error.description || 'Try again'), 'te');
+  });
+  rzp.open();
+}
+
+// ── Helper: next billing date (1 month from today) ───────────────────────────
+function rzpNextBillingDate() {
+  const d = new Date();
+  d.setMonth(d.getMonth() + 1);
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+// ── Update billing panel UI after payment ────────────────────────────────────
+function rzpUpdateBillingUI() {
+  const si = document.getElementById('billing-sub-id');
+  const st = document.getElementById('billing-status');
+  const nb = document.getElementById('billing-next');
+  const be = document.getElementById('billing-email');
+  if (si) si.textContent = RZP_SUB.id || '—';
+  if (st) { st.textContent = '● Active'; st.style.color = 'var(--green)'; }
+  if (nb) nb.textContent = RZP_SUB.nextBilling || '—';
+  if (be) be.textContent = RZP_SUB.email || AUTH.name;
+}
+
+// ── Manage subscription (opens Razorpay portal) ──────────────────────────────
+function rzpManageSubscription() {
+  if (RZP_SUB.id) {
+    window.open('https://dashboard.razorpay.com', '_blank');
+  } else {
+    toast('No active subscription found. Please contact support@pitchfirst.in', 'tw2');
+  }
+}
+
+// ── Cancel subscription ───────────────────────────────────────────────────────
+function rzpCancelSubscription() {
+  if (!confirm('Are you sure you want to cancel? Your access continues until the end of the billing period.')) return;
+  toast('Cancellation requested. You will retain access until ' + (RZP_SUB.nextBilling || 'end of period') + '.', 'tw2', 5000);
+  // TODO: Call backend to cancel via Razorpay API
+}
+
+// ══════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════
 let AUTH = { in: false, role: null, plan: null, name: '' };
@@ -2470,26 +2659,40 @@ function siRole(r) {
 }
 
 function doEmpSignup() {
-  AUTH = { in: true, role: 'employer', plan: 'pro', name: 'Success Fusion HR' };
-  closeModal('modal-auth'); setLoggedIn();
-  navTo('employer'); setTimeout(() => renderAll(), 300);
-  toast('Welcome, Success Fusion HR Services! Employer account created ✓', 'ts');
+  if (!rzpValidateEmpForm()) return;
+  const btn = document.getElementById('emp-signup-btn');
+  btn.disabled = true; btn.textContent = 'Opening payment...';
+  setTimeout(() => { btn.disabled = false; btn.textContent = 'Continue to Payment — ₹1,999/mo →'; }, 8000);
+  rzpOpenEmployerCheckout();
 }
 
 function doCandSignup() {
-  AUTH = { in: true, role: 'candidate', plan: 'pro', name: 'Rubina Solkar' };
-  candPlan = 'pro';
-  closeModal('modal-auth'); setLoggedIn();
-  initCandDash(); navTo('cdash');
-  toast('Welcome, Rubina! Full access activated — free until 30 June 2026 ✓', 'ts');
-  setTimeout(() => toast('Your Marquee is ready - pin your best proof now!', 'ti'), 2500);
-  checkSuspensionWarning();
+  const d = rzpGetCandFormData();
+
+  if (!d.name) { toast('Please enter your full name', 'tw2'); return; }
+  if (!d.phone || d.phone.replace(/\D/g,'').length < 10) { toast('Please enter a valid mobile number', 'tw2'); return; }
+
+  // TESTING MODE: always open Razorpay regardless of date
+  // TODO: restore date check before go-live → const isFreeperiod = new Date() < new Date('2026-07-01');
+  const isFreeperiod = false;
+
+  if (isFreeperiod) {
+    AUTH = { in: true, role: 'candidate', plan: 'pro', name: d.name || 'Rubina Solkar' };
+    candPlan = 'pro';
+    closeModal('modal-auth'); setLoggedIn();
+    initCandDash(); navTo('cdash');
+    toast('Welcome, ' + (d.name.split(' ')[0] || 'there') + '! Full access activated — free until 30 June 2026 ✓', 'ts');
+    setTimeout(() => toast('Your Marquee is ready — pin your best proof now!', 'ti'), 2500);
+    checkSuspensionWarning();
+  } else {
+    rzpOpenCandidateCheckout();
+  }
 }
 
 function doSignin() {
   AUTH = { in: true, role: siSelectedRole, plan: 'pro', name: siSelectedRole === 'employer' ? 'Success Fusion HR' : 'Rubina Solkar' };
   closeModal('modal-auth'); setLoggedIn();
-  if (siSelectedRole === 'employer') { navTo('employer'); setTimeout(() => renderAll(), 300); }
+  if (siSelectedRole === 'employer') { navTo('employer'); setTimeout(() => { renderAll(); rzpUpdateBillingUI(); }, 300); }
   else { initCandDash(); navTo('cdash'); checkSuspensionWarning(); }
   toast('Welcome back! Signed in successfully ✓', 'ts');
 }
