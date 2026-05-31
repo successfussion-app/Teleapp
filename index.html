@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PitchFirst - India's Voice-First Telecaller Hiring Platform | Find BPO Jobs & Hire Telecallers</title>
-<meta name="description" content="PitchFirst is India's first voice-first hiring platform for telecallers, BPO professionals, and inside sales executives. Record a 90-second voice pitch, complete a typing test, and get hired faster. ₹199/month for candidates (free until 30 June 2026). ₹1,999/month for employers (free until 30 June 2026).">
+<meta name="description" content="PitchFirst is India's first voice-first hiring platform for telecallers, BPO professionals, and inside sales executives. Record a 90-second voice pitch, complete a typing test, and get hired faster. ₹199/month for candidates (free until 30 June 2027). ₹1,999/month for employers (free until 30 June 2027).">
 <meta name="keywords" content="telecaller jobs India, BPO hiring platform, voice hiring, telecaller recruitment, inside sales jobs, outbound calling jobs, work from home telecaller, fresher telecaller jobs, BFSI telesales, call centre hiring India, PitchFirst, voice resume, audio resume India">
 <meta property="og:title" content="PitchFirst - Hire & Get Hired With Your Voice">
-<meta property="og:description" content="India's first voice-first telecaller hiring platform. Hear candidates before you meet them. Free until 30 June 2026. ₹199/mo candidates · ₹1,999/mo employers.">
+<meta property="og:description" content="India's first voice-first telecaller hiring platform. Hear candidates before you meet them. Free until 30 June 2027. ₹199/mo candidates · ₹1,999/mo employers.">
 <meta property="og:type" content="website">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://pitchfirst.in">
@@ -651,7 +651,7 @@ img{max-width:100%}
             <span style="font-size:16px">🎉</span>
             <span style="font-weight:800;font-size:14px;color:#fff;letter-spacing:-.2px">Launch Offer - Everything FREE till 30th June!</span>
           </div>
-          <div style="font-size:12px;color:rgba(255,255,255,.75);line-height:1.5">All candidates - freshers <em>and</em> experienced - sign up completely free during our India launch. Full Pro features included. No card required. Offer ends 30 June 2026. From 1 July 2026: ₹199/month.</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.75);line-height:1.5">All candidates - freshers <em>and</em> experienced - sign up completely free during our India launch. Full Pro features included. No card required. Offer ends 30 June 2027. From 1 July 2027: ₹199/month.</div>
           <div id="launch-countdown" style="font-family:'DM Mono',monospace;font-size:11px;color:#6ee7b7;margin-top:7px;font-weight:500"></div>
         </div>
       </div>
@@ -668,7 +668,7 @@ img{max-width:100%}
           <div style="font-size:12px;color:var(--ink);display:flex;align-items:center;gap:5px"><span style="color:var(--green);font-weight:700">✓</span> ✨ The Marquee</div>
           <div style="font-size:12px;color:var(--ink);display:flex;align-items:center;gap:5px"><span style="color:var(--green);font-weight:700">✓</span> Profile viewed alerts</div>
         </div>
-        <div style="font-size:11px;color:var(--slate);margin-top:10px;padding-top:8px;border-top:1px solid rgba(200,134,10,.12)">After 30 June 2026: ₹199/month · Single plan · All features included</div>
+        <div style="font-size:11px;color:var(--slate);margin-top:10px;padding-top:8px;border-top:1px solid rgba(200,134,10,.12)">After 30 June 2027: ₹199/month · Single plan · All features included</div>
       </div>
       <div class="fgrid" style="margin-bottom:14px">
         <div class="field"><label>Full Name</label><input class="fi" placeholder="First + last name"></div>
@@ -677,8 +677,8 @@ img{max-width:100%}
         <div class="field"><label>Password</label><input class="fi" type="password" placeholder="Create password"></div>
       </div>
       <div id="cand-pay-block" style="display:none"></div>
-      <button class="btn bgn" style="width:100%;font-size:14px;padding:13px" id="cand-signup-btn" onclick="doCandSignup()">🎉 Join Free — Full Access Until 30 June 2026 →</button>
-      <div style="text-align:center;font-size:11px;color:var(--slate);margin-top:8px">No credit card until 30 June 2026 · Then ₹199/month</div>
+      <button class="btn bgn" style="width:100%;font-size:14px;padding:13px" id="cand-signup-btn" onclick="doCandSignup()">🎉 Join Free — Full Access Until 30 June 2027 →</button>
+      <div style="text-align:center;font-size:11px;color:var(--slate);margin-top:8px">No credit card until 30 June 2027 · Then ₹199/month</div>
     </div>
     <!-- Sign in -->
     <div id="auth-signin" style="display:none">
@@ -712,9 +712,142 @@ img{max-width:100%}
       <div class="field"><label><span class="star">★</span> Job Title</label>
         <select class="fi"><option>Telesales Executive</option><option>Phone Banking Officer</option><option>Customer Relationship Executive</option><option>Insurance Advisor</option><option>Academic Counsellor</option><option>Inside Sales Executive</option><option>Customer Support Executive</option><option>Collections Executive</option><option>BDR / SDR</option></select></div>
       <div class="field"><label><span class="star">★</span> Industry</label>
-        <select class="fi"><option>Banking & Finance</option><option>Insurance</option><option>EdTech & Education</option><option>Healthcare</option><option>BPO / Call Centre</option><option>Real Estate</option><option>E-Commerce</option><option>Telecom</option></select></div>
-      <div class="field"><label><span class="star">★</span> City</label>
-        <select class="fi"><option>Mumbai</option><option>Delhi</option><option>Bangalore</option><option>Pune</option><option>Hyderabad</option><option>Chennai</option><option>Remote</option></select></div>
+        <select class="fi" id="role-industry">
+          <option value="">Select Industry</option>
+          <optgroup label="BFSI">
+            <option>Banking &amp; Finance</option>
+            <option>Insurance</option>
+            <option>NBFCs &amp; Microfinance</option>
+            <option>Mutual Funds &amp; Investments</option>
+            <option>Fintech</option>
+            <option>Stock Broking</option>
+            <option>Loans &amp; Mortgages</option>
+          </optgroup>
+          <optgroup label="BPO / IT">
+            <option>BPO / Call Centre</option>
+            <option>KPO / LPO</option>
+            <option>IT Services &amp; Software</option>
+            <option>ITES</option>
+            <option>Tech Support</option>
+          </optgroup>
+          <optgroup label="Education">
+            <option>EdTech &amp; Online Education</option>
+            <option>K-12 Education</option>
+            <option>Coaching &amp; Test Prep</option>
+            <option>Higher Education</option>
+            <option>Skill Development</option>
+          </optgroup>
+          <optgroup label="Healthcare">
+            <option>Hospitals &amp; Clinics</option>
+            <option>Pharma &amp; Life Sciences</option>
+            <option>Health Insurance</option>
+            <option>Diagnostics &amp; Labs</option>
+            <option>Health Tech</option>
+          </optgroup>
+          <optgroup label="E-Commerce &amp; Retail">
+            <option>E-Commerce</option>
+            <option>Retail &amp; FMCG</option>
+            <option>D2C &amp; Brands</option>
+            <option>Logistics &amp; Supply Chain</option>
+          </optgroup>
+          <optgroup label="Real Estate &amp; Construction">
+            <option>Real Estate</option>
+            <option>Construction</option>
+            <option>Property Management</option>
+            <option>Interior Design</option>
+          </optgroup>
+          <optgroup label="Telecom &amp; Media">
+            <option>Telecom</option>
+            <option>Media &amp; Entertainment</option>
+            <option>Digital Marketing Agency</option>
+            <option>OTT &amp; Streaming</option>
+          </optgroup>
+          <optgroup label="Travel &amp; Hospitality">
+            <option>Travel &amp; Tourism</option>
+            <option>Hotels &amp; Hospitality</option>
+            <option>Aviation</option>
+            <option>Food &amp; Beverage</option>
+          </optgroup>
+          <optgroup label="Auto &amp; Manufacturing">
+            <option>Automobile</option>
+            <option>Manufacturing</option>
+            <option>Engineering &amp; Industrial</option>
+          </optgroup>
+          <optgroup label="HR &amp; Staffing">
+            <option>HR &amp; Recruitment</option>
+            <option>Staffing &amp; Outsourcing</option>
+            <option>Payroll Services</option>
+          </optgroup>
+          <optgroup label="Government &amp; Non-Profit">
+            <option>Government / PSU</option>
+            <option>NGO &amp; Non-Profit</option>
+            <option>Social Enterprise</option>
+          </optgroup>
+          <optgroup label="Other">
+            <option>Legal Services</option>
+            <option>Accounting &amp; CA Firms</option>
+            <option>Agriculture &amp; Agri-Tech</option>
+            <option>Energy &amp; Utilities</option>
+            <option>Other</option>
+          </optgroup>
+        </select></div>
+      <div class="field"><label><span class="star">★</span> Location</label>
+        <select class="fi" id="role-city">
+          <option value="">Select Location</option>
+          <option>Remote / Work From Home</option>
+          <option>Pan India</option>
+          <optgroup label="Maharashtra">
+            <option>Mumbai</option><option>Pune</option><option>Nagpur</option><option>Thane</option><option>Nashik</option><option>Aurangabad</option><option>Solapur</option><option>Kolhapur</option><option>Navi Mumbai</option>
+          </optgroup>
+          <optgroup label="Delhi NCR">
+            <option>Delhi</option><option>Noida</option><option>Gurugram</option><option>Faridabad</option><option>Ghaziabad</option><option>Greater Noida</option>
+          </optgroup>
+          <optgroup label="Karnataka">
+            <option>Bangalore</option><option>Mysore</option><option>Hubli</option><option>Mangalore</option><option>Belgaum</option>
+          </optgroup>
+          <optgroup label="Telangana &amp; Andhra Pradesh">
+            <option>Hyderabad</option><option>Secunderabad</option><option>Warangal</option><option>Visakhapatnam</option><option>Vijayawada</option>
+          </optgroup>
+          <optgroup label="Tamil Nadu">
+            <option>Chennai</option><option>Coimbatore</option><option>Madurai</option><option>Salem</option><option>Tiruchirappalli</option>
+          </optgroup>
+          <optgroup label="Gujarat">
+            <option>Ahmedabad</option><option>Surat</option><option>Vadodara</option><option>Rajkot</option><option>Gandhinagar</option>
+          </optgroup>
+          <optgroup label="Uttar Pradesh">
+            <option>Lucknow</option><option>Kanpur</option><option>Agra</option><option>Varanasi</option><option>Allahabad</option><option>Meerut</option>
+          </optgroup>
+          <optgroup label="Rajasthan">
+            <option>Jaipur</option><option>Jodhpur</option><option>Udaipur</option><option>Kota</option><option>Ajmer</option>
+          </optgroup>
+          <optgroup label="West Bengal">
+            <option>Kolkata</option><option>Howrah</option><option>Durgapur</option><option>Asansol</option>
+          </optgroup>
+          <optgroup label="Madhya Pradesh">
+            <option>Indore</option><option>Bhopal</option><option>Jabalpur</option><option>Gwalior</option>
+          </optgroup>
+          <optgroup label="Bihar &amp; Jharkhand">
+            <option>Patna</option><option>Ranchi</option><option>Jamshedpur</option><option>Dhanbad</option>
+          </optgroup>
+          <optgroup label="Punjab &amp; Haryana">
+            <option>Chandigarh</option><option>Ludhiana</option><option>Amritsar</option><option>Jalandhar</option>
+          </optgroup>
+          <optgroup label="Kerala">
+            <option>Kochi</option><option>Thiruvananthapuram</option><option>Kozhikode</option><option>Thrissur</option>
+          </optgroup>
+          <optgroup label="Odisha">
+            <option>Bhubaneswar</option><option>Cuttack</option>
+          </optgroup>
+          <optgroup label="Assam &amp; North East">
+            <option>Guwahati</option><option>Shillong</option><option>Agartala</option>
+          </optgroup>
+          <optgroup label="Uttarakhand &amp; Himachal">
+            <option>Dehradun</option><option>Haridwar</option><option>Shimla</option>
+          </optgroup>
+          <optgroup label="Goa &amp; Others">
+            <option>Goa</option><option>Raipur</option><option>Bhopal</option>
+          </optgroup>
+        </select></div>
       <div class="field"><label><span class="star">★</span> Experience</label>
         <select class="fi"><option>Freshers welcome</option><option>1–2 years</option><option>2–4 years</option><option>4+ years</option></select></div>
       <div class="field"><label>Salary Range (LPA)</label>
@@ -773,6 +906,64 @@ img{max-width:100%}
       </div>
     </div>
     <button class="btn bp" style="width:100%" onclick="postRole()">Post Role Now →</button>
+  </div>
+</div>
+
+<!-- INTERVIEW SCHEDULE MODAL -->
+<div class="mb" id="modal-schedule">
+  <div class="modal" style="max-width:480px">
+    <button class="mx" onclick="closeModal('modal-schedule')">✕</button>
+    <div class="mt">Schedule Interview</div>
+    <div class="ms" id="schedule-cand-name">Select a date and time for the interview</div>
+    <input type="hidden" id="schedule-cand-id">
+    <div class="fgrid" style="margin-bottom:14px">
+      <div class="field">
+        <label><span class="star">★</span> Interview Date</label>
+        <input class="fi" type="date" id="schedule-date" min="">
+      </div>
+      <div class="field">
+        <label><span class="star">★</span> Time Slot</label>
+        <select class="fi" id="schedule-time">
+          <option value="">Select time</option>
+          <option>9:00 AM – 9:30 AM</option>
+          <option>9:30 AM – 10:00 AM</option>
+          <option>10:00 AM – 10:30 AM</option>
+          <option>10:30 AM – 11:00 AM</option>
+          <option>11:00 AM – 11:30 AM</option>
+          <option>11:30 AM – 12:00 PM</option>
+          <option>12:00 PM – 12:30 PM</option>
+          <option>2:00 PM – 2:30 PM</option>
+          <option>2:30 PM – 3:00 PM</option>
+          <option>3:00 PM – 3:30 PM</option>
+          <option>3:30 PM – 4:00 PM</option>
+          <option>4:00 PM – 4:30 PM</option>
+          <option>4:30 PM – 5:00 PM</option>
+          <option>5:00 PM – 5:30 PM</option>
+          <option>6:00 PM – 6:30 PM</option>
+          <option>6:30 PM – 7:00 PM</option>
+        </select>
+      </div>
+      <div class="field">
+        <label><span class="star">★</span> Interview Mode</label>
+        <div class="chips" id="schedule-mode-chips">
+          <div class="chip on" onclick="sc(this,'schedule-mode-chips')">📞 Phone</div>
+          <div class="chip" onclick="sc(this,'schedule-mode-chips')">📹 Video</div>
+          <div class="chip" onclick="sc(this,'schedule-mode-chips')">🏢 In-person</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Role</label>
+        <select class="fi" id="schedule-role">
+          <option value="">Select role (optional)</option>
+        </select>
+      </div>
+      <div class="field fcol">
+        <label>Notes for candidate</label>
+        <textarea class="fi" id="schedule-notes" rows="2" placeholder="e.g. Please keep your resume ready. We will call on the number registered."></textarea>
+      </div>
+    </div>
+    <div id="schedule-error" style="display:none;background:var(--rs);border-radius:8px;padding:9px 13px;font-size:13px;color:var(--red);margin-bottom:12px"></div>
+    <button class="btn bp" style="width:100%" onclick="submitSchedule()">Send Interview Invite →</button>
   </div>
 </div>
 
@@ -865,7 +1056,7 @@ img{max-width:100%}
         </button>
         <button class="lp-btn-cand" onclick="openModal('modal-auth');pickRole('candidate')">
           I'm Looking for a Job
-          <span class="lp-cta-sub">Free until 30 June 2026 · then ₹199/mo</span>
+          <span class="lp-cta-sub">Free until 30 June 2027 · then ₹199/mo</span>
         </button>
       </div>
       <div style="margin-bottom:20px;font-size:13px;color:var(--slate)">Already have an account? <span style="color:var(--gold);font-weight:700;cursor:pointer" onclick="openModal('modal-auth');showSignin()">Log in →</span></div>
@@ -1088,7 +1279,7 @@ img{max-width:100%}
     </div>
     <div style="text-align:center;margin-top:36px">
       <button class="btn bg" style="font-size:14px;padding:13px 28px" onclick="openModal('modal-auth');pickRole('candidate')">Build Your Profile Free →</button>
-      <div style="font-size:12px;color:var(--slate);margin-top:10px">Free until 30 June 2026 · then ₹199/month for all candidates</div>
+      <div style="font-size:12px;color:var(--slate);margin-top:10px">Free until 30 June 2027 · then ₹199/month for all candidates</div>
     </div>
   </section>
 
@@ -1179,7 +1370,7 @@ img{max-width:100%}
   <section class="lp-cta-band" aria-labelledby="cta-heading">
     <div class="lp-sec-tag" style="justify-content:center">Get Started Today</div>
     <h2 class="lp-sec-h" id="cta-heading" style="text-align:center">India has 5 million telecallers.<br/><em>They deserve a platform built for them.</em></h2>
-    <p class="lp-sec-p" style="text-align:center;margin:0 auto 36px">Join PitchFirst today — free for all candidates and at ₹1,999 for employers until 30 June 2026, then ₹199/month for candidates and ₹2,999/month for employers. No contracts. Cancel anytime.</p>
+    <p class="lp-sec-p" style="text-align:center;margin:0 auto 36px">Join PitchFirst today — free for all candidates and at ₹1,999 for employers until 30 June 2027, then ₹199/month for candidates and ₹2,999/month for employers. No contracts. Cancel anytime.</p>
     <div class="cta-band-btns">
       <button class="btn bd2" style="font-size:14px;padding:13px 28px" onclick="openModal('modal-auth');pickRole('employer')">🏢 Start Hiring →</button>
       <button class="btn bg" style="font-size:14px;padding:13px 28px" onclick="openModal('modal-auth');pickRole('candidate')">🎤 Build My Profile Free →</button>
@@ -1601,7 +1792,7 @@ img{max-width:100%}
           <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Current Plan</div>
           <div id="billing-plan-card" style="background:linear-gradient(135deg,var(--voice),#2d1060);border-radius:var(--r12);padding:20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
             <div><div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:#fff">Employer Pro Plan</div><div style="font-size:13px;color:rgba(237,233,254,.45);margin-top:3px">₹1,999/mo until 30 Jun 2026 · then ₹2,999/mo · Unlimited access</div></div>
-            <div style="text-align:right"><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--gl)">₹1,999<span style="font-size:13px;opacity:.6"> till 30 Jun</span></div><div style="font-size:11px;color:rgba(237,233,254,.4)">then ₹2,999/mo from 1 Jul 2026</div></div>
+            <div style="text-align:right"><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--gl)">₹1,999<span style="font-size:13px;opacity:.6"> till 30 Jun</span></div><div style="font-size:11px;color:rgba(237,233,254,.4)">then ₹2,999/mo from 1 Jul 2027</div></div>
           </div>
           <div class="brow"><span class="bkey">Status</span><span id="billing-status" style="font-weight:600;color:var(--green)">● Active</span></div>
           <div class="brow"><span class="bkey">Subscription ID</span><span id="billing-sub-id" style="font-weight:600;font-family:'DM Mono',monospace;font-size:12px">—</span></div>
@@ -2450,27 +2641,38 @@ async function supaEmpSignup(formData, paymentId, planId) {
   });
   if (authErr) throw authErr;
 
-  const userId = authData.user.id;
+  // 2. Sign in immediately to get an active session before touching DB
+  const { data: signInData, error: signInErr } = await supa.auth.signInWithPassword({ email, password });
+  if (signInErr) throw signInErr;
+  const userId = signInData.user.id;
 
-  // 2. Create employer profile
+  // 3. Ensure users row exists (trigger may have created it already)
+  const { data: existingUser } = await supa.from('users').select('id').eq('id', userId).single();
+  if (!existingUser) {
+    const { error: uErr } = await supa.from('users').insert({ id: userId, email, role: 'employer', full_name: company, phone });
+    if (uErr) console.warn('Users insert warning:', uErr.message);
+  }
+
+  // 4. Create employer profile
   const { data: ep, error: epErr } = await supa.from('employer_profiles').insert({
     user_id: userId, company_name: company, industry
   }).select().single();
   if (epErr) throw epErr;
 
-  // 3. Save subscription
-  await supa.from('subscriptions').insert({
-    user_id: userId,
-    razorpay_payment_id: paymentId,
-    plan_id: planId,
-    plan_name: planId === RZP.plans.employer_launch ? 'employer_launch' : 'employer_standard',
-    amount: planId === RZP.plans.employer_launch ? 199900 : 299900,
-    status: 'active',
-    current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-  });
+  // 5. Save subscription (skip for lifetime free)
+  if (paymentId !== 'LIFETIME_FREE') {
+    await supa.from('subscriptions').insert({
+      user_id: userId,
+      razorpay_payment_id: paymentId,
+      plan_id: planId,
+      plan_name: planId === RZP.plans.employer_launch ? 'employer_launch' : 'employer_standard',
+      amount: planId === RZP.plans.employer_launch ? 199900 : 299900,
+      status: 'active',
+      current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+    });
+  }
 
-  const needsConfirmation = !authData.session;
-  return { userId, companyName: company, needsConfirmation };
+  return { userId, companyName: company };
 }
 
 // ── CANDIDATE SIGN UP ─────────────────────────────────────────────────────────
@@ -2484,13 +2686,24 @@ async function supaCandSignup(formData, paymentId = null) {
   });
   if (authErr) throw authErr;
 
-  const userId = authData.user.id;
+  // 2. Sign in immediately to get an active session before touching DB
+  const { data: signInData, error: signInErr } = await supa.auth.signInWithPassword({ email, password });
+  if (signInErr) throw signInErr;
+  const userId = signInData.user.id;
 
-  // 2. Create candidate profile
-  await supa.from('candidate_profiles').insert({ user_id: userId });
+  // 3. Ensure users row exists
+  const { data: existingUser } = await supa.from('users').select('id').eq('id', userId).single();
+  if (!existingUser) {
+    const { error: uErr } = await supa.from('users').insert({ id: userId, email, role: 'candidate', full_name: name, phone });
+    if (uErr) console.warn('Users insert warning:', uErr.message);
+  }
 
-  // 3. Save subscription if paid
-  if (paymentId) {
+  // 4. Create candidate profile
+  const { error: cpErr } = await supa.from('candidate_profiles').insert({ user_id: userId });
+  if (cpErr) console.warn('Candidate profile insert warning:', cpErr.message);
+
+  // 5. Save subscription if paid
+  if (paymentId && paymentId !== 'LIFETIME_FREE') {
     await supa.from('subscriptions').insert({
       user_id: userId,
       razorpay_payment_id: paymentId,
@@ -2502,9 +2715,7 @@ async function supaCandSignup(formData, paymentId = null) {
     });
   }
 
-  // needsConfirmation = true when Supabase requires email verification
-  const needsConfirmation = !authData.session;
-  return { userId, name, needsConfirmation };
+  return { userId, name };
 }
 
 // ── SIGN IN ───────────────────────────────────────────────────────────────────
@@ -2617,7 +2828,7 @@ async function emailWelcomeCandidate(to, firstName) {
     <div class="tip">⌨️ <strong>Take the typing test</strong> — verified WPM score builds employer trust instantly.</div>
     <div class="tip">📄 <strong>Upload your resume</strong> — PDF only, max 5MB.</div>
     <div class="divider"></div>
-    <div style="font-size:12px;color:#4a4540">Free until 30 June 2026 · No credit card needed · <a href="mailto:${SUPPORT_EMAIL}" style="color:#7c3aed">Contact support</a></div>
+    <div style="font-size:12px;color:#4a4540">Free until 30 June 2027 · No credit card needed · <a href="mailto:${SUPPORT_EMAIL}" style="color:#7c3aed">Contact support</a></div>
   `);
   return sendEmail({ to, subject: `You're on PitchFirst, ${firstName}! Complete your profile now`, html });
 }
@@ -2946,7 +3157,7 @@ let RZP_SUB = { id: null, status: null, method: null, nextBilling: null, email: 
 
 // ── Determine which employer plan to use based on today's date ────────────────
 function rzpGetEmployerPlan() {
-  const cutoff = new Date('2026-07-01');
+  const cutoff = new Date('2027-07-01');
   return new Date() < cutoff ? RZP.plans.employer_launch : RZP.plans.employer_standard;
 }
 
@@ -3015,12 +3226,7 @@ function rzpOpenEmployerCheckout() {
       const d = rzpGetEmpFormData();
       const planId = rzpGetEmployerPlan();
       try {
-        const { companyName, needsConfirmation } = await supaEmpSignup(d, response.razorpay_payment_id, planId);
-        if (needsConfirmation) {
-          closeModal('modal-auth');
-          toast('Almost there! Check your email and click the confirmation link to activate your employer account.', 'ts', 7000);
-          return;
-        }
+        const { companyName } = await supaEmpSignup(d, response.razorpay_payment_id, planId);
         RZP_SUB.id = response.razorpay_payment_id;
         RZP_SUB.status = 'active';
         RZP_SUB.email = d.email;
@@ -3238,12 +3444,7 @@ function doEmpSignup() {
   // Lifetime free accounts — skip payment entirely
   if (isLifetimeFreeAccount(d.email)) {
     btn.disabled = true; btn.textContent = 'Creating account...';
-    supaEmpSignup(d, 'LIFETIME_FREE', RZP.plans.employer_launch).then(({ companyName, needsConfirmation }) => {
-      if (needsConfirmation) {
-        closeModal('modal-auth');
-        toast('Almost there! Check your email and click the confirmation link to activate your account.', 'ts', 7000);
-        return;
-      }
+    supaEmpSignup(d, 'LIFETIME_FREE', RZP.plans.employer_launch).then(({ companyName }) => {
       AUTH = { in: true, role: 'employer', plan: 'lifetime', name: companyName || d.company };
       closeModal('modal-auth'); setLoggedIn();
       navTo('employer'); setTimeout(() => renderAll(), 300);
@@ -3269,18 +3470,13 @@ function doCandSignup() {
   if (!d.phone || d.phone.replace(/\D/g,'').length < 10) { toast('Please enter a valid mobile number', 'tw2'); return; }
   if (!d.password || d.password.length < 8) { toast('Password must be at least 8 characters', 'tw2'); return; }
 
-  // Free until 30 June 2026 — automatically routes to Razorpay from 1 July onwards
-  const isFreeperiod = new Date() < new Date('2026-07-01');
+  // Free until 30 June 2027 — automatically routes to Razorpay from 1 July onwards
+  const isFreeperiod = new Date() < new Date('2027-07-01');
 
   if (isFreeperiod) {
     const btn = document.querySelector('#auth-cand button.btn.bp');
     if (btn) { btn.disabled = true; btn.textContent = 'Creating account...'; }
-    supaCandSignup(d, null).then(({ name, needsConfirmation }) => {
-      if (needsConfirmation) {
-        closeModal('modal-auth');
-        toast('Almost there! Check your email and click the confirmation link to activate your account.', 'ts', 7000);
-        return;
-      }
+    supaCandSignup(d, null).then(({ name }) => {
       const planType = isLifetimeFreeAccount(d.email) ? 'lifetime' : 'pro';
       AUTH = { in: true, role: 'candidate', plan: planType, name: name };
       candPlan = planType;
@@ -3288,7 +3484,7 @@ function doCandSignup() {
       initCandDash(); navTo('cdash');
       const msg = planType === 'lifetime'
         ? '✦ Lifetime free account activated — welcome, ' + (name.split(' ')[0] || 'there') + '!'
-        : 'Welcome, ' + (name.split(' ')[0] || 'there') + '! Full access activated — free until 30 June 2026 ✓';
+        : 'Welcome, ' + (name.split(' ')[0] || 'there') + '! Full access activated — free until 30 June 2027 ✓';
       toast(msg, 'ts');
       setTimeout(() => toast('Your Marquee is ready — pin your best proof now!', 'ti'), 2500);
       checkSuspensionWarning();
@@ -3549,7 +3745,7 @@ function renderSL() {
     <div class="cc" onclick="openCandModal(${c.id})">
       <div class="cc-av" style="background:${c.col}">${c.ini}</div>
       <div><div class="cc-name">${c.name}</div><div class="cc-role">${c.role} · ${c.city}</div><div class="tr">${c.tags.map(t => { const [cl, lb] = t.split(':'); return `<span class="tag ${cl}">${lb}</span>`; }).join('')}</div></div>
-      <div class="cc-r"><div class="sr ${c.sc}">${c.score}</div><button class="btn bp bsm" onclick="event.stopPropagation();toast('Interview invite sent to ${c.name}!','ts')">📅 Interview</button><button class="btn bgh bsm" onclick="event.stopPropagation();toggleSL(${c.id})">Remove</button></div>
+      <div class="cc-r"><div class="sr ${c.sc}">${c.score}</div><button class="btn bp bsm" onclick="event.stopPropagation();openScheduleModal(${c.id},'${c.name}')">📅 Interview</button><button class="btn bgh bsm" onclick="event.stopPropagation();toggleSL(${c.id})">Remove</button></div>
     </div>`).join('') :
     `<div style="text-align:center;padding:40px;color:var(--slate);font-size:14px">No candidates shortlisted yet.<br><br><button class="btn bg bsm" onclick="showEP('candidates',document.querySelectorAll('.esbi')[1])">Browse Candidates →</button></div>`;
 }
@@ -3627,6 +3823,102 @@ function initCandDash() {
     : `${firstName} · Profile incomplete · Complete your profile for personalised advice`;
 }
 
+// ══════════════════════════════════════════
+//  INTERVIEW SCHEDULING
+// ══════════════════════════════════════════
+function openScheduleModal(candId, candName) {
+  document.getElementById('schedule-cand-id').value = candId;
+  document.getElementById('schedule-cand-name').textContent = `Scheduling interview with ${candName}`;
+  document.getElementById('schedule-error').style.display = 'none';
+  document.getElementById('schedule-notes').value = '';
+
+  // Set min date to today
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('schedule-date').min = today;
+  document.getElementById('schedule-date').value = '';
+  document.getElementById('schedule-time').value = '';
+
+  // Populate roles dropdown from ROLES_DATA
+  const roleSelect = document.getElementById('schedule-role');
+  roleSelect.innerHTML = '<option value="">Select role (optional)</option>' +
+    ROLES_DATA.map(r => `<option>${r.title}</option>`).join('');
+
+  // Reset mode chips
+  document.querySelectorAll('#schedule-mode-chips .chip').forEach((c,i) => {
+    c.classList.toggle('on', i === 0);
+  });
+
+  openModal('modal-schedule');
+}
+
+async function submitSchedule() {
+  const candId   = document.getElementById('schedule-cand-id').value;
+  const date     = document.getElementById('schedule-date').value;
+  const time     = document.getElementById('schedule-time').value;
+  const role     = document.getElementById('schedule-role').value;
+  const notes    = document.getElementById('schedule-notes').value.trim();
+  const modeChip = document.querySelector('#schedule-mode-chips .chip.on');
+  const mode     = modeChip ? modeChip.textContent.trim() : 'Phone';
+  const errEl    = document.getElementById('schedule-error');
+
+  if (!date) { errEl.style.display=''; errEl.textContent='Please select a date.'; return; }
+  if (!time) { errEl.style.display=''; errEl.textContent='Please select a time slot.'; return; }
+  errEl.style.display = 'none';
+
+  const btn = document.querySelector('#modal-schedule .btn.bp');
+  btn.disabled = true; btn.textContent = 'Sending invite...';
+
+  try {
+    // Format date nicely
+    const dateObj = new Date(date + 'T00:00:00');
+    const dateStr = dateObj.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+    // Save to Supabase if we have IDs
+    if (AUTH.id && candId) {
+      const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).single();
+      if (ep) {
+        await supa.from('interviews').insert({
+          employer_id:   ep.id,
+          candidate_id:  candId,
+          scheduled_at:  new Date(`${date}T${time.split(' ')[0].replace(':','').length === 3 ? '0' : ''}${time.split(' ')[0]}:00`).toISOString(),
+          mode:          mode.includes('Phone') ? 'phone' : mode.includes('Video') ? 'video' : 'in-person',
+          status:        'confirmed',
+          notes,
+        }).select();
+      }
+    }
+
+    // Add to local INTERVIEWS_DATA for immediate UI update
+    const c = CANDS.find(x => x.id === candId);
+    INTERVIEWS_DATA.push({
+      cand: c?.name || 'Candidate',
+      role: role || (ROLES_DATA[0]?.title || 'Role'),
+      date: dateStr,
+      slot: time,
+      st:   'conf',
+      mode: mode,
+    });
+    renderInterviews();
+
+    // Send email notification
+    if (c?.email) {
+      emailInterviewScheduled(c.email, c.name?.split(' ')[0] || 'there',
+        role || 'the role', AUTH.name, dateStr, time,
+        mode.includes('Phone') ? 'phone' : mode.includes('Video') ? 'video' : 'in-person');
+    }
+
+    closeModal('modal-schedule');
+    toast(`Interview scheduled with ${c?.name || 'candidate'} for ${dateStr} at ${time} ✓`, 'ts', 5000);
+
+  } catch(err) {
+    errEl.style.display='';
+    errEl.textContent = 'Failed to schedule: ' + (err.message || 'Please try again.');
+    console.error('Schedule error:', err);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Send Interview Invite →';
+  }
+}
+
 function renderPlanSection() {
   const el = document.getElementById('cd-plan-section'); if (!el) return;
   const isLifetime = AUTH.plan === 'lifetime';
@@ -3640,11 +3932,11 @@ function renderPlanSection() {
       <div style="font-size:12px;color:var(--slate);padding:8px 0">This is a lifetime free test account. No payment required.</div>`;
   } else {
     const nextBilling = RZP_SUB.nextBilling || '—';
-    const isFreeperiod = new Date() < new Date('2026-07-01');
+    const isFreeperiod = new Date() < new Date('2027-07-01');
     el.innerHTML = `
       <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Current Plan</div>
       <div style="background:linear-gradient(135deg,var(--voice),#2d1060);border-radius:var(--r12);padding:18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
-        <div><div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;color:#fff">Candidate Pro Plan</div><div style="font-size:13px;color:rgba(237,233,254,.45);margin-top:3px">${isFreeperiod ? 'Free until 30 June 2026' : 'Active · Next billing: ' + nextBilling}</div></div>
+        <div><div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;color:#fff">Candidate Pro Plan</div><div style="font-size:13px;color:rgba(237,233,254,.45);margin-top:3px">${isFreeperiod ? 'Free until 30 June 2027' : 'Active · Next billing: ' + nextBilling}</div></div>
         <div style="text-align:right"><div style="font-family:'DM Mono',monospace;font-size:24px;font-weight:500;color:var(--gl)">${isFreeperiod ? '₹0' : '₹199'}</div><div style="font-size:11px;color:rgba(237,233,254,.35)">${isFreeperiod ? 'free period' : 'per month'}</div></div>
       </div>
       <div style="display:flex;gap:10px">
@@ -4866,7 +5158,7 @@ function checkSuspensionWarning() {
 <div class="mb" id="modal-privacy">
   <div class="modal" style="max-width:680px;padding:0">
     <div style="position:sticky;top:0;background:#fff;padding:24px 32px 16px;border-bottom:1px solid var(--bd);border-radius:20px 20px 0 0;z-index:2;display:flex;justify-content:space-between;align-items:center">
-      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Privacy Policy</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Effective: 1 June 2026 · PitchFirst</div></div>
+      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Privacy Policy</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Effective: 1 June 2027 · PitchFirst</div></div>
       <button class="mx" style="position:static" onclick="closeModal('modal-privacy')">✕</button>
     </div>
     <div style="padding:24px 32px;max-height:65vh;overflow-y:auto;font-size:13.5px;line-height:1.8;color:var(--slate)">
@@ -4902,7 +5194,7 @@ function checkSuspensionWarning() {
 <div class="mb" id="modal-tos">
   <div class="modal" style="max-width:680px;padding:0">
     <div style="position:sticky;top:0;background:#fff;padding:24px 32px 16px;border-bottom:1px solid var(--bd);border-radius:20px 20px 0 0;z-index:2;display:flex;justify-content:space-between;align-items:center">
-      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Terms of Service</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Effective: 1 June 2026 · PitchFirst</div></div>
+      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Terms of Service</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Effective: 1 June 2027 · PitchFirst</div></div>
       <button class="mx" style="position:static" onclick="closeModal('modal-tos')">✕</button>
     </div>
     <div style="padding:24px 32px;max-height:65vh;overflow-y:auto;font-size:13.5px;line-height:1.8;color:var(--slate)">
@@ -4916,7 +5208,7 @@ function checkSuspensionWarning() {
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">4. Employer Obligations</div>
       <p style="margin-bottom:10px">Employers must post only genuine roles, use candidate data exclusively for recruitment, not share or sell candidate contacts obtained via PitchFirst, comply with Indian labour laws, and submit factual post-interview feedback. Abusive or false feedback results in account termination.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">5. Subscriptions &amp; Payments</div>
-      <p style="margin-bottom:10px">Employer Pro: ₹1,999/month until 30 June 2026, then ₹2,999/month. Candidate: ₹199/month from 1 July 2026 (free until 30 June). Auto-renews monthly. GST charged additionally. See our Refund Policy for refund eligibility.</p>
+      <p style="margin-bottom:10px">Employer Pro: ₹1,999/month until 30 June 2027, then ₹2,999/month. Candidate: ₹199/month from 1 July 2027 (free until 30 June). Auto-renews monthly. GST charged additionally. See our Refund Policy for refund eligibility.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">6. Prohibited Conduct</div>
       <p style="margin-bottom:10px">Users must not scrape data, reverse-engineer the platform, post misleading listings, bypass subscriptions by contacting candidates off-platform, harass or discriminate against users, or upload malware.</p>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 6px">7. Intellectual Property</div>
@@ -4936,7 +5228,7 @@ function checkSuspensionWarning() {
 <div class="mb" id="modal-cookie">
   <div class="modal" style="max-width:620px;padding:0">
     <div style="position:sticky;top:0;background:#fff;padding:24px 32px 16px;border-bottom:1px solid var(--bd);border-radius:20px 20px 0 0;z-index:2;display:flex;justify-content:space-between;align-items:center">
-      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Cookie Policy</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Effective: 1 June 2026</div></div>
+      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Cookie Policy</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Effective: 1 June 2027</div></div>
       <button class="mx" style="position:static" onclick="closeModal('modal-cookie')">✕</button>
     </div>
     <div style="padding:24px 32px;max-height:65vh;overflow-y:auto;font-size:13.5px;line-height:1.8;color:var(--slate)">
@@ -4960,11 +5252,11 @@ function checkSuspensionWarning() {
 <div class="mb" id="modal-refund">
   <div class="modal" style="max-width:620px;padding:0">
     <div style="position:sticky;top:0;background:#fff;padding:24px 32px 16px;border-bottom:1px solid var(--bd);border-radius:20px 20px 0 0;z-index:2;display:flex;justify-content:space-between;align-items:center">
-      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Refund Policy</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Effective: 1 June 2026</div></div>
+      <div><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700">Refund Policy</div><div style="font-size:12px;color:var(--slate);margin-top:2px">Effective: 1 June 2027</div></div>
       <button class="mx" style="position:static" onclick="closeModal('modal-refund')">✕</button>
     </div>
     <div style="padding:24px 32px;max-height:65vh;overflow-y:auto;font-size:13.5px;line-height:1.8;color:var(--slate)">
-      <div style="background:var(--gp);border-radius:10px;padding:13px;border:1px solid rgba(200,134,10,.15);margin-bottom:16px"><strong style="color:var(--gold)">Launch Period (Until 30 June 2026):</strong> Both candidate and employer accounts are free. No payment taken, no refund applicable. From 1 July 2026: Candidates ₹199/month · Employers ₹2,999/month.</div>
+      <div style="background:var(--gp);border-radius:10px;padding:13px;border:1px solid rgba(200,134,10,.15);margin-bottom:16px"><strong style="color:var(--gold)">Launch Period (Until 30 June 2027):</strong> Both candidate and employer accounts are free. No payment taken, no refund applicable. From 1 July 2027: Candidates ₹199/month · Employers ₹2,999/month.</div>
       <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ink);margin:0 0 6px">Candidate Pro Plan (₹199/month)</div>
       <div style="background:var(--rs);border-radius:9px;padding:11px 13px;border:1px solid rgba(239,68,68,.15);margin-bottom:10px;font-size:13px"><strong style="color:var(--red)">Strict No-Refund Policy for Candidates</strong><br>Candidate subscription fees are <strong>non-refundable</strong> under all circumstances except one: a verified double payment (i.e. you were charged twice for the same billing cycle due to a technical error). No other reason — including dissatisfaction, accidental subscription, or non-use of the platform — will be accepted as grounds for a candidate refund.</div>
       <p style="margin-bottom:10px"><strong>Double payment refund:</strong> If you have been charged twice in the same billing period, email <a href="mailto:support@pitchfirst.app" style="color:var(--vg)">support@pitchfirst.app</a> with subject "Double Payment — Candidate" and include your registered email and both transaction IDs. We will verify and refund the duplicate charge within 5–7 business days.</p>
@@ -5103,7 +5395,7 @@ function checkSuspensionWarning() {
 
       <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:26px 28px;border-left:4px solid var(--vg)">
         <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:8px">Step 1 — Create Your Employer Account</div>
-        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">Click "Get Started Free" and select "I'm Hiring". Fill in company name, industry, work email, and billing details. The Employer Pro Plan is ₹1,999/month until 30 June 2026, then ₹2,999/month — unlimited role postings and full candidate access.</p>
+        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">Click "Get Started Free" and select "I'm Hiring". Fill in company name, industry, work email, and billing details. The Employer Pro Plan is ₹1,999/month until 30 June 2027, then ₹2,999/month — unlimited role postings and full candidate access.</p>
         <div style="background:var(--cream);border-radius:9px;padding:11px 13px;border:1px solid var(--bd);font-size:13px"><strong>Tip:</strong> Use your official HR email (e.g. hr@yourcompany.com). Verified employer badges increase application rates by 35%.</div>
       </div>
 
@@ -5171,13 +5463,13 @@ function checkSuspensionWarning() {
     <div style="height:3px;background:linear-gradient(to right,var(--gold),var(--gl));border-radius:2px;margin:24px 0 36px"></div>
     <div style="background:linear-gradient(135deg,#0f6e56,#10b981);border-radius:var(--r16);padding:22px 26px;margin-bottom:28px">
       <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;color:#fff;margin-bottom:7px">Welcome, Fresher!</div>
-      <p style="font-size:13.5px;color:rgba(255,255,255,.8);line-height:1.8">No experience? No problem. A confident 90-second voice pitch can get you shortlisted over candidates with 2 years of experience. Your account is completely free until 30 June 2026 — no credit card needed. From 1 July: ₹199/month.</p>
+      <p style="font-size:13.5px;color:rgba(255,255,255,.8);line-height:1.8">No experience? No problem. A confident 90-second voice pitch can get you shortlisted over candidates with 2 years of experience. Your account is completely free until 30 June 2027 — no credit card needed. From 1 July: ₹199/month.</p>
     </div>
     <div style="display:flex;flex-direction:column;gap:18px">
 
       <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:24px 26px;border-left:4px solid var(--gold)">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:30px;height:30px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--gold)">1</div><div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700">Create Your Free Account</div></div>
-        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">Click "Get Started Free" → "I'm Looking for a Job". Enter your name, mobile, and email. No payment required. Full Pro features free until 30 June 2026. From 1 July 2026: ₹199/month, single plan.</p>
+        <p style="font-size:13.5px;color:var(--slate);line-height:1.8;margin-bottom:10px">Click "Get Started Free" → "I'm Looking for a Job". Enter your name, mobile, and email. No payment required. Full Pro features free until 30 June 2027. From 1 July 2027: ₹199/month, single plan.</p>
       </div>
 
       <div style="background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:24px 26px;border-left:4px solid var(--gold)">
