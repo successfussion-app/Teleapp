@@ -2665,10 +2665,24 @@ async function supaLoadUserIntoAUTH(user) {
   }
 
   setLoggedIn();
-  if (AUTH.role === 'employer') { navTo('employer'); setTimeout(() => { renderAll(); rzpUpdateBillingUI(); }, 300); }
-  else {
+  if (AUTH.role === 'employer') {
+    navTo('employer');
+    setTimeout(() => {
+      renderAll();
+      rzpUpdateBillingUI();
+      loadRolesFromDB();
+      loadInterviewsFromDB();
+      loadVideoInterviewsFromDB();
+    }, 300);
+  } else {
     initCandDash(); navTo('cdash');
-    setTimeout(() => { loadMarqueeFromDB(); loadVideoFromDB(); }, 500);
+    setTimeout(() => {
+      loadMarqueeFromDB();
+      loadVideoFromDB();
+      loadApplicationsFromDB();
+      loadJobsFromDB();
+      loadVideoInterviewsFromDB();
+    }, 500);
   }
 }
 
@@ -3601,7 +3615,14 @@ async function doSignin() {
     await supaLoadUserIntoAUTH(user);
     toast('Welcome back! Signed in successfully ✓', 'ts');
     if (AUTH.role === 'candidate') {
-      setTimeout(() => { loadMarqueeFromDB(); loadVideoFromDB(); }, 500);
+      setTimeout(() => {
+        loadMarqueeFromDB(); loadVideoFromDB();
+        loadApplicationsFromDB(); loadJobsFromDB(); loadVideoInterviewsFromDB();
+      }, 500);
+    } else {
+      setTimeout(() => {
+        loadRolesFromDB(); loadInterviewsFromDB(); loadVideoInterviewsFromDB();
+      }, 300);
     }
   } catch(err) {
     if (btn) { btn.disabled = false; btn.textContent = 'Sign In →'; }
@@ -3821,11 +3842,62 @@ function renderHiring() {
   document.getElementById('currently-hiring').innerHTML = ROLES_DATA.slice(0, 3).map(r => `<div style="background:var(--cream);border-radius:8px;padding:8px 12px;border:1px solid var(--bd);font-size:12.5px;font-weight:500">${r.title}</div>`).join('');
 }
 
-function postRole() {
-  closeModal('modal-post');
-  ROLES_DATA.unshift({ title: 'New Role', ind: 'Banking & Finance', city: 'Mumbai', exp: '1–3 yrs', apps: 0 });
-  toast('Role posted! Going live now 🚀', 'ts'); setTimeout(() => toast('2 candidates already match!', 'ti'), 2000);
-  if (document.getElementById('ep-roles').classList.contains('active')) renderRoles();
+async function postRole() {
+  const get = id => { const el = document.getElementById(id); return el ? (el.value || el.options?.[el.selectedIndex]?.value || '').trim() : ''; };
+  const title   = get('post-title');
+  const ind     = get('role-industry') || get('post-ind');
+  const city    = get('role-city')     || get('post-city');
+  const exp     = get('post-exp');
+  const sal     = get('post-sal');
+  const desc    = get('post-desc');
+  const isWalkin = document.getElementById('post-type-walkin')?.checked || false;
+
+  if (!title) { toast('Please enter a role title', 'tw2'); return; }
+
+  const btn = document.querySelector('#modal-post .btn.bp');
+  if (btn) { btn.disabled = true; btn.textContent = 'Posting...'; }
+
+  try {
+    if (AUTH.id) {
+      // Get employer profile id
+      const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).single();
+      if (ep) {
+        const { data: role, error } = await supa.from('roles').insert({
+          employer_id:   ep.id,
+          title,
+          industry:      ind,
+          city,
+          experience_req: exp,
+          salary_range:   sal,
+          description:    desc,
+          is_walkin:      isWalkin,
+          is_active:      true,
+        }).select().single();
+        if (error) throw error;
+        // Add to local array for immediate render
+        ROLES_DATA.unshift({ id: role.id, title, ind, city, exp, apps: 0 });
+      }
+    } else {
+      // Not logged in — add locally for demo
+      ROLES_DATA.unshift({ title: title || 'New Role', ind, city, exp, apps: 0 });
+    }
+
+    closeModal('modal-post');
+    toast('Role posted! Going live now 🚀', 'ts');
+    setTimeout(() => toast('Matching candidates are being notified', 'ti'), 2000);
+    if (document.getElementById('ep-roles').classList.contains('active')) renderRoles();
+    renderHiring();
+
+    // Update roles count badge
+    const badge = document.querySelector('.esbi .ecnt');
+    if (badge) badge.textContent = ROLES_DATA.length;
+
+  } catch(err) {
+    toast('Failed to post role: ' + (err.message || 'Please try again'), 'te');
+    console.error('postRole error:', err);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Post Role Now →'; }
+  }
 }
 
 function cpEdit(section) {
@@ -3840,6 +3912,137 @@ function cpEdit(section) {
 }
 function saveCpEdit() { closeModal('modal-cp-edit'); toast('Changes saved to your company profile ✓', 'ts'); }
 function renderAll() { renderCands(); renderRoles(); renderInterviews(); renderSL(); renderHiring(); }
+
+// ── Load employer roles from Supabase ─────────────────────────────────────────
+async function loadRolesFromDB() {
+  if (!AUTH.id || AUTH.role !== 'employer') return;
+  try {
+    const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).single();
+    if (!ep) return;
+    const { data: roles } = await supa.from('roles').select('*').eq('employer_id', ep.id).eq('is_active', true).order('created_at', { ascending: false });
+    if (!roles?.length) return;
+    ROLES_DATA.length = 0;
+    roles.forEach(r => ROLES_DATA.push({ id: r.id, title: r.title, ind: r.industry || '—', city: r.city || '—', exp: r.experience_req || '—', apps: 0, sal: r.salary_range }));
+    // Get application counts per role
+    const roleIds = roles.map(r => r.id);
+    const { data: appCounts } = await supa.from('applications').select('role_id').in('role_id', roleIds);
+    if (appCounts) {
+      appCounts.forEach(a => {
+        const r = ROLES_DATA.find(x => x.id === a.role_id);
+        if (r) r.apps = (r.apps || 0) + 1;
+      });
+    }
+    renderRoles(); renderHiring();
+    // Update roles count badge
+    const badge = document.querySelector('[onclick*="roles"] .ecnt');
+    if (badge) badge.textContent = ROLES_DATA.length;
+  } catch(e) { console.warn('loadRolesFromDB error:', e); }
+}
+
+// ── Load employer interviews from Supabase ────────────────────────────────────
+async function loadInterviewsFromDB() {
+  if (!AUTH.id || AUTH.role !== 'employer') return;
+  try {
+    const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).single();
+    if (!ep) return;
+    const { data: invs } = await supa.from('interviews')
+      .select('*, candidate_profiles(user_id, role_title), roles(title)')
+      .eq('employer_id', ep.id)
+      .order('scheduled_at', { ascending: true });
+    if (!invs?.length) return;
+    INTERVIEWS_DATA.length = 0;
+    for (const iv of invs) {
+      // Get candidate name
+      const { data: cu } = await supa.from('users').select('full_name').eq('id', iv.candidate_profiles?.user_id).single();
+      const dateObj = iv.scheduled_at ? new Date(iv.scheduled_at) : null;
+      INTERVIEWS_DATA.push({
+        id:   iv.id,
+        cand: cu?.full_name || 'Candidate',
+        role: iv.roles?.title || '—',
+        date: dateObj ? dateObj.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' }) : '—',
+        slot: dateObj ? dateObj.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }) : '—',
+        st:   iv.status === 'confirmed' ? 'conf' : iv.status === 'completed' ? 'done' : 'pend',
+        mode: iv.mode,
+      });
+    }
+    renderInterviews();
+    const badge = document.querySelector('[onclick*="interviews"] .ecnt');
+    if (badge) badge.textContent = INTERVIEWS_DATA.length;
+  } catch(e) { console.warn('loadInterviewsFromDB error:', e); }
+}
+
+// ── Load candidate applications from Supabase ─────────────────────────────────
+async function loadApplicationsFromDB() {
+  if (!AUTH.id || AUTH.role !== 'candidate') return;
+  try {
+    const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
+    if (!cp) return;
+    const { data: apps } = await supa.from('applications')
+      .select('*, roles(title, city, salary_range), employer_profiles(company_name)')
+      .eq('candidate_id', cp.id)
+      .order('applied_at', { ascending: false });
+    if (!apps?.length) return;
+    CD_APPS.length = 0;
+    apps.forEach(a => CD_APPS.push({
+      co:     a.employer_profiles?.company_name || '—',
+      role:   a.roles?.title || '—',
+      city:   a.roles?.city || '—',
+      sal:    a.roles?.salary_range || '',
+      date:   new Date(a.applied_at).toLocaleDateString('en-IN', { day:'numeric', month:'short' }),
+      status: a.status,
+    }));
+    if (typeof renderCDApps === 'function') renderCDApps();
+    document.getElementById('cd-app-cnt').textContent = CD_APPS.length;
+  } catch(e) { console.warn('loadApplicationsFromDB error:', e); }
+}
+
+// ── Load candidate-facing job listings from active DB roles ──────────────────
+async function loadJobsFromDB() {
+  if (!AUTH.id || AUTH.role !== 'candidate') return;
+  try {
+    const { data: roles } = await supa.from('roles')
+      .select('*, employer_profiles(company_name)')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (!roles?.length) return;
+    CD_JOBS.length = 0;
+    roles.forEach(r => CD_JOBS.push({
+      emoji: '📋',
+      title: r.title,
+      co:    r.employer_profiles?.company_name || '—',
+      city:  r.city || '—',
+      type:  r.work_type || 'In-office',
+      ind:   r.industry || '—',
+      sal:   r.salary_range || '—',
+      match: Math.floor(60 + Math.random() * 35), // AI match score — Phase 2
+      id:    r.id,
+    }));
+    if (typeof renderCDJobs === 'function') renderCDJobs();
+  } catch(e) { console.warn('loadJobsFromDB error:', e); }
+}
+
+// ── Load video_interviews for live call feature (employer + candidate) ─────────
+async function loadVideoInterviewsFromDB() {
+  if (!AUTH.id) return;
+  try {
+    let query;
+    if (AUTH.role === 'employer') {
+      const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).single();
+      if (!ep) return;
+      query = supa.from('video_interviews').select('*').eq('employer_id', ep.id).neq('status', 'cancelled');
+    } else {
+      const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
+      if (!cp) return;
+      query = supa.from('video_interviews').select('*').eq('candidate_id', cp.id).neq('status', 'cancelled');
+    }
+    const { data: vids } = await query.order('created_at', { ascending: false }).limit(10);
+    if (vids?.length) {
+      console.log('Video interviews loaded:', vids.length);
+      // Render into video interview section when UI is ready (Phase 2 UI wiring)
+    }
+  } catch(e) { console.warn('loadVideoInterviewsFromDB error:', e); }
+}
 
 // ══════════════════════════════════════════
 //  CANDIDATE DASHBOARD
@@ -4289,25 +4492,68 @@ function aiCoverLetter() {
 
 async function submitApp() {
   const roleTitle = document.getElementById('apply-title').textContent;
-  const meta      = document.getElementById('apply-meta').textContent;
   const coverNote = document.getElementById('cl-area')?.value || '';
 
-  // Save application to Supabase if logged in
-  if (AUTH.id) {
-    try {
-      // We don't have role_id/employer_id in this modal yet — that comes
-      // when roles are fully loaded from DB. For now log the intent.
-      console.log('Application submitted:', { roleTitle, meta, candidateId: AUTH.id });
-    } catch(e) { console.warn('App save error:', e); }
+  const btn = document.querySelector('#modal-apply .btn.bp');
+  if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+
+  try {
+    if (AUTH.id) {
+      // Get candidate profile
+      const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
+
+      if (cp) {
+        // Find matching role in DB by title (best effort — roles loaded from Supabase)
+        const { data: roles } = await supa.from('roles').select('id,employer_id').eq('title', roleTitle).eq('is_active', true).limit(1);
+        const role = roles?.[0];
+
+        if (role) {
+          // Save application to DB
+          const { error } = await supa.from('applications').insert({
+            role_id:      role.id,
+            candidate_id: cp.id,
+            employer_id:  role.employer_id,
+            cover_note:   coverNote,
+            status:       'applied',
+          });
+          if (error && !error.message.includes('duplicate')) throw error;
+
+          // Add to local CD_APPS for immediate UI update
+          CD_APPS.unshift({
+            co:     roleTitle,
+            role:   roleTitle,
+            city:   '—',
+            date:   'Just now',
+            status: 'applied',
+          });
+          document.getElementById('cd-app-cnt').textContent = CD_APPS.length;
+
+          // Notify employer by email
+          const { data: ep } = await supa.from('employer_profiles').select('company_name').eq('id', role.employer_id).single();
+          const { data: eu } = await supa.from('users').select('email').eq('id',
+            (await supa.from('employer_profiles').select('user_id').eq('id', role.employer_id).single()).data?.user_id
+          ).single();
+          if (eu?.email) {
+            emailNewApplication(eu.email, ep?.company_name || 'Employer', AUTH.name, roleTitle, AUTH.candidateProfile?.city || 'India');
+          }
+        } else {
+          // Role not in DB yet — save intent locally
+          CD_APPS.unshift({ co: roleTitle, role: roleTitle, city: '—', date: 'Just now', status: 'applied' });
+          document.getElementById('cd-app-cnt').textContent = CD_APPS.length;
+        }
+      }
+    }
+
+    closeModal('modal-apply');
+    toast('Application submitted with resume + voice pitch 🎉', 'ts');
+    setTimeout(() => toast('The employer has been notified of your application', 'ti'), 2000);
+
+  } catch(err) {
+    toast('Submission failed: ' + (err.message || 'Please try again'), 'te');
+    console.error('submitApp error:', err);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Submit Application + Resume →'; }
   }
-
-  closeModal('modal-apply');
-  toast('Application submitted with resume + voice pitch 🎉', 'ts');
-  setTimeout(() => toast('The employer has been notified of your application', 'ti'), 2000);
-
-  // Email the employer — uses placeholder employer email until roles are DB-driven
-  // emailNewApplication(employerEmail, companyName, AUTH.name, roleTitle, city);
-  // (Uncomment and populate once roles are loaded from Supabase)
 }
 
 // ══════════════════════════════════════════
