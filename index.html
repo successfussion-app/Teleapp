@@ -2426,7 +2426,10 @@ async function supaLoadUserIntoAUTH(user) {
 
   setLoggedIn();
   if (AUTH.role === 'employer') { navTo('employer'); setTimeout(() => { renderAll(); rzpUpdateBillingUI(); }, 300); }
-  else { initCandDash(); navTo('cdash'); }
+  else {
+    initCandDash(); navTo('cdash');
+    setTimeout(() => { loadMarqueeFromDB(); loadVideoFromDB(); }, 500);
+  }
 }
 
 // ── EMPLOYER SIGN UP ──────────────────────────────────────────────────────────
@@ -3250,6 +3253,9 @@ async function doSignin() {
     closeModal('modal-auth');
     await supaLoadUserIntoAUTH(user);
     toast('Welcome back! Signed in successfully ✓', 'ts');
+    if (AUTH.role === 'candidate') {
+      setTimeout(() => { loadMarqueeFromDB(); loadVideoFromDB(); }, 500);
+    }
   } catch(err) {
     if (btn) { btn.disabled = false; btn.textContent = 'Sign In →'; }
     const msg = err.message?.includes('Invalid login') ? 'Incorrect email or password.' : (err.message || 'Sign in failed. Please try again.');
@@ -4208,11 +4214,12 @@ window.addEventListener('DOMContentLoaded', () => {
     </div>
 
     <!-- Drop zone -->
-    <div class="mq-drop-zone" id="mq-drop-zone" onclick="simulateMQUpload()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="event.preventDefault();this.classList.remove('drag-over');simulateMQUpload()">
+    <div class="mq-drop-zone" id="mq-drop-zone" onclick="simulateMQUpload()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="event.preventDefault();this.classList.remove('drag-over');handleMQFileDrop(event)">
       <div class="mq-drop-icon" id="mq-drop-icon">🎥</div>
       <div class="mq-drop-text" id="mq-drop-text">Click to upload or drag & drop</div>
       <div class="mq-drop-sub" id="mq-drop-sub">MP4, MOV, AVI up to 500MB · YouTube / Vimeo links accepted</div>
-      <div id="mq-upload-progress" style="display:none;margin-top:14px">
+      <input type="file" id="mq-file-input" accept="video/*" style="display:none" onchange="handleMQFileSelect(this)">
+    <div id="mq-upload-progress" style="display:none;margin-top:14px">
         <div style="background:rgba(14,11,7,.08);border-radius:4px;height:6px;overflow:hidden;margin-bottom:6px">
           <div id="mq-prog-fill" style="height:100%;width:0%;background:linear-gradient(to right,var(--gold),var(--gl));border-radius:4px;transition:width .3s"></div>
         </div>
@@ -4302,24 +4309,7 @@ runCountdown();
 // ══════════════════════════════════════════
 //  THE MARQUEE DATA & LOGIC
 // ══════════════════════════════════════════
-let marqueeItems = [
-  {
-    id: 1, type: 'video', icon: '🎥',
-    title: 'Add your first achievement',
-    desc: 'Ranked #1 out of 240 telecallers for Q3 2024. Recognised on stage at the annual awards night in Mumbai.',
-    org: '', year: '2026',
-    thumb: null, views: 34, pinned: true, visible: true,
-    typeBadge: 'mqt-video', typeLabel: 'Award Video'
-  },
-  {
-    id: 2, type: 'cert', icon: '📜',
-    title: 'AMFI Mutual Fund Distributor Certification',
-    desc: 'Passed NISM Series V-A with 89% score. Certified to distribute and advise on mutual fund products across India.',
-    org: 'AMFI / NISM India', year: '2023',
-    thumb: null, views: 18, pinned: true, visible: true,
-    typeBadge: 'mqt-cert', typeLabel: 'Certification'
-  }
-];
+let marqueeItems = []; // loaded from Supabase on login
 
 let mqSelectedType = 'video';
 let mqUploaded = false;
@@ -4331,8 +4321,10 @@ const MQ_TYPE_MAP = {
   case:      { icon:'📊', label:'Case Study',      badge:'mqt-case',      dropText:'Click to upload case study or drag & drop',    dropSub:'PDF, PPTX up to 50MB · Or paste a Notion / Drive link' },
 };
 
+let mqPendingFile = null;
+
 function selectMQType(el, type) {
-  mqSelectedType = type; mqUploaded = false;
+  mqSelectedType = type; mqUploaded = false; mqPendingFile = null;
   document.querySelectorAll('.mq-type-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   const cfg = MQ_TYPE_MAP[type];
@@ -4341,6 +4333,9 @@ function selectMQType(el, type) {
   document.getElementById('mq-drop-sub').textContent = cfg.dropSub;
   document.getElementById('mq-upload-progress').style.display = 'none';
   document.getElementById('mq-prog-fill').style.width = '0%';
+  // Update file input accepted types
+  const fi = document.getElementById('mq-file-input');
+  if (fi) fi.accept = type === 'video' ? 'video/*' : type === 'image' ? 'image/*' : '.pdf,image/*,video/*';
 }
 
 function openMarqueeUpload() {
@@ -4352,50 +4347,130 @@ function openMarqueeUpload() {
   document.getElementById('mq-link-input').value = '';
   document.getElementById('mq-year-input').value = '2026';
   document.getElementById('mq-visibility-tog').classList.remove('off');
-  mqUploaded = false;
+  mqUploaded = false; mqPendingFile = null;
   openModal('modal-marquee');
 }
 
-function simulateMQUpload() {
+function handleMQFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const maxMB = mqSelectedType === 'video' ? 500 : 50;
+  if (file.size > maxMB * 1024 * 1024) { toast(`File too large. Max ${maxMB}MB for this type.`, 'tw2'); input.value = ''; return; }
+  mqPendingFile = file;
+  mqUploaded = true;
   const prog = document.getElementById('mq-upload-progress');
   const fill = document.getElementById('mq-prog-fill');
-  const lbl = document.getElementById('mq-prog-label');
+  const lbl  = document.getElementById('mq-prog-label');
   prog.style.display = '';
-  let pct = 0;
-  const iv = setInterval(() => {
-    pct += Math.random() * 18 + 8;
-    if (pct >= 100) { pct = 100; clearInterval(iv); mqUploaded = true; lbl.textContent = '✓ Upload complete - ready to pin'; fill.style.background = 'linear-gradient(to right,var(--green),#34d399)'; toast('File uploaded successfully ✓', 'ts'); }
-    else { lbl.textContent = `Uploading... ${Math.round(pct)}%`; }
-    fill.style.width = pct + '%';
-  }, 220);
+  fill.style.width = '100%';
+  fill.style.background = 'linear-gradient(to right,var(--green),#34d399)';
+  lbl.textContent = `✓ ${file.name} ready to pin`;
+  toast('File ready — fill in the details and click Pin to Marquee', 'ts');
 }
 
-function addMarqueeItem() {
+function simulateMQUpload() {
+  const fi = document.getElementById('mq-file-input');
+  if (fi) fi.click();
+}
+
+function handleMQFileDrop(event) {
+  const file = event.dataTransfer?.files[0];
+  if (!file) return;
+  handleMQFileSelect({ files: [file], value: '' });
+}
+
+async function addMarqueeItem() {
   const title = document.getElementById('mq-title-input').value.trim();
-  const link = document.getElementById('mq-link-input').value.trim();
+  const link  = document.getElementById('mq-link-input').value.trim();
   if (!title) { toast('Please add a title for your Marquee entry', 'tw2'); document.getElementById('mq-title-input').focus(); return; }
-  if (!mqUploaded && !link) { toast('Please upload a file or paste a link', 'tw2'); return; }
+  if (!mqPendingFile && !link) { toast('Please upload a file or paste a link', 'tw2'); return; }
+  if (!AUTH.id) { toast('Please sign in to save Marquee items', 'tw2'); return; }
+
   const cfg = MQ_TYPE_MAP[mqSelectedType];
-  const newItem = {
-    id: Date.now(), type: mqSelectedType, icon: cfg.icon,
-    title, desc: document.getElementById('mq-desc-input').value.trim(),
-    org: document.getElementById('mq-org-input').value.trim(),
-    year: document.getElementById('mq-year-input').value,
-    thumb: null, views: 0, pinned: true,
-    visible: !document.getElementById('mq-visibility-tog').classList.contains('off'),
-    typeBadge: cfg.badge, typeLabel: cfg.label
-  };
-  marqueeItems.push(newItem);
-  closeModal('modal-marquee');
-  if (typeof renderMarquee === 'function') renderMarquee();
-  toast(`"${title}" pinned to The Marquee ✦`, 'ts');
+  const btn = document.querySelector('#modal-marquee .btn.bp');
+  if (btn) { btn.disabled = true; btn.textContent = 'Pinning...'; }
+
+  try {
+    let filePath = null;
+
+    // ── Upload file to Supabase Storage if one was selected ────────────────
+    if (mqPendingFile) {
+      const ext      = mqPendingFile.name.split('.').pop();
+      const safeName = `${Date.now()}-${mqSelectedType}.${ext}`;
+      filePath       = `${AUTH.id}/${safeName}`;
+
+      const { error: upErr } = await supa.storage
+        .from('marquee-files')
+        .upload(filePath, mqPendingFile, { upsert: false });
+      if (upErr) throw upErr;
+    }
+
+    // ── Save to marquee_items table ─────────────────────────────────────────
+    const { data: cp } = await supa.from('candidate_profiles')
+      .select('id').eq('user_id', AUTH.id).single();
+    if (!cp) throw new Error('Candidate profile not found');
+
+    const { data: item, error: dbErr } = await supa.from('marquee_items').insert({
+      candidate_id:  cp.id,
+      type:          mqSelectedType,
+      icon:          cfg.icon,
+      title,
+      description:   document.getElementById('mq-desc-input').value.trim(),
+      org:           document.getElementById('mq-org-input').value.trim(),
+      year:          document.getElementById('mq-year-input').value,
+      file_path:     filePath,
+      external_link: link || null,
+      file_type:     mqSelectedType,
+      is_pinned:     true,
+      is_visible:    !document.getElementById('mq-visibility-tog').classList.contains('off'),
+      views:         0,
+      type_badge:    cfg.badge,
+      type_label:    cfg.label,
+    }).select().single();
+    if (dbErr) throw dbErr;
+
+    // ── Add to local array + re-render ──────────────────────────────────────
+    marqueeItems.push({
+      id: item.id, type: mqSelectedType, icon: cfg.icon,
+      title, desc: item.description, org: item.org, year: item.year,
+      thumb: filePath ? supa.storage.from('marquee-files').getPublicUrl(filePath).data.publicUrl : null,
+      externalLink: link || null,
+      views: 0, pinned: true,
+      visible: item.is_visible,
+      typeBadge: cfg.badge, typeLabel: cfg.label,
+    });
+
+    mqPendingFile = null; mqUploaded = false;
+    closeModal('modal-marquee');
+    if (typeof renderMarquee === 'function') renderMarquee();
+    toast(`"${title}" pinned to The Marquee ✦`, 'ts');
+
+  } catch(err) {
+    toast('Failed to save: ' + (err.message || 'Please try again'), 'te');
+    console.error('Marquee save error:', err);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Pin to Marquee ✦'; }
+  }
 }
 
-function deleteMarqueeItem(id) {
+async function deleteMarqueeItem(id) {
   if (!confirm('Remove this entry from The Marquee?')) return;
-  marqueeItems = marqueeItems.filter(x => x.id !== id);
-  if (typeof renderMarquee === 'function') renderMarquee();
-  toast('Entry removed from The Marquee', 'ti');
+  const item = marqueeItems.find(x => x.id === id);
+
+  try {
+    // Delete file from Storage if it was uploaded
+    if (item?.thumb && item.thumb.includes('marquee-files')) {
+      const path = `${AUTH.id}/${item.thumb.split('/').pop()}`;
+      await supa.storage.from('marquee-files').remove([path]);
+    }
+    // Delete from DB
+    await supa.from('marquee_items').delete().eq('id', id);
+    marqueeItems = marqueeItems.filter(x => x.id !== id);
+    if (typeof renderMarquee === 'function') renderMarquee();
+    toast('Entry removed from The Marquee', 'ti');
+  } catch(err) {
+    toast('Delete failed: ' + (err.message || 'Please try again'), 'te');
+  }
 }
 
 function renderMarquee() {
@@ -5119,7 +5194,7 @@ function toggleFaq(btn) {
          onclick="simulateVideoUpload()"
          ondragover="event.preventDefault();this.classList.add('drag-over')"
          ondragleave="this.classList.remove('drag-over')"
-         ondrop="event.preventDefault();this.classList.remove('drag-over');simulateVideoUpload()">
+         ondrop="event.preventDefault();this.classList.remove('drag-over');handleVideoFileDrop(event)">
       <div style="font-size:36px;margin-bottom:10px">🎬</div>
       <div style="font-size:14px;font-weight:600;color:var(--slate);margin-bottom:4px">Click to upload or drag &amp; drop</div>
       <div style="font-size:12px;color:rgba(14,11,7,.3)">MP4, MOV, AVI, MKV · Max 500MB · Recommended: 2–5 minutes</div>
@@ -5130,6 +5205,7 @@ function toggleFaq(btn) {
         <div id="vid-prog-label" style="font-size:12px;color:var(--slate);text-align:center">Uploading...</div>
       </div>
     </div>
+    <input type="file" id="vid-file-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,.mp4,.mov,.avi,.webm" style="display:none" onchange="handleVideoFileSelect(this)">
 
     <!-- Or paste link -->
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
@@ -5201,71 +5277,183 @@ function openVideoUpload() {
   openModal('modal-video-upload');
 }
 
+let videoPendingFile = null;
+
 function simulateVideoUpload() {
+  const fi = document.getElementById('vid-file-input');
+  if (fi) fi.click();
+}
+
+function handleVideoFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const validTypes = ['video/mp4','video/quicktime','video/x-msvideo','video/webm'];
+  if (!validTypes.includes(file.type) && !file.name.match(/\.(mp4|mov|avi|webm)$/i)) {
+    toast('Please upload a valid video file (MP4, MOV, AVI, WEBM)', 'tw2'); return;
+  }
+  if (file.size > 500 * 1024 * 1024) { toast('File too large. Maximum 500MB.', 'tw2'); return; }
+  videoPendingFile = file;
+  videoUploaded = true;
   const prog = document.getElementById('vid-upload-progress');
   const fill = document.getElementById('vid-prog-fill');
-  const lbl = document.getElementById('vid-prog-label');
+  const lbl  = document.getElementById('vid-prog-label');
   prog.style.display = '';
-  let pct = 0;
-  const iv = setInterval(() => {
-    pct += Math.random() * 12 + 5;
-    if (pct >= 100) {
-      pct = 100;
-      clearInterval(iv);
-      videoUploaded = true;
-      lbl.textContent = '✓ Upload complete — ready to publish';
-      fill.style.background = 'linear-gradient(to right,var(--green),#34d399)';
-      toast('Video uploaded successfully ✓', 'ts');
-    } else {
-      lbl.textContent = `Uploading... ${Math.round(pct)}%`;
-    }
-    fill.style.width = pct + '%';
-  }, 280);
+  fill.style.width = '100%';
+  fill.style.background = 'linear-gradient(to right,var(--green),#34d399)';
+  lbl.textContent = `✓ ${file.name} ready to publish`;
+  toast('Video ready — add a title and click Publish', 'ts');
 }
 
-function submitVideoUpload() {
+async function submitVideoUpload() {
   const title = document.getElementById('vid-title-input').value.trim();
-  const link = document.getElementById('vid-link-input').value.trim();
-  if (!title) {
-    toast('Please add a title for your video', 'tw2');
-    document.getElementById('vid-title-input').focus();
-    return;
+  const link  = document.getElementById('vid-link-input').value.trim();
+  if (!title) { toast('Please add a title for your video', 'tw2'); document.getElementById('vid-title-input').focus(); return; }
+  if (!videoPendingFile && !link) { toast('Please upload a video file or paste a link', 'tw2'); return; }
+  if (!AUTH.id) { toast('Please sign in to upload your video', 'tw2'); return; }
+
+  const btn = document.querySelector('#modal-video-upload .btn.bp');
+  if (btn) { btn.disabled = true; btn.textContent = 'Publishing...'; }
+
+  try {
+    const desc    = document.getElementById('vid-desc-input').value.trim();
+    const visible = !document.getElementById('vid-visibility-tog').classList.contains('off');
+    let storagePath = null;
+
+    // ── Upload file to Supabase Storage if one was selected ────────────────
+    if (videoPendingFile) {
+      const ext  = videoPendingFile.name.split('.').pop();
+      storagePath = `${AUTH.id}/interview.${ext}`;
+      const { error: upErr } = await supa.storage
+        .from('candidate-videos')
+        .upload(storagePath, videoPendingFile, { upsert: true });
+      if (upErr) throw upErr;
+    }
+
+    // ── Get candidate profile id ───────────────────────────────────────────
+    const { data: cp } = await supa.from('candidate_profiles')
+      .select('id').eq('user_id', AUTH.id).single();
+    if (!cp) throw new Error('Candidate profile not found');
+
+    // ── Upsert into candidate_videos (one video per candidate) ────────────
+    const { data: vid, error: dbErr } = await supa.from('candidate_videos').upsert({
+      candidate_id:  cp.id,
+      title,
+      description:   desc,
+      storage_path:  storagePath,
+      external_link: link || null,
+      is_visible:    visible,
+      uploaded_at:   new Date().toISOString(),
+    }, { onConflict: 'candidate_id' }).select().single();
+    if (dbErr) throw dbErr;
+
+    // ── Link video id to candidate_profiles ───────────────────────────────
+    await supa.from('candidate_profiles').update({ video_id: vid.id }).eq('user_id', AUTH.id);
+
+    // ── Update UI ─────────────────────────────────────────────────────────
+    videoData = { title, desc, link: link || null, visible, views: 0,
+                  uploadedAt: new Date().toLocaleDateString('en-IN'), storagePath };
+    document.getElementById('video-empty-state').style.display = 'none';
+    const card = document.getElementById('video-uploaded-card');
+    card.style.display = '';
+    document.getElementById('video-card-title').textContent = title;
+    document.getElementById('video-card-meta').textContent =
+      `Uploaded ${videoData.uploadedAt} · ${visible ? 'Visible to employers' : 'Draft — not visible'}`;
+    document.getElementById('video-thumb-name').textContent =
+      link ? link.substring(0,40) + '...' : (videoPendingFile?.name || 'interview.mp4');
+
+    const pccVideoChk = document.getElementById('pcc-video-chk');
+    if (pccVideoChk) { pccVideoChk.className = 'pcc-chk pcc-done'; pccVideoChk.textContent = '✓'; }
+
+    videoPendingFile = null; videoUploaded = false;
+    closeModal('modal-video-upload');
+    toast('Video interview published to your profile ✓', 'ts');
+    setTimeout(() => toast('Employers can now view your video interview before contacting you', 'ti'), 2000);
+
+  } catch(err) {
+    toast('Upload failed: ' + (err.message || 'Please try again'), 'te');
+    console.error('Video upload error:', err);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Publish to Profile →'; }
   }
-  if (!videoUploaded && !link) {
-    toast('Please upload a video file or paste a link', 'tw2');
-    return;
-  }
-  const desc = document.getElementById('vid-desc-input').value.trim();
-  const visible = !document.getElementById('vid-visibility-tog').classList.contains('off');
-
-  videoData = { title, desc, link: link || null, visible, views: 0, uploadedAt: new Date().toLocaleDateString('en-IN') };
-
-  // Show the uploaded card
-  document.getElementById('video-empty-state').style.display = 'none';
-  const card = document.getElementById('video-uploaded-card');
-  card.style.display = '';
-  document.getElementById('video-card-title').textContent = title;
-  document.getElementById('video-card-meta').textContent = `Uploaded ${videoData.uploadedAt} · ${visible ? 'Visible to employers' : 'Draft — not visible'}`;
-  document.getElementById('video-thumb-name').textContent = link ? link.substring(0, 40) + '...' : 'video_interview.mp4';
-
-  // Update profile completeness
-  const pccVideoChk = document.getElementById('pcc-video-chk');
-  if (pccVideoChk) { pccVideoChk.className = 'pcc-chk pcc-done'; pccVideoChk.textContent = '✓'; }
-
-  closeModal('modal-video-upload');
-  toast(`Video interview published to your profile ✓`, 'ts');
-  setTimeout(() => toast('Employers can now view your video interview before contacting you', 'ti'), 2000);
 }
 
-function removeVideo() {
+async function removeVideo() {
   if (!confirm('Remove your video interview from your profile?')) return;
-  videoData = null;
-  document.getElementById('video-uploaded-card').style.display = 'none';
-  document.getElementById('video-empty-state').style.display = '';
-  toast('Video interview removed from your profile', 'ti');
+  try {
+    const { data: cp } = await supa.from('candidate_profiles')
+      .select('id,video_id').eq('user_id', AUTH.id).single();
+    if (cp?.video_id) {
+      // Remove file from storage if uploaded
+      if (videoData?.storagePath) {
+        await supa.storage.from('candidate-videos').remove([videoData.storagePath]);
+      }
+      await supa.from('candidate_videos').delete().eq('id', cp.video_id);
+      await supa.from('candidate_profiles').update({ video_id: null }).eq('user_id', AUTH.id);
+    }
+    videoData = null;
+    document.getElementById('video-uploaded-card').style.display = 'none';
+    document.getElementById('video-empty-state').style.display = '';
+    toast('Video interview removed from your profile', 'ti');
+  } catch(err) {
+    toast('Remove failed: ' + (err.message || 'Please try again'), 'te');
+  }
 }
 
-// Expose videoData for employer modal
+function handleVideoFileDrop(event) {
+  const file = event.dataTransfer?.files[0];
+  if (!file) return;
+  handleVideoFileSelect({ files: [file], value: '' });
+}
+
+// ── Load candidate's marquee items from Supabase on login ─────────────────────
+async function loadMarqueeFromDB() {
+  if (!AUTH.id) return;
+  try {
+    const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
+    if (!cp) return;
+    const { data: items } = await supa.from('marquee_items').select('*').eq('candidate_id', cp.id).order('created_at', { ascending: true });
+    if (!items || items.length === 0) { marqueeItems = []; if (typeof renderMarquee === 'function') renderMarquee(); return; }
+    marqueeItems = items.map(item => ({
+      id: item.id, type: item.type || 'video', icon: item.icon || '🎥',
+      title: item.title, desc: item.description, org: item.org, year: item.year,
+      thumb: item.file_path ? supa.storage.from('marquee-files').getPublicUrl(item.file_path).data.publicUrl : null,
+      externalLink: item.external_link,
+      views: item.views || 0, pinned: item.is_pinned,
+      visible: item.is_visible, typeBadge: item.type_badge, typeLabel: item.type_label,
+    }));
+    if (typeof renderMarquee === 'function') renderMarquee();
+  } catch(e) { console.warn('Marquee load error:', e); }
+}
+
+// ── Load candidate's video interview from Supabase on login ──────────────────
+async function loadVideoFromDB() {
+  if (!AUTH.id) return;
+  try {
+    const { data: cp } = await supa.from('candidate_profiles').select('id,video_id').eq('user_id', AUTH.id).single();
+    if (!cp?.video_id) return;
+    const { data: vid } = await supa.from('candidate_videos').select('*').eq('id', cp.video_id).single();
+    if (!vid) return;
+    videoData = {
+      title: vid.title, desc: vid.description,
+      link: vid.external_link, visible: vid.is_visible,
+      views: vid.views, uploadedAt: new Date(vid.uploaded_at).toLocaleDateString('en-IN'),
+      storagePath: vid.storage_path,
+    };
+    // Show the uploaded card
+    const emptyState = document.getElementById('video-empty-state');
+    const card       = document.getElementById('video-uploaded-card');
+    if (emptyState) emptyState.style.display = 'none';
+    if (card) {
+      card.style.display = '';
+      const titleEl = document.getElementById('video-card-title');
+      const metaEl  = document.getElementById('video-card-meta');
+      const nameEl  = document.getElementById('video-thumb-name');
+      if (titleEl) titleEl.textContent = vid.title;
+      if (metaEl)  metaEl.textContent  = `Uploaded ${videoData.uploadedAt} · ${vid.is_visible ? 'Visible to employers' : 'Draft'}`;
+      if (nameEl)  nameEl.textContent  = vid.external_link ? vid.external_link.substring(0,40) + '...' : 'interview video';
+    }
+  } catch(e) { console.warn('Video load error:', e); }
+}
 function getVideoInterviewStrip(candId) {
   // For test candidate (id=1), show video after upload
   if (candId !== 1 || !videoData) return '';
