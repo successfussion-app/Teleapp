@@ -945,7 +945,7 @@ img{max-width:100%}
       <div class="about-left">
         <div class="lp-sec-tag">About PitchFirst</div>
         <h2 class="lp-sec-h" id="about-heading">The hiring platform <em>built for India's</em> voice economy</h2>
-        <p class="lp-sec-p" style="margin-bottom:20px">India has over 5 million active telecallers and sales professionals across banking, insurance, EdTech, healthcare, e-commerce, BPO, and other industries - and 40% of them change jobs every year. Yet the platforms they use to find work were never built for them.</p>
+        <p class="lp-sec-p" style="margin-bottom:20px">India has over 5 million active telecallers across banking, insurance, EdTech, healthcare, e-commerce, and BPO - and 40% of them change jobs every year. Yet the platforms they use to find work were never built for them.</p>
         <p class="lp-sec-p" style="margin-bottom:20px">PitchFirst changes that. Instead of judging candidates by a PDF résumé, we let employers <strong>hear them speak</strong> - before making any hiring decision. A 90-second voice pitch, a live typing test averaged over 3 attempts, AI-scored across 4 dimensions, and infrastructure readiness badges tell an employer everything a résumé never could.</p>
         <p class="lp-sec-p">For candidates, it's a level playing field. Whether you're a fresher from Nagpur or a 6-year veteran from Andheri - if you can communicate well, PitchFirst gives you the platform to prove it.</p>
         <div style="display:flex;gap:10px;margin-top:28px">
@@ -2404,7 +2404,9 @@ async function supaLoadUserIntoAUTH(user) {
   const { data: profile } = await supa.from('users').select('*').eq('id', user.id).single();
   if (!profile) return;
 
-  AUTH = { in: true, role: profile.role, plan: 'pro', name: profile.full_name || profile.email, id: user.id };
+  // Determine plan — lifetime free overrides everything
+  const planType = isLifetimeFreeAccount(profile.email) ? 'lifetime' : 'pro';
+  AUTH = { in: true, role: profile.role, plan: planType, name: profile.full_name || profile.email, id: user.id, email: profile.email };
 
   // Load display name from sub-profile
   if (profile.role === 'employer') {
@@ -2415,13 +2417,18 @@ async function supaLoadUserIntoAUTH(user) {
     if (cp) { AUTH.candidateProfile = cp; }
   }
 
-  // Load active subscription
-  const { data: sub } = await supa.from('subscriptions').select('*').eq('user_id', user.id).eq('status', 'active').order('created_at', { ascending: false }).limit(1).single();
-  if (sub) {
-    RZP_SUB.id = sub.razorpay_payment_id;
-    RZP_SUB.status = sub.status;
+  // Load active subscription (skip for lifetime accounts)
+  if (planType !== 'lifetime') {
+    const { data: sub } = await supa.from('subscriptions').select('*').eq('user_id', user.id).eq('status', 'active').order('created_at', { ascending: false }).limit(1).single();
+    if (sub) {
+      RZP_SUB.id = sub.razorpay_payment_id;
+      RZP_SUB.status = sub.status;
+      RZP_SUB.email = profile.email;
+      RZP_SUB.nextBilling = sub.current_period_end ? new Date(sub.current_period_end).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : rzpNextBillingDate();
+    }
+  } else {
+    RZP_SUB.status = 'lifetime';
     RZP_SUB.email = profile.email;
-    RZP_SUB.nextBilling = sub.current_period_end ? new Date(sub.current_period_end).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : rzpNextBillingDate();
   }
 
   setLoggedIn();
@@ -2462,7 +2469,8 @@ async function supaEmpSignup(formData, paymentId, planId) {
     current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
   });
 
-  return { userId, companyName: company };
+  const needsConfirmation = !authData.session;
+  return { userId, companyName: company, needsConfirmation };
 }
 
 // ── CANDIDATE SIGN UP ─────────────────────────────────────────────────────────
@@ -2494,7 +2502,9 @@ async function supaCandSignup(formData, paymentId = null) {
     });
   }
 
-  return { userId, name };
+  // needsConfirmation = true when Supabase requires email verification
+  const needsConfirmation = !authData.session;
+  return { userId, name, needsConfirmation };
 }
 
 // ── SIGN IN ───────────────────────────────────────────────────────────────────
@@ -3005,7 +3015,12 @@ function rzpOpenEmployerCheckout() {
       const d = rzpGetEmpFormData();
       const planId = rzpGetEmployerPlan();
       try {
-        const { companyName } = await supaEmpSignup(d, response.razorpay_payment_id, planId);
+        const { companyName, needsConfirmation } = await supaEmpSignup(d, response.razorpay_payment_id, planId);
+        if (needsConfirmation) {
+          closeModal('modal-auth');
+          toast('Almost there! Check your email and click the confirmation link to activate your employer account.', 'ts', 7000);
+          return;
+        }
         RZP_SUB.id = response.razorpay_payment_id;
         RZP_SUB.status = 'active';
         RZP_SUB.email = d.email;
@@ -3094,14 +3109,23 @@ function rzpUpdateBillingUI() {
   const st = document.getElementById('billing-status');
   const nb = document.getElementById('billing-next');
   const be = document.getElementById('billing-email');
-  if (si) si.textContent = RZP_SUB.id || '—';
+  const isLifetime = AUTH.plan === 'lifetime';
+  if (si) si.textContent = isLifetime ? 'LIFETIME-FREE' : (RZP_SUB.id || '—');
   if (st) {
-    const isLifetime = AUTH.plan === 'lifetime';
     st.textContent = isLifetime ? '✦ Lifetime Free' : '● Active';
-    st.style.color = isLifetime ? 'var(--gold)' : 'var(--green)';
+    st.style.color  = isLifetime ? 'var(--gold)' : 'var(--green)';
   }
-  if (nb) nb.textContent = RZP_SUB.nextBilling || '—';
-  if (be) be.textContent = RZP_SUB.email || AUTH.name;
+  if (nb) nb.textContent = isLifetime ? 'Never' : (RZP_SUB.nextBilling || '—');
+  if (be) be.textContent = isLifetime ? (AUTH.email || AUTH.name) : (RZP_SUB.email || AUTH.name);
+  // Update plan card subtitle
+  const pc = document.getElementById('billing-plan-card');
+  if (pc && isLifetime) {
+    pc.style.background = 'linear-gradient(135deg,#2d1a00,#5a3500)';
+    const sub = pc.querySelector('div > div:nth-child(2)');
+    if (sub) sub.textContent = 'Lifetime Free · Full access · No billing';
+    const val = pc.querySelector('[style*="font-size:22px"]');
+    if (val) val.innerHTML = '₹0<span style="font-size:13px;opacity:.6"> forever</span>';
+  }
 }
 
 // ── Manage subscription (opens Razorpay portal) ──────────────────────────────
@@ -3134,11 +3158,7 @@ const PASSAGES = [
   "Customer satisfaction is the ultimate goal of every support interaction. A skilled telecaller understands the product deeply, communicates clearly, and follows up diligently to ensure the customer issue is fully and permanently resolved."
 ];
 
-const CANDS = [
-  {id:1,name:'Rubina Solkar',ini:'RS',col:'linear-gradient(135deg,#7c3aed,#a78bfa)',role:'Telecaller',exp:'',city:'',lang:'',avail:'Available now',ac:'g',score:0,sc:'srl',hasVoice:false,wpm:0,acc:0,tags:[],badges:[],sl:false,
-    refs:[],
-    pitch:null},
-];
+const CANDS = []; // populated from Supabase when candidates apply to roles
 
 const ROLES_DATA = [];
 
@@ -3218,7 +3238,12 @@ function doEmpSignup() {
   // Lifetime free accounts — skip payment entirely
   if (isLifetimeFreeAccount(d.email)) {
     btn.disabled = true; btn.textContent = 'Creating account...';
-    supaEmpSignup(d, 'LIFETIME_FREE', RZP.plans.employer_launch).then(({ companyName }) => {
+    supaEmpSignup(d, 'LIFETIME_FREE', RZP.plans.employer_launch).then(({ companyName, needsConfirmation }) => {
+      if (needsConfirmation) {
+        closeModal('modal-auth');
+        toast('Almost there! Check your email and click the confirmation link to activate your account.', 'ts', 7000);
+        return;
+      }
       AUTH = { in: true, role: 'employer', plan: 'lifetime', name: companyName || d.company };
       closeModal('modal-auth'); setLoggedIn();
       navTo('employer'); setTimeout(() => renderAll(), 300);
@@ -3250,7 +3275,12 @@ function doCandSignup() {
   if (isFreeperiod) {
     const btn = document.querySelector('#auth-cand button.btn.bp');
     if (btn) { btn.disabled = true; btn.textContent = 'Creating account...'; }
-    supaCandSignup(d, null).then(({ name }) => {
+    supaCandSignup(d, null).then(({ name, needsConfirmation }) => {
+      if (needsConfirmation) {
+        closeModal('modal-auth');
+        toast('Almost there! Check your email and click the confirmation link to activate your account.', 'ts', 7000);
+        return;
+      }
       const planType = isLifetimeFreeAccount(d.email) ? 'lifetime' : 'pro';
       AUTH = { in: true, role: 'candidate', plan: planType, name: name };
       candPlan = planType;
@@ -3323,7 +3353,12 @@ function setLoggedIn() {
   const ub = document.getElementById('nav-user-bar'); ub.classList.add('show');
   document.getElementById('nav-av').textContent = AUTH.name.substring(0, 2).toUpperCase();
   document.getElementById('nav-uname').textContent = AUTH.name.split(' ')[0];
-  document.getElementById('nav-urole').textContent = AUTH.role === 'employer' ? 'Employer · Active' : 'Candidate · Pro';
+  const isLifetime = AUTH.plan === 'lifetime';
+  if (AUTH.role === 'employer') {
+    document.getElementById('nav-urole').textContent = isLifetime ? 'Employer · ✦ Lifetime Free' : 'Employer · Active';
+  } else {
+    document.getElementById('nav-urole').textContent = isLifetime ? 'Candidate · ✦ Lifetime Free' : 'Candidate · Pro';
+  }
 }
 
 function signOut() { supaSignOut(); }
@@ -3386,8 +3421,10 @@ function renderCands(search = '') {
     const matchS = !search || c.name.toLowerCase().includes(search) || c.role.toLowerCase().includes(search) || c.city.toLowerCase().includes(search);
     return matchF && matchS;
   });
-  document.getElementById('pool-sub').textContent = `${list.length} applicants · Sorted by AI match score`;
-  document.getElementById('cand-list').innerHTML = list.map(c => `
+  document.getElementById('pool-sub').textContent = list.length
+    ? `${list.length} applicants · Sorted by AI match score`
+    : 'Candidates who apply to your roles will appear here';
+  document.getElementById('cand-list').innerHTML = list.length ? list.map(c => `
     <div class="cc" onclick="openCandModal(${c.id})">
       <div class="cc-av" style="background:${c.col}">${c.ini}</div>
       <div>
@@ -3401,7 +3438,13 @@ function renderCands(search = '') {
         <button class="btn bgh bsm" onclick="event.stopPropagation();${c.hasVoice ? `playP('${c.name}')` : `toast('No voice pitch from ${c.name}','tw2')`}">${c.hasVoice ? '▶ Play Pitch' : 'No Pitch'}</button>
         <button class="btn ${c.sl ? 'bgn' : 'bgh'} bsm" onclick="event.stopPropagation();toggleSL(${c.id})">${c.sl ? '✓ Shortlisted' : '⭐ Shortlist'}</button>
       </div>
-    </div>`).join('');
+    </div>`).join('') :
+    `<div style="text-align:center;padding:48px 20px;color:var(--slate)">
+      <div style="font-size:32px;margin-bottom:12px">👥</div>
+      <div style="font-weight:600;margin-bottom:6px">No candidates yet</div>
+      <div style="font-size:13px">Post a role to start receiving applications from verified telecallers.</div>
+      <button class="btn bp bsm" style="margin-top:16px" onclick="openModal('modal-post')">Post a Role →</button>
+    </div>`;
 }
 
 function playP(name) { toast(`▶ Playing ${name}'s voice pitch...`, 'ti'); setTimeout(() => toast(`✓ Pitch complete for ${name}`, 'ts'), 3500); }
@@ -3526,7 +3569,7 @@ function cpEdit(section) {
   const bodies = {
     header: `<div class="fgrid"><div class="field"><label>Company Name</label><input class="fi" value="Success Fusion HR Services"></div><div class="field"><label>Industry</label><select class="fi"><option>Banking & Finance</option></select></div><div class="field"><label>City</label><input class="fi" value="Mumbai, Maharashtra"></div><div class="field"><label>Website</label><input class="fi" value=""></div><div class="field"><label>Company Size</label><select class="fi"><option>51–200 employees</option><option>1–50</option><option>201–500</option><option>500+</option></select></div><div class="field fcol"><label>Tagline</label><input class="fi" value=""></div></div>`,
     about: `<div class="field"><label>About Your Company</label><textarea class="fi" rows="6">Success Fusion HR Services is a recruitment firm specialising in telecaller and BPO hiring across India.</textarea></div>`,
-    team: `<div class="fgrid"><div class="field"><label>HR Head</label><input class="fi" value="Priya Sharma"></div><div class="field"><label>Talent Acquisition</label><input class="fi" value="Amit Kumar"></div><div class="field fcol"><label>Invite Team Member (email)</label><input class="fi" type="email" placeholder="colleague@company.com"></div></div>`
+    team: `<div class="fgrid"><div class="field"><label>HR Head</label><input class="fi" value=""></div><div class="field"><label>Talent Acquisition</label><input class="fi" value=""></div><div class="field fcol"><label>Invite Team Member (email)</label><input class="fi" type="email" placeholder="colleague@company.com"></div></div>`
   };
   document.getElementById('cp-edit-title').textContent = section === 'header' ? 'Edit Company Info' : section === 'about' ? 'Edit About Us' : 'Edit Team';
   document.getElementById('cp-edit-body').innerHTML = bodies[section] || '';
@@ -3549,37 +3592,66 @@ function showCD(id, el) {
 function initCandDash() {
   const name = AUTH.name || 'Candidate';
   const firstName = name.split(' ')[0];
+  const isLifetime = AUTH.plan === 'lifetime';
+
   document.getElementById('cd-av-init').textContent = name.substring(0, 2).toUpperCase();
   document.getElementById('cd-uname').textContent = name;
-  document.getElementById('cd-urole').textContent = 'Telesales Executive · Mumbai';
+
+  // Role/city from real profile if loaded, else blank
+  const cp = AUTH.candidateProfile;
+  document.getElementById('cd-urole').textContent = cp?.role_title || 'Complete your profile';
   document.getElementById('cd-greet-name').textContent = firstName;
-  document.getElementById('cd-badges').innerHTML = '<span class="cdb cdb-pro">● Pro</span><span class="cdb cdb-r">🌐 Remote</span><span class="cdb cdb-g">⚡ Gig</span><span class="cdb cdb-o">🏢 In-Office</span>';
-  document.getElementById('cd-prog-fill').style.width = '75%';
-  document.getElementById('cd-prog-lbl').textContent = 'Profile 75% complete';
-  document.getElementById('pcc-pct').textContent = '75%';
+
+  // Plan badge
+  document.getElementById('cd-badges').innerHTML = isLifetime
+    ? '<span class="cdb cdb-pro" style="background:var(--gp);color:var(--gold);border-color:rgba(200,134,10,.3)">✦ Lifetime Free</span>'
+    : '<span class="cdb cdb-pro">● Pro</span>';
+
+  // Profile completion — use real value if available, else 0
+  const pct = cp?.profile_pct || 0;
+  document.getElementById('cd-prog-fill').style.width = pct + '%';
+  document.getElementById('cd-prog-lbl').textContent = `Profile ${pct}% complete`;
+  document.getElementById('pcc-pct').textContent = pct + '%';
+
   renderPlanSection();
   if (typeof renderMarquee === 'function') renderMarquee();
   if (typeof addMarqueeOverviewPreview === 'function') addMarqueeOverviewPreview();
   renderCDJobs();
   renderCDApps();
   renderCDRecJobs();
+
+  // AI mentor context — use real data
   const ctx = document.getElementById('cb-profile-context');
-  if (ctx) ctx.textContent = `${firstName} · 4 yrs BFSI · Telesales · Mumbai · Hindi + English · 52 WPM · Remote Ready · Voice Score: 84`;
+  if (ctx) ctx.textContent = cp?.role_title
+    ? `${firstName} · ${cp.experience_yrs || 'experience not set'} · ${cp.role_title} · ${cp.wpm || 0} WPM · Voice Score: ${cp.voice_score || 0}`
+    : `${firstName} · Profile incomplete · Complete your profile for personalised advice`;
 }
 
 function renderPlanSection() {
   const el = document.getElementById('cd-plan-section'); if (!el) return;
-  el.innerHTML = `
-    <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Current Plan</div>
-    <div style="background:linear-gradient(135deg,var(--voice),#2d1060);border-radius:var(--r12);padding:18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
-      <div><div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;color:#fff">Candidate Pro Plan</div><div style="font-size:13px;color:rgba(237,233,254,.45);margin-top:3px">Active · Next billing: 13 June 2026</div></div>
-      <div style="text-align:right"><div style="font-family:'DM Mono',monospace;font-size:24px;font-weight:500;color:var(--gl)">₹199</div><div style="font-size:11px;color:rgba(237,233,254,.35)">per month</div></div>
-    </div>
-    <div style="display:flex;gap:10px">
-      <button class="btn bgh bsm" onclick="toast('Payment method updated','ts')">Update Card</button>
-      <button class="btn bgh bsm" onclick="toast('Invoice downloaded','ts')">Download Invoice</button>
-      <button class="btn br bsm" style="margin-left:auto" onclick="toast('Cancellation requested. Access until 13 June.','tw2')">Cancel Plan</button>
-    </div>`;
+  const isLifetime = AUTH.plan === 'lifetime';
+  if (isLifetime) {
+    el.innerHTML = `
+      <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Current Plan</div>
+      <div style="background:linear-gradient(135deg,#2d1a00,#5a3500);border-radius:var(--r12);padding:18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;color:#fff">✦ Lifetime Free Account</div><div style="font-size:13px;color:rgba(240,168,50,.6);margin-top:3px">Full access · Never expires · No billing</div></div>
+        <div style="text-align:right"><div style="font-family:'DM Mono',monospace;font-size:24px;font-weight:500;color:var(--gl)">₹0</div><div style="font-size:11px;color:rgba(240,168,50,.4)">forever</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--slate);padding:8px 0">This is a lifetime free test account. No payment required.</div>`;
+  } else {
+    const nextBilling = RZP_SUB.nextBilling || '—';
+    const isFreeperiod = new Date() < new Date('2026-07-01');
+    el.innerHTML = `
+      <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px">Current Plan</div>
+      <div style="background:linear-gradient(135deg,var(--voice),#2d1060);border-radius:var(--r12);padding:18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;color:#fff">Candidate Pro Plan</div><div style="font-size:13px;color:rgba(237,233,254,.45);margin-top:3px">${isFreeperiod ? 'Free until 30 June 2026' : 'Active · Next billing: ' + nextBilling}</div></div>
+        <div style="text-align:right"><div style="font-family:'DM Mono',monospace;font-size:24px;font-weight:500;color:var(--gl)">${isFreeperiod ? '₹0' : '₹199'}</div><div style="font-size:11px;color:rgba(237,233,254,.35)">${isFreeperiod ? 'free period' : 'per month'}</div></div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn bgh bsm" onclick="toast('Contact support@pitchfirst.app for invoice','ti')">Request Invoice</button>
+        <button class="btn br bsm" style="margin-left:auto" onclick="rzpCancelSubscription()">Cancel Plan</button>
+      </div>`;
+  }
 }
 
 // ══════════════════════════════════════════
