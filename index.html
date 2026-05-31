@@ -619,7 +619,85 @@ img{max-width:100%}
       </div>
       <div class="fgrid" style="margin-bottom:14px">
         <div class="field"><label>Company Name</label><input class="fi" placeholder="e.g. Success Fusion HR Services"></div>
-        <div class="field"><label>Industry</label><select class="fi"><option>Banking & Finance</option><option>Insurance</option><option>EdTech</option><option>BPO / Call Centre</option><option>Healthcare</option><option>Real Estate</option><option>Telecom</option></select></div>
+        <div class="field"><label>Industry</label><select class="fi" id="emp-industry">
+          <option value="">Select Industry</option>
+          <optgroup label="BFSI">
+            <option>Banking &amp; Finance</option>
+            <option>Insurance</option>
+            <option>NBFCs &amp; Microfinance</option>
+            <option>Mutual Funds &amp; Investments</option>
+            <option>Fintech</option>
+            <option>Stock Broking</option>
+            <option>Loans &amp; Mortgages</option>
+          </optgroup>
+          <optgroup label="BPO / IT">
+            <option>BPO / Call Centre</option>
+            <option>KPO / LPO</option>
+            <option>IT Services &amp; Software</option>
+            <option>ITES</option>
+            <option>Tech Support</option>
+          </optgroup>
+          <optgroup label="Education">
+            <option>EdTech &amp; Online Education</option>
+            <option>K-12 Education</option>
+            <option>Coaching &amp; Test Prep</option>
+            <option>Higher Education</option>
+            <option>Skill Development</option>
+          </optgroup>
+          <optgroup label="Healthcare">
+            <option>Hospitals &amp; Clinics</option>
+            <option>Pharma &amp; Life Sciences</option>
+            <option>Health Insurance</option>
+            <option>Diagnostics &amp; Labs</option>
+            <option>Health Tech</option>
+          </optgroup>
+          <optgroup label="E-Commerce &amp; Retail">
+            <option>E-Commerce</option>
+            <option>Retail &amp; FMCG</option>
+            <option>D2C &amp; Brands</option>
+            <option>Logistics &amp; Supply Chain</option>
+          </optgroup>
+          <optgroup label="Real Estate &amp; Construction">
+            <option>Real Estate</option>
+            <option>Construction</option>
+            <option>Property Management</option>
+            <option>Interior Design</option>
+          </optgroup>
+          <optgroup label="Telecom &amp; Media">
+            <option>Telecom</option>
+            <option>Media &amp; Entertainment</option>
+            <option>Digital Marketing Agency</option>
+            <option>OTT &amp; Streaming</option>
+          </optgroup>
+          <optgroup label="Travel &amp; Hospitality">
+            <option>Travel &amp; Tourism</option>
+            <option>Hotels &amp; Hospitality</option>
+            <option>Aviation</option>
+            <option>Food &amp; Beverage</option>
+          </optgroup>
+          <optgroup label="Auto &amp; Manufacturing">
+            <option>Automobile</option>
+            <option>Manufacturing</option>
+            <option>Engineering &amp; Industrial</option>
+          </optgroup>
+          <optgroup label="HR &amp; Staffing">
+            <option>HR &amp; Recruitment</option>
+            <option>Staffing &amp; Outsourcing</option>
+            <option>Payroll Services</option>
+          </optgroup>
+          <optgroup label="Government &amp; Non-Profit">
+            <option>Government / PSU</option>
+            <option>NGO &amp; Non-Profit</option>
+            <option>Social Enterprise</option>
+          </optgroup>
+          <optgroup label="Other">
+            <option>Legal Services</option>
+            <option>Accounting &amp; CA Firms</option>
+            <option>Agriculture &amp; Agri-Tech</option>
+            <option>Energy &amp; Utilities</option>
+            <option>Other</option>
+          </optgroup>
+        </select></div>
         <div class="field"><label>Work Email</label><input class="fi" type="email" placeholder="hr@company.com"></div>
         <div class="field"><label>Phone</label><input class="fi" placeholder="+91 XXXXX XXXXX"></div>
         <div class="field fcol"><label>Password</label><input class="fi" type="password" placeholder="Create a strong password"></div>
@@ -2592,8 +2670,19 @@ async function supaRestoreSession() {
 
 // ── Load user profile from DB into AUTH state ─────────────────────────────────
 async function supaLoadUserIntoAUTH(user) {
-  const { data: profile } = await supa.from('users').select('*').eq('id', user.id).single();
-  if (!profile) return;
+  const { data: profile, error: profileErr } = await supa.from('users').select('*').eq('id', user.id).single();
+  if (!profile) {
+    // Profile row missing (trigger delay or first-time signup race condition)
+    // Build a minimal AUTH from the auth user metadata so the dashboard still opens
+    const meta = user.user_metadata || {};
+    const role = meta.role || 'candidate';
+    const planType = isLifetimeFreeAccount(user.email) ? 'lifetime' : 'pro';
+    AUTH = { in: true, role, plan: planType, name: meta.full_name || user.email, id: user.id, email: user.email };
+    setLoggedIn();
+    if (role === 'employer') { navTo('employer'); setTimeout(() => { renderAll(); rzpUpdateBillingUI(); }, 300); }
+    else { initCandDash(); navTo('cdash'); }
+    return;
+  }
 
   // Determine plan — lifetime free overrides everything
   const planType = isLifetimeFreeAccount(profile.email) ? 'lifetime' : 'pro';
@@ -3163,13 +3252,13 @@ function rzpGetEmployerPlan() {
 
 // ── Get form values from employer signup ─────────────────────────────────────
 function rzpGetEmpFormData() {
-  const inputs = document.querySelectorAll('#auth-emp input, #auth-emp select');
+  const inputs = document.querySelectorAll('#auth-emp input');
   return {
-    company: inputs[0]?.value?.trim() || '',
-    industry: inputs[1]?.value?.trim() || '',
-    email: inputs[2]?.value?.trim() || '',
-    phone: inputs[3]?.value?.trim() || '',
-    password: inputs[4]?.value?.trim() || '',
+    company:  inputs[0]?.value?.trim() || '',
+    email:    inputs[1]?.value?.trim() || '',
+    phone:    inputs[2]?.value?.trim() || '',
+    password: inputs[3]?.value?.trim() || '',
+    industry: document.getElementById('emp-industry')?.value?.trim() || '',
   };
 }
 
@@ -3531,6 +3620,7 @@ async function doSignin() {
   try {
     const user = await supaSignIn(email, password);
     closeModal('modal-auth');
+    if (btn) { btn.disabled = false; btn.textContent = 'Sign In →'; }
     await supaLoadUserIntoAUTH(user);
     toast('Welcome back! Signed in successfully ✓', 'ts');
     if (AUTH.role === 'candidate') {
