@@ -3606,6 +3606,11 @@ function doCandSignup() {
   }
 }
 
+// ── Demo / preset credentials (bypass Supabase for known test accounts) ────────
+const DEMO_ACCOUNTS = {
+  'hr@successfusion.in': { password: 'Pitch@2026', role: 'employer', name: 'Success Fusion HR Services', plan: 'lifetime' },
+};
+
 async function doSignin() {
   const email = document.getElementById('si-email')?.value?.trim() || '';
   const password = document.getElementById('si-password')?.value?.trim() || '';
@@ -3616,6 +3621,25 @@ async function doSignin() {
 
   if (btn) { btn.disabled = true; btn.textContent = 'Signing in...'; }
   if (errEl) errEl.style.display = 'none';
+
+  // ── Demo account bypass — no Supabase call needed ──────────────────────────
+  const demo = DEMO_ACCOUNTS[email.toLowerCase()];
+  if (demo) {
+    if (password !== demo.password) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Sign In →'; }
+      if (errEl) { errEl.style.display = ''; errEl.textContent = 'Incorrect password.'; }
+      toast('Incorrect password.', 'te');
+      return;
+    }
+    AUTH = { in: true, role: demo.role, plan: demo.plan, name: demo.name, email };
+    closeModal('modal-auth');
+    if (btn) { btn.disabled = false; btn.textContent = 'Sign In →'; }
+    setLoggedIn();
+    if (demo.role === 'employer') { navTo('employer'); setTimeout(() => { renderAll(); rzpUpdateBillingUI(); }, 300); }
+    else { initCandDash(); navTo('cdash'); }
+    toast('Welcome back, ' + demo.name.split(' ')[0] + '! ✓', 'ts');
+    return;
+  }
 
   try {
     const user = await supaSignIn(email, password);
