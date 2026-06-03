@@ -418,9 +418,9 @@ img{max-width:100%}
 .att-badges{display:flex;gap:8px;margin-bottom:16px}
 .att{padding:5px 16px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--bd);color:var(--slate);font-family:'DM Mono',monospace;transition:all .2s}
 .att.cur{background:var(--vg);color:#fff;border-color:var(--vg)}.att.done{background:var(--gs);color:#0f6e56;border-color:rgba(16,185,129,.25)}
-.tt-pass{background:var(--cream);border-radius:9px;padding:15px 17px;font-size:13.5px;line-height:1.9;color:var(--ink);border:1px solid var(--bd);font-family:'DM Mono',monospace;min-height:68px;margin-bottom:11px;user-select:none}
+.tt-pass{background:var(--cream);border-radius:9px;padding:15px 17px;font-size:12.5px;line-height:1.75;color:var(--ink);border:1px solid var(--bd);font-family:'DM Mono',monospace;min-height:68px;max-height:180px;overflow-y:auto;margin-bottom:11px;user-select:none;word-break:break-word;white-space:pre-wrap;overflow-wrap:break-word}
 .tc{transition:all .05s}.tc.ok{color:var(--green)}.tc.err{color:var(--red);text-decoration:underline;text-underline-offset:3px}.tc.cur{background:var(--gold);color:#fff;border-radius:2px;padding:0 1px}
-.tt-inp{width:100%;padding:12px 15px;border-radius:9px;border:2px solid var(--bd);font-family:'DM Mono',monospace;font-size:13.5px;color:var(--ink);outline:none;transition:border-color .2s;resize:none;line-height:1.5}
+.tt-inp{width:100%;padding:12px 15px;border-radius:9px;border:2px solid var(--bd);font-family:'DM Mono',monospace;font-size:12.5px;color:var(--ink);outline:none;transition:border-color .2s;resize:none;line-height:1.75;overflow-wrap:break-word;word-break:break-word}
 .tt-inp:focus{border-color:var(--gold)}.tt-inp.go{border-color:var(--vg)}
 .tt-livstats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:13px 0}
 .ttls{background:var(--cream);border-radius:9px;padding:10px;text-align:center;border:1px solid var(--bd)}
@@ -797,7 +797,25 @@ img{max-width:100%}
     <div class="ms">Goes live immediately to all matching candidates</div>
     <div class="fgrid" style="margin-bottom:14px">
       <div class="field"><label><span class="star">★</span> Job Title</label>
-        <select class="fi"><option>Telesales Executive</option><option>Phone Banking Officer</option><option>Customer Relationship Executive</option><option>Insurance Advisor</option><option>Academic Counsellor</option><option>Inside Sales Executive</option><option>Customer Support Executive</option><option>Collections Executive</option><option>BDR / SDR</option></select></div>
+        <input class="fi" id="post-title" list="job-title-list" placeholder="e.g. Telesales Executive, Phone Banking Officer...">
+        <datalist id="job-title-list">
+          <option>Telesales Executive</option>
+          <option>Phone Banking Officer</option>
+          <option>Customer Relationship Executive</option>
+          <option>Insurance Advisor</option>
+          <option>Academic Counsellor</option>
+          <option>Inside Sales Executive</option>
+          <option>Customer Support Executive</option>
+          <option>Collections Executive</option>
+          <option>BDR / SDR</option>
+          <option>Field Sales Executive</option>
+          <option>Loan Officer</option>
+          <option>Recovery Agent</option>
+          <option>EdTech Counsellor</option>
+          <option>Healthcare Coordinator</option>
+          <option>Tele-caller</option>
+          <option>Business Development Executive</option>
+        </datalist></div>
       <div class="field"><label><span class="star">★</span> Industry</label>
         <select class="fi" id="role-industry">
           <option value="">Select Industry</option>
@@ -1957,6 +1975,7 @@ img{max-width:100%}
         <div class="cd-av" id="cd-av-init">—</div>
         <div class="cd-uname" id="cd-uname"></div>
         <div class="cd-urole" id="cd-urole"></div>
+        <div id="cd-langs" style="font-size:10px;color:rgba(237,233,254,.35);margin-top:2px;line-height:1.5;padding:0 4px"></div>
         <div class="cd-badges" id="cd-badges"></div>
         <div class="cd-prog"><div class="cd-prog-fill" style="width:0%" id="cd-prog-fill"></div></div>
         <div class="cd-prog-lbl" id="cd-prog-lbl">Profile 0% complete</div>
@@ -2532,17 +2551,91 @@ img{max-width:100%}
     <!-- Sections 1-10 are dynamically shown via goSec() -->
     <div class="sec active" id="sec-0">
       <div class="sec-hdr"><div><div class="sec-title">1. Basic Identity</div><div class="sec-sub">All 5 fields required</div></div><span class="sec-badge sbb-key">★ Key</span></div>
-      <div class="fgrid"><div class="field"><label><span class="star">★</span> Full Name</label><input class="fi" value=""></div><div class="field"><label><span class="star">★</span> Mobile</label><input class="fi" value=""></div><div class="field"><label><span class="star">★</span> City & State</label><select class="fi"><option>Mumbai, Maharashtra</option><option>Delhi</option><option>Bangalore</option><option>Pune</option></select></div><div class="field"><label><span class="star">★</span> Email</label><input class="fi" type="email" value=""></div><div class="field fcol"><label>Profile Photo</label><input class="fi" placeholder="Upload headshot · JPG or PNG · Min 200×200px"></div></div>
+      <div class="fgrid">
+        <div class="field fcol" style="grid-column:1/-1">
+          <label>Profile Photo</label>
+          <div style="display:flex;align-items:center;gap:14px">
+            <div id="photo-preview" style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--vg),var(--gold));display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;flex-shrink:0">📷</div>
+            <div style="flex:1">
+              <input type="file" id="photo-file-input" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" style="display:none" onchange="handlePhotoSelect(this)">
+              <button class="btn bgh bsm" onclick="document.getElementById('photo-file-input').click()">Choose Photo</button>
+              <div id="photo-status" style="font-size:11px;color:var(--slate);margin-top:4px">JPG or PNG · Max 5MB · Square photo recommended</div>
+            </div>
+          </div>
+        </div>
+        <div class="field"><label><span class="star">★</span> Full Name</label><input class="fi" id="pf-name" value=""></div>
+        <div class="field"><label><span class="star">★</span> Mobile</label><input class="fi" id="pf-phone" value=""></div>
+        <div class="field"><label><span class="star">★</span> City &amp; State</label><select class="fi" id="pf-city">
+          <option value="">Select city</option>
+          <option>Remote / Work From Home</option>
+          <optgroup label="Maharashtra"><option>Mumbai, Maharashtra</option><option>Pune, Maharashtra</option><option>Nagpur, Maharashtra</option><option>Thane, Maharashtra</option><option>Nashik, Maharashtra</option><option>Navi Mumbai, Maharashtra</option></optgroup>
+          <optgroup label="Delhi NCR"><option>Delhi</option><option>Noida, UP</option><option>Gurugram, Haryana</option><option>Faridabad, Haryana</option><option>Ghaziabad, UP</option></optgroup>
+          <optgroup label="Karnataka"><option>Bangalore, Karnataka</option><option>Mysore, Karnataka</option><option>Hubli, Karnataka</option><option>Mangalore, Karnataka</option></optgroup>
+          <optgroup label="Telangana &amp; AP"><option>Hyderabad, Telangana</option><option>Secunderabad, Telangana</option><option>Visakhapatnam, AP</option><option>Vijayawada, AP</option><option>Warangal, Telangana</option></optgroup>
+          <optgroup label="Tamil Nadu"><option>Chennai, Tamil Nadu</option><option>Coimbatore, Tamil Nadu</option><option>Madurai, Tamil Nadu</option><option>Salem, Tamil Nadu</option></optgroup>
+          <optgroup label="Gujarat"><option>Ahmedabad, Gujarat</option><option>Surat, Gujarat</option><option>Vadodara, Gujarat</option><option>Rajkot, Gujarat</option><option>Gandhinagar, Gujarat</option></optgroup>
+          <optgroup label="Uttar Pradesh"><option>Lucknow, UP</option><option>Kanpur, UP</option><option>Agra, UP</option><option>Varanasi, UP</option><option>Meerut, UP</option><option>Allahabad, UP</option></optgroup>
+          <optgroup label="Rajasthan"><option>Jaipur, Rajasthan</option><option>Jodhpur, Rajasthan</option><option>Udaipur, Rajasthan</option><option>Kota, Rajasthan</option></optgroup>
+          <optgroup label="West Bengal"><option>Kolkata, West Bengal</option><option>Howrah, West Bengal</option><option>Durgapur, West Bengal</option></optgroup>
+          <optgroup label="Madhya Pradesh"><option>Indore, MP</option><option>Bhopal, MP</option><option>Jabalpur, MP</option><option>Gwalior, MP</option></optgroup>
+          <optgroup label="Bihar &amp; Jharkhand"><option>Patna, Bihar</option><option>Ranchi, Jharkhand</option><option>Jamshedpur, Jharkhand</option><option>Dhanbad, Jharkhand</option></optgroup>
+          <optgroup label="Punjab &amp; Haryana"><option>Chandigarh</option><option>Ludhiana, Punjab</option><option>Amritsar, Punjab</option><option>Jalandhar, Punjab</option></optgroup>
+          <optgroup label="Kerala"><option>Kochi, Kerala</option><option>Thiruvananthapuram, Kerala</option><option>Kozhikode, Kerala</option><option>Thrissur, Kerala</option></optgroup>
+          <optgroup label="Other States"><option>Bhubaneswar, Odisha</option><option>Guwahati, Assam</option><option>Dehradun, Uttarakhand</option><option>Raipur, Chhattisgarh</option><option>Shimla, Himachal Pradesh</option><option>Goa</option></optgroup>
+        </select></div>
+        <div class="field"><label><span class="star">★</span> Email</label><input class="fi" id="pf-email" type="email" value=""></div>
+      </div>
       <div class="step-nav"><div class="step-prog">1 of 10</div><button class="btn bg bsm" onclick="goSec(1)">Next →</button></div>
     </div>
     <div class="sec" id="sec-1">
       <div class="sec-hdr"><div><div class="sec-title">2. Professional Summary</div><div class="sec-sub">Freshers allowed · 0 years accepted</div></div><span class="sec-badge sbb-key">★ Key</span></div>
-      <div class="fgrid"><div class="field"><label><span class="star">★</span> Current Job Title</label><select class="fi"><option>Telesales Executive</option><option>Phone Banking Officer</option><option>Customer Relationship Executive</option><option>Insurance Advisor</option><option>Academic Counsellor</option><option>Inside Sales Executive</option><option>Customer Support Executive</option><option>Collections Executive</option><option>Fresher / Student</option></select></div><div class="field"><label><span class="star">★</span> Industry</label><select class="fi"><option>Banking & Finance</option><option>Insurance</option><option>EdTech</option><option>Healthcare</option><option>Real Estate</option><option>E-Commerce</option><option>Telecom</option><option>BPO / Call Centre</option></select></div><div class="field"><label><span class="star">★</span> Years of Experience</label><input class="fi" type="number" value="" min="0" placeholder="0"></div><div class="field"><label>Current CTC (LPA)</label><input class="fi" type="number" placeholder="0 for freshers"></div><div class="field"><label><span class="star">★</span> Expected CTC (LPA)</label><div class="fr2"><input class="fi" type="number" placeholder="Min" style="flex:1"><span style="color:var(--slate)">to</span><input class="fi" type="number" placeholder="Max" style="flex:1"></div></div><div class="field"><label><span class="star">★</span> Work Preference</label><div class="chips" id="wp-c"><div class="chip on" onclick="sc(this,'wp-c')">Remote</div><div class="chip" onclick="sc(this,'wp-c')">Hybrid</div><div class="chip" onclick="sc(this,'wp-c')">In-office</div></div></div></div>
+      <div class="fgrid"><div class="field"><label><span class="star">★</span> Current Job Title</label><select class="fi" id="pf-jobtitle"><option>Telesales Executive</option><option>Phone Banking Officer</option><option>Customer Relationship Executive</option><option>Insurance Advisor</option><option>Academic Counsellor</option><option>Inside Sales Executive</option><option>Customer Support Executive</option><option>Collections Executive</option><option>BDR / SDR</option><option>Field Sales Executive</option><option>Loan Officer</option><option>Recovery Agent</option><option>Tele-caller</option><option>Business Development Executive</option><option>Fresher / Student</option></select></div>
+      <div class="field"><label><span class="star">★</span> Industry</label>
+        <select class="fi" id="pf-industry">
+          <option value="">Select industry</option>
+          <optgroup label="BFSI"><option>Banking &amp; Finance</option><option>Insurance</option><option>NBFCs &amp; Microfinance</option><option>Mutual Funds &amp; Investments</option><option>Fintech</option><option>Stock Broking</option><option>Loans &amp; Mortgages</option></optgroup>
+          <optgroup label="BPO / IT"><option>BPO / Call Centre</option><option>KPO / LPO</option><option>IT Services &amp; Software</option><option>ITES</option><option>Tech Support</option></optgroup>
+          <optgroup label="Education"><option>EdTech &amp; Online Education</option><option>K-12 Education</option><option>Coaching &amp; Test Prep</option><option>Higher Education</option><option>Skill Development</option></optgroup>
+          <optgroup label="Healthcare"><option>Hospitals &amp; Clinics</option><option>Pharma &amp; Life Sciences</option><option>Health Insurance</option><option>Diagnostics &amp; Labs</option><option>Health Tech</option></optgroup>
+          <optgroup label="E-Commerce &amp; Retail"><option>E-Commerce</option><option>Retail &amp; FMCG</option><option>D2C &amp; Brands</option><option>Logistics &amp; Supply Chain</option></optgroup>
+          <optgroup label="Real Estate &amp; Construction"><option>Real Estate</option><option>Construction</option><option>Property Management</option></optgroup>
+          <optgroup label="Telecom &amp; Media"><option>Telecom</option><option>Media &amp; Entertainment</option><option>Digital Marketing Agency</option><option>OTT &amp; Streaming</option></optgroup>
+          <optgroup label="Travel &amp; Hospitality"><option>Travel &amp; Tourism</option><option>Hotels &amp; Hospitality</option><option>Aviation</option><option>Food &amp; Beverage</option></optgroup>
+          <optgroup label="Auto &amp; Manufacturing"><option>Automobile</option><option>Manufacturing</option><option>Engineering &amp; Industrial</option></optgroup>
+          <optgroup label="HR &amp; Staffing"><option>HR &amp; Recruitment</option><option>Staffing &amp; Outsourcing</option><option>Payroll Services</option></optgroup>
+          <optgroup label="Government &amp; Non-Profit"><option>Government / PSU</option><option>NGO &amp; Non-Profit</option><option>Social Enterprise</option></optgroup>
+          <optgroup label="Other"><option>Legal Services</option><option>Accounting &amp; CA Firms</option><option>Agriculture &amp; Agri-Tech</option><option>Energy &amp; Utilities</option><option>Other</option></optgroup>
+        </select></div>
+      <div class="field"><label><span class="star">★</span> Years of Experience</label><input class="fi" type="number" value="" min="0" placeholder="0"></div><div class="field"><label>Current CTC (LPA)</label><input class="fi" type="number" placeholder="0 for freshers"></div><div class="field"><label><span class="star">★</span> Expected CTC (LPA)</label><div class="fr2"><input class="fi" type="number" placeholder="Min" style="flex:1"><span style="color:var(--slate)">to</span><input class="fi" type="number" placeholder="Max" style="flex:1"></div></div><div class="field"><label><span class="star">★</span> Work Preference</label><div class="chips" id="wp-c"><div class="chip on" onclick="sc(this,'wp-c')">Remote</div><div class="chip" onclick="sc(this,'wp-c')">Hybrid</div><div class="chip" onclick="sc(this,'wp-c')">In-office</div></div></div></div>
       <div class="step-nav"><button class="btn bgh bsm" onclick="goSec(0)">← Back</button><div class="step-prog">2 of 10</div><button class="btn bg bsm" onclick="goSec(2)">Next →</button></div>
     </div>
     <div class="sec" id="sec-2">
       <div class="sec-hdr"><div><div class="sec-title">3. Voice Pitch</div><div class="sec-sub">Core differentiator - candidates with a pitch rank higher in search</div></div><span class="sec-badge sbb-ai">AI Scored</span></div>
-      <div class="fgrid" style="margin-bottom:16px"><div class="field"><label><span class="star">★</span> Pitch Headline (10 words max)</label><input class="fi" placeholder="e.g. Experienced BFSI telesales exec driving consistent revenue"></div><div class="field"><label><span class="star">★</span> Pitch Language</label><div class="chips" id="pl-c"><div class="chip on-v chip" onclick="scV(this,'pl-c')">English</div><div class="chip" onclick="scV(this,'pl-c')">Hindi</div><div class="chip" onclick="scV(this,'pl-c')">Marathi</div><div class="chip" onclick="scV(this,'pl-c')">Tamil</div><div class="chip" onclick="scV(this,'pl-c')">Telugu</div></div></div><div class="field fcol"><label>Pitch Transcript <span class="lbl-ai">Auto-generated</span></label><textarea class="fi" rows="2" placeholder="Auto-filled after you record..."></textarea></div></div>
+      <div class="fgrid" style="margin-bottom:16px"><div class="field"><label><span class="star">★</span> Pitch Headline (10 words max)</label><input class="fi" placeholder="e.g. Experienced BFSI telesales exec driving consistent revenue"></div><div class="field"><label><span class="star">★</span> Pitch Language</label><div class="chips" id="pl-c" style="flex-wrap:wrap;gap:5px">
+              <div class="chip on-v chip" onclick="scV(this,'pl-c')">English</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Hindi</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Hinglish</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Marathi</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Tamil</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Telugu</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Kannada</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Malayalam</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Bengali</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Gujarati</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Punjabi</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Odia</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Assamese</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Urdu</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Bhojpuri</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Rajasthani</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Haryanvi</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Maithili</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Konkani</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Sindhi</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Santali</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Kashmiri</div>
+              <div class="chip" onclick="scV(this,'pl-c')">Nepali</div>
+            </div></div><div class="field fcol"><label>Pitch Transcript <span class="lbl-ai">Auto-generated</span></label><textarea class="fi" rows="2" placeholder="Auto-filled after you record..."></textarea></div></div>
       <div class="vrec">
         <div style="position:relative">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><div style="font-family:'Fraunces',serif;font-size:17px;font-weight:700;color:#fff">Record Your 90-Second Pitch</div><div style="font-size:12px;color:rgba(237,233,254,.4);margin-top:2px">Re-record anytime · AI analyses it instantly</div></div><div style="display:flex;align-items:center;gap:6px;background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.3);padding:5px 12px;border-radius:100px;font-size:12px;color:#c4b5fd"><span id="vrec-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(124,58,237,.6)"></span><span id="vrec-txt">Ready to record</span></div></div>
@@ -2562,17 +2655,142 @@ img{max-width:100%}
     </div>
     <div class="sec" id="sec-4">
       <div class="sec-hdr"><div><div class="sec-title">5. Education</div><div class="sec-sub">All 4 fields required</div></div><span class="sec-badge sbb-key">★ Required</span></div>
-      <div class="fgrid"><div class="field"><label><span class="star">★</span> Highest Qualification</label><select class="fi"><option>10th</option><option>12th / HSC</option><option>Diploma</option><option>Under Graduate (UG)</option><option>Post Graduate (PG)</option><option>PhD</option></select></div><div class="field"><label><span class="star">★</span> Degree & Stream</label><input class="fi" value=""></div><div class="field"><label><span class="star">★</span> College / Institution</label><input class="fi" value=""></div><div class="field"><label><span class="star">★</span> Year of Passing</label><input class="fi" type="number" value=""></div></div>
+      <div class="fgrid"><div class="field"><label><span class="star">★</span> Highest Qualification</label>
+          <select class="fi" id="edu-qual">
+            <option value="">Select qualification</option>
+            <optgroup label="School">
+              <option>10th (SSC / CBSE / ICSE)</option>
+              <option>12th / HSC (Science)</option>
+              <option>12th / HSC (Commerce)</option>
+              <option>12th / HSC (Arts / Humanities)</option>
+              <option>12th / HSC (Vocational)</option>
+            </optgroup>
+            <optgroup label="Diploma">
+              <option>Diploma (ITI)</option>
+              <option>Diploma (Polytechnic)</option>
+              <option>Diploma (Computer / IT)</option>
+              <option>Diploma (Business / Management)</option>
+              <option>Certificate Course</option>
+            </optgroup>
+            <optgroup label="Undergraduate">
+              <option>B.A. (Bachelor of Arts)</option>
+              <option>B.Com (Bachelor of Commerce)</option>
+              <option>B.Sc (Bachelor of Science)</option>
+              <option>BBA (Bachelor of Business Administration)</option>
+              <option>BCA (Bachelor of Computer Applications)</option>
+              <option>B.Tech / B.E. (Engineering)</option>
+              <option>B.Pharm (Pharmacy)</option>
+              <option>BALLB / LLB</option>
+              <option>B.Ed (Education)</option>
+              <option>Other UG Degree</option>
+            </optgroup>
+            <optgroup label="Postgraduate">
+              <option>M.A. (Master of Arts)</option>
+              <option>M.Com (Master of Commerce)</option>
+              <option>M.Sc (Master of Science)</option>
+              <option>MBA / PGDM</option>
+              <option>MCA (Master of Computer Applications)</option>
+              <option>M.Tech / M.E. (Engineering)</option>
+              <option>LLM (Master of Law)</option>
+              <option>Other PG Degree</option>
+            </optgroup>
+            <optgroup label="Professional">
+              <option>CA (Chartered Accountant)</option>
+              <option>CS (Company Secretary)</option>
+              <option>CMA (Cost Accountant)</option>
+              <option>MBBS / BDS / Medical</option>
+              <option>PhD / Doctorate</option>
+            </optgroup>
+          </select></div><div class="field"><label><span class="star">★</span> Degree & Stream</label><input class="fi" value=""></div><div class="field"><label><span class="star">★</span> College / Institution</label><input class="fi" value=""></div><div class="field"><label><span class="star">★</span> Year of Passing</label><input class="fi" type="number" value=""></div></div>
       <div class="step-nav"><button class="btn bgh bsm" onclick="goSec(3)">← Back</button><div class="step-prog">5 of 10</div><button class="btn bg bsm" onclick="goSec(5)">Next →</button></div>
     </div>
     <div class="sec" id="sec-5">
       <div class="sec-hdr"><div><div class="sec-title">6. Skills & Languages</div><div class="sec-sub">Min 3 skills · Max 20</div></div><span class="sec-badge sbb-ai">AI Scored</span></div>
-      <div class="fgrid"><div class="field fcol"><label><span class="star">★</span> Top Skills</label><div class="chips"><div class="chip on" onclick="toggleChip(this)">Outbound Calling</div><div class="chip on" onclick="toggleChip(this)">CRM Tools</div><div class="chip on" onclick="toggleChip(this)">Lead Generation</div><div class="chip on" onclick="toggleChip(this)">Collections</div><div class="chip" onclick="toggleChip(this)">Inbound Support</div><div class="chip" onclick="toggleChip(this)">Cold Calling</div><div class="chip" onclick="toggleChip(this)">Upselling</div><div class="chip" onclick="toggleChip(this)">Policy Renewal</div></div></div><div class="field"><label><span class="star">★</span> Job Function</label><select class="fi"><option>Telesales / Inside Sales</option><option>Customer Support</option><option>Collections / Recovery</option><option>Academic Counselling</option><option>BPO / Process Associate</option></select></div><div class="field"><label><span class="star">★</span> Languages Known</label><div class="chips"><div class="chip on" onclick="toggleChip(this)">Hindi</div><div class="chip on" onclick="toggleChip(this)">English</div><div class="chip" onclick="toggleChip(this)">Marathi</div><div class="chip" onclick="toggleChip(this)">Tamil</div><div class="chip" onclick="toggleChip(this)">Telugu</div><div class="chip" onclick="toggleChip(this)">Kannada</div></div></div></div>
+      <div class="fgrid"><div class="field fcol"><label><span class="star">★</span> Top Skills</label><div class="chips"><div class="chip on" onclick="toggleChip(this)">Outbound Calling</div><div class="chip on" onclick="toggleChip(this)">CRM Tools</div><div class="chip on" onclick="toggleChip(this)">Lead Generation</div><div class="chip on" onclick="toggleChip(this)">Collections</div><div class="chip" onclick="toggleChip(this)">Inbound Support</div><div class="chip" onclick="toggleChip(this)">Cold Calling</div><div class="chip" onclick="toggleChip(this)">Upselling</div><div class="chip" onclick="toggleChip(this)">Policy Renewal</div></div></div><div class="field"><label><span class="star">★</span> Job Function</label><select class="fi"><option>Telesales / Inside Sales</option><option>Customer Support</option><option>Collections / Recovery</option><option>Academic Counselling</option><option>BPO / Process Associate</option></select></div><div class="field fcol" style="grid-column:1/-1"><label><span class="star">★</span> Languages Known <span style="font-size:10px;color:var(--slate)">(select all you speak)</span></label>
+          <div class="chips" id="lang-known-chips" style="flex-wrap:wrap;gap:6px">
+            <div class="chip on" onclick="toggleChip(this)">Hindi</div>
+            <div class="chip on" onclick="toggleChip(this)">English</div>
+            <div class="chip" onclick="toggleChip(this)">Marathi</div>
+            <div class="chip" onclick="toggleChip(this)">Tamil</div>
+            <div class="chip" onclick="toggleChip(this)">Telugu</div>
+            <div class="chip" onclick="toggleChip(this)">Kannada</div>
+            <div class="chip" onclick="toggleChip(this)">Malayalam</div>
+            <div class="chip" onclick="toggleChip(this)">Bengali</div>
+            <div class="chip" onclick="toggleChip(this)">Gujarati</div>
+            <div class="chip" onclick="toggleChip(this)">Punjabi</div>
+            <div class="chip" onclick="toggleChip(this)">Odia</div>
+            <div class="chip" onclick="toggleChip(this)">Assamese</div>
+            <div class="chip" onclick="toggleChip(this)">Urdu</div>
+            <div class="chip" onclick="toggleChip(this)">Hinglish</div>
+            <div class="chip" onclick="toggleChip(this)">Bhojpuri</div>
+            <div class="chip" onclick="toggleChip(this)">Rajasthani</div>
+            <div class="chip" onclick="toggleChip(this)">Haryanvi</div>
+            <div class="chip" onclick="toggleChip(this)">Maithili</div>
+            <div class="chip" onclick="toggleChip(this)">Konkani</div>
+            <div class="chip" onclick="toggleChip(this)">Sindhi</div>
+            <div class="chip" onclick="toggleChip(this)">Kashmiri</div>
+            <div class="chip" onclick="toggleChip(this)">Nepali</div>
+            <div class="chip" onclick="toggleChip(this)">Santali</div>
+            <div class="chip" onclick="toggleChip(this)">Tulu</div>
+          </div></div></div>
       <div class="step-nav"><button class="btn bgh bsm" onclick="goSec(4)">← Back</button><div class="step-prog">6 of 10</div><button class="btn bg bsm" onclick="goSec(6)">Next →</button></div>
     </div>
     <div class="sec" id="sec-6">
       <div class="sec-hdr"><div><div class="sec-title">7. Job Preferences</div><div class="sec-sub">Helps employers filter the right candidates</div></div></div>
-      <div class="fgrid"><div class="field"><label><span class="star">★</span> Job Type</label><div class="chips" id="jt-c"><div class="chip on" onclick="sc(this,'jt-c')">Full-time</div><div class="chip" onclick="sc(this,'jt-c')">Part-time</div><div class="chip" onclick="sc(this,'jt-c')">Contract</div><div class="chip" onclick="sc(this,'jt-c')">Internship</div></div></div><div class="field"><label><span class="star">★</span> Open to Relocation</label><div class="chips" id="rl-c"><div class="chip" onclick="sc(this,'rl-c')">Yes</div><div class="chip on" onclick="sc(this,'rl-c')">No</div><div class="chip" onclick="sc(this,'rl-c')">Negotiable</div></div></div><div class="field"><label><span class="star">★</span> Preferred Cities</label><div class="chips"><div class="chip on" onclick="toggleChip(this)">Mumbai</div><div class="chip on" onclick="toggleChip(this)">Pune</div><div class="chip" onclick="toggleChip(this)">Delhi</div><div class="chip" onclick="toggleChip(this)">Bangalore</div><div class="chip" onclick="toggleChip(this)">Remote</div></div></div><div class="field"><label>Preferred Industries</label><div class="chips"><div class="chip on" onclick="toggleChip(this)">Banking & Finance</div><div class="chip on" onclick="toggleChip(this)">Insurance</div><div class="chip" onclick="toggleChip(this)">EdTech</div><div class="chip" onclick="toggleChip(this)">BPO</div></div></div></div>
+      <div class="fgrid"><div class="field"><label><span class="star">★</span> Job Type</label><div class="chips" id="jt-c"><div class="chip on" onclick="sc(this,'jt-c')">Full-time</div><div class="chip" onclick="sc(this,'jt-c')">Part-time</div><div class="chip" onclick="sc(this,'jt-c')">Contract</div><div class="chip" onclick="sc(this,'jt-c')">Internship</div></div></div><div class="field"><label><span class="star">★</span> Open to Relocation</label><div class="chips" id="rl-c"><div class="chip" onclick="sc(this,'rl-c')">Yes</div><div class="chip on" onclick="sc(this,'rl-c')">No</div><div class="chip" onclick="sc(this,'rl-c')">Negotiable</div></div></div><div class="field fcol" style="grid-column:1/-1"><label><span class="star">★</span> Preferred Cities <span style="font-size:10px;color:var(--slate)">(select all that apply)</span></label>
+        <div class="chips" id="pref-city-chips" style="flex-wrap:wrap;gap:6px">
+          <div class="chip on" onclick="toggleChip(this)">Remote / Work From Home</div>
+          <div class="chip" onclick="toggleChip(this)">Pan India</div>
+          <div class="chip on" onclick="toggleChip(this)">Mumbai</div>
+          <div class="chip on" onclick="toggleChip(this)">Pune</div>
+          <div class="chip" onclick="toggleChip(this)">Navi Mumbai</div>
+          <div class="chip" onclick="toggleChip(this)">Thane</div>
+          <div class="chip" onclick="toggleChip(this)">Nagpur</div>
+          <div class="chip" onclick="toggleChip(this)">Nashik</div>
+          <div class="chip" onclick="toggleChip(this)">Aurangabad</div>
+          <div class="chip" onclick="toggleChip(this)">Delhi</div>
+          <div class="chip" onclick="toggleChip(this)">Noida</div>
+          <div class="chip" onclick="toggleChip(this)">Gurugram</div>
+          <div class="chip" onclick="toggleChip(this)">Faridabad</div>
+          <div class="chip" onclick="toggleChip(this)">Ghaziabad</div>
+          <div class="chip" onclick="toggleChip(this)">Bangalore</div>
+          <div class="chip" onclick="toggleChip(this)">Mysore</div>
+          <div class="chip" onclick="toggleChip(this)">Hyderabad</div>
+          <div class="chip" onclick="toggleChip(this)">Secunderabad</div>
+          <div class="chip" onclick="toggleChip(this)">Visakhapatnam</div>
+          <div class="chip" onclick="toggleChip(this)">Vijayawada</div>
+          <div class="chip" onclick="toggleChip(this)">Chennai</div>
+          <div class="chip" onclick="toggleChip(this)">Coimbatore</div>
+          <div class="chip" onclick="toggleChip(this)">Madurai</div>
+          <div class="chip" onclick="toggleChip(this)">Ahmedabad</div>
+          <div class="chip" onclick="toggleChip(this)">Surat</div>
+          <div class="chip" onclick="toggleChip(this)">Vadodara</div>
+          <div class="chip" onclick="toggleChip(this)">Rajkot</div>
+          <div class="chip" onclick="toggleChip(this)">Lucknow</div>
+          <div class="chip" onclick="toggleChip(this)">Kanpur</div>
+          <div class="chip" onclick="toggleChip(this)">Agra</div>
+          <div class="chip" onclick="toggleChip(this)">Varanasi</div>
+          <div class="chip" onclick="toggleChip(this)">Jaipur</div>
+          <div class="chip" onclick="toggleChip(this)">Jodhpur</div>
+          <div class="chip" onclick="toggleChip(this)">Udaipur</div>
+          <div class="chip" onclick="toggleChip(this)">Kolkata</div>
+          <div class="chip" onclick="toggleChip(this)">Howrah</div>
+          <div class="chip" onclick="toggleChip(this)">Indore</div>
+          <div class="chip" onclick="toggleChip(this)">Bhopal</div>
+          <div class="chip" onclick="toggleChip(this)">Patna</div>
+          <div class="chip" onclick="toggleChip(this)">Ranchi</div>
+          <div class="chip" onclick="toggleChip(this)">Jamshedpur</div>
+          <div class="chip" onclick="toggleChip(this)">Chandigarh</div>
+          <div class="chip" onclick="toggleChip(this)">Ludhiana</div>
+          <div class="chip" onclick="toggleChip(this)">Amritsar</div>
+          <div class="chip" onclick="toggleChip(this)">Kochi</div>
+          <div class="chip" onclick="toggleChip(this)">Thiruvananthapuram</div>
+          <div class="chip" onclick="toggleChip(this)">Bhubaneswar</div>
+          <div class="chip" onclick="toggleChip(this)">Guwahati</div>
+          <div class="chip" onclick="toggleChip(this)">Dehradun</div>
+          <div class="chip" onclick="toggleChip(this)">Goa</div>
+          <div class="chip" onclick="toggleChip(this)">Raipur</div>
+        </div></div><div class="field"><label>Preferred Industries</label><div class="chips"><div class="chip on" onclick="toggleChip(this)">Banking & Finance</div><div class="chip on" onclick="toggleChip(this)">Insurance</div><div class="chip" onclick="toggleChip(this)">EdTech</div><div class="chip" onclick="toggleChip(this)">BPO</div></div></div></div>
       <div class="step-nav"><button class="btn bgh bsm" onclick="goSec(5)">← Back</button><div class="step-prog">7 of 10</div><button class="btn bg bsm" onclick="goSec(7)">Next →</button></div>
     </div>
     <div class="sec" id="sec-7">
@@ -2656,7 +2874,14 @@ async function supaLoadUserIntoAUTH(user) {
     if (ep) AUTH.name = ep.company_name;
   } else {
     const { data: cp } = await supa.from('candidate_profiles').select('*').eq('user_id', user.id).single();
-    if (cp) { AUTH.candidateProfile = cp; }
+    if (cp) {
+      AUTH.candidateProfile = cp;
+      // Show languages on sidebar if present
+      if (cp.languages) {
+        const langEl = document.getElementById('cd-langs');
+        if (langEl) langEl.textContent = cp.languages;
+      }
+    }
   }
 
   // Load active subscription (skip for lifetime accounts)
@@ -3424,9 +3649,9 @@ let ttS = { att:0, res:[], run:false, tl:60, tmr:null, st:null, pass:'', typed:'
 let cbHistory = [];
 
 const PASSAGES = [
-  "Good communication is the bridge between confusion and clarity. A telecaller must speak with confidence, listen actively, and resolve queries with empathy. Every call is an opportunity to build trust and deliver lasting value to the customer.",
-  "The ability to handle objections professionally is a key skill in outbound sales. When a prospect says no, an experienced telecaller sees it as the start of a conversation, not the end. Patience and persistence consistently drive real results.",
-  "Customer satisfaction is the ultimate goal of every support interaction. A skilled telecaller understands the product deeply, communicates clearly, and follows up diligently to ensure the customer issue is fully and permanently resolved."
+  "Good communication is the bridge between confusion and clarity. A telecaller must speak with confidence, listen actively, and resolve queries with empathy. Every call is a chance to build trust.",
+  "Handling objections professionally is a key skill in outbound sales. When a prospect says no, an experienced telecaller sees it as the start of a conversation, not the end. Patience drives results.",
+  "Customer satisfaction is the ultimate goal of every support interaction. A skilled telecaller understands the product deeply, communicates clearly, and follows up to ensure every issue is resolved."
 ];
 
 const CANDS = []; // populated from Supabase when candidates apply to roles
@@ -3852,10 +4077,10 @@ function renderHiring() {
 }
 
 async function postRole() {
-  const get = id => { const el = document.getElementById(id); return el ? (el.value || el.options?.[el.selectedIndex]?.value || '').trim() : ''; };
+  const get = id => { const el = document.getElementById(id); if (!el) return ''; return (el.value || '').trim(); };
   const title   = get('post-title');
-  const ind     = get('role-industry') || get('post-ind');
-  const city    = get('role-city')     || get('post-city');
+  const ind     = get('role-industry');
+  const city    = get('role-city');
   const exp     = get('post-exp');
   const sal     = get('post-sal');
   const desc    = get('post-desc');
@@ -4065,6 +4290,17 @@ function showCD(id, el) {
 }
 
 function initCandDash() {
+  // Populate languages from profile chips if available
+  setTimeout(() => {
+    const langChips = document.querySelectorAll('#lang-known-chips .chip.on');
+    if (langChips.length > 0) {
+      const langs = Array.from(langChips).map(c => c.textContent.trim()).slice(0, 4).join(' · ');
+      const el = document.getElementById('cd-langs');
+      if (el && langs) el.textContent = langs;
+    }
+  }, 600);
+}
+function _initCandDash_orig() {
   const name = AUTH.name || 'Candidate';
   const firstName = name.split(' ')[0];
   const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
@@ -4645,7 +4881,7 @@ async function toggleRec() {
       recSec++;
       const m = Math.floor(recSec / 60), s = recSec % 60;
       document.getElementById('rec-time').textContent = `${m}:${s.toString().padStart(2, '0')}`;
-      if (recSec >= 90) toggleRec();
+      if (recSec >= 90) { toggleRec(); toast('Maximum 90 seconds reached. Click Submit Pitch to continue.', 'ti', 4000); }
     }, 1000);
   } else {
     // ── STOP recording ──
@@ -4660,8 +4896,8 @@ async function toggleRec() {
 
 async function submitPitch() {
   if (!audioBlob) { toast('Please record your pitch first!', 'tw2'); return; }
-  if (recSec < 3)  { toast('Record at least a few seconds first!', 'tw2'); return; }
-  if (!AUTH.id)    { toast('Please sign in to save your voice pitch.', 'tw2'); return; }
+  if (recSec < 10) { toast('Please record at least 10 seconds. Aim for 60 to 90 seconds for the best AI score.', 'tw2'); return; }
+  if (recSec > 90) { toast('Pitch is too long. Maximum is 90 seconds.', 'tw2'); return; }
 
   const statusEl = document.getElementById('vrec-txt');
   const submitBtn = document.querySelector('[onclick="submitPitch()"]');
@@ -4670,6 +4906,11 @@ async function submitPitch() {
   try {
     // ── 1. Upload audio to Supabase Storage ──────────────────────────────────
     statusEl.textContent = 'Saving your pitch...';
+    if (!AUTH.id) {
+      toast('Please complete sign-in before uploading your pitch.', 'tw2');
+      statusEl.textContent = 'Sign in required to save pitch.';
+      return;
+    }
     const path = `${AUTH.id}/pitch.webm`;
     const { error: upErr } = await supa.storage
       .from('voice-pitches')
@@ -4683,10 +4924,14 @@ async function submitPitch() {
       .eq('user_id', AUTH.id);
 
     // ── 3. Run AssemblyAI scoring pipeline ───────────────────────────────────
-    // Get candidate profile id first
-    const { data: cp } = await supa.from('candidate_profiles')
+    // Get or create candidate profile
+    let { data: cp } = await supa.from('candidate_profiles')
       .select('id').eq('user_id', AUTH.id).single();
-
+    if (!cp) {
+      const { data: newCp } = await supa.from('candidate_profiles')
+        .insert({ user_id: AUTH.id }).select('id').single();
+      cp = newCp;
+    }
     if (cp) await aaiProcessPitch(audioBlob, cp.id);
 
   } catch(err) {
@@ -4735,10 +4980,13 @@ async function uploadResume() {
       .createSignedUrl(path, 60 * 60 * 24 * 365);
     const resumeUrl = urlData?.signedUrl || path;
 
-    // Save to candidate_profiles
-    await supa.from('candidate_profiles')
-      .update({ resume_url: path })
-      .eq('user_id', AUTH.id);
+    // Ensure candidate_profiles row exists, then save resume URL
+    const { data: cpCheck } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
+    if (cpCheck) {
+      await supa.from('candidate_profiles').update({ resume_url: path }).eq('user_id', AUTH.id);
+    } else {
+      await supa.from('candidate_profiles').insert({ user_id: AUTH.id, resume_url: path });
+    }
 
     document.getElementById('resume-upload-status').textContent = '✓ Resume uploaded successfully';
     document.getElementById('resume-upload-status').style.color = 'var(--green)';
@@ -4748,6 +4996,51 @@ async function uploadResume() {
     document.getElementById('resume-upload-status').textContent = '✗ Upload failed — try again';
     document.getElementById('resume-upload-status').style.color = 'var(--red)';
     toast('Resume upload failed: ' + (err.message || 'Please try again'), 'te');
+    return null;
+  }
+}
+
+// ══════════════════════════════════════════
+//  PROFILE PHOTO UPLOAD
+// ══════════════════════════════════════════
+let pendingPhotoFile = null;
+
+function handlePhotoSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const validTypes = ['image/jpeg','image/png','image/webp'];
+  if (!validTypes.includes(file.type)) { toast('Please upload a JPG, PNG, or WebP image.', 'tw2'); return; }
+  if (file.size > 5 * 1024 * 1024) { toast('Photo too large. Maximum 5MB.', 'tw2'); return; }
+  pendingPhotoFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const prev = document.getElementById('photo-preview');
+    if (prev) {
+      prev.innerHTML = `<img src="${e.target.result}" style="width:64px;height:64px;border-radius:50%;object-fit:cover">`;
+    }
+    document.getElementById('photo-status').textContent = '✓ ' + file.name + ' ready to upload';
+    document.getElementById('photo-status').style.color = 'var(--green)';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function uploadProfilePhoto() {
+  if (!pendingPhotoFile || !AUTH.id) return null;
+  try {
+    const ext = pendingPhotoFile.name.split('.').pop().toLowerCase();
+    const path = `${AUTH.id}/photo.${ext}`;
+    const { error } = await supa.storage
+      .from('profile-photos')
+      .upload(path, pendingPhotoFile, { contentType: pendingPhotoFile.type, upsert: true });
+    if (error) throw error;
+    const { data } = supa.storage.from('profile-photos').getPublicUrl(path);
+    await supa.from('users').update({ avatar_url: data.publicUrl }).eq('id', AUTH.id);
+    // Update nav avatar
+    const navAv = document.getElementById('nav-av');
+    if (navAv) navAv.innerHTML = `<img src="${data.publicUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+    return data.publicUrl;
+  } catch(e) {
+    console.warn('Photo upload error:', e);
     return null;
   }
 }
@@ -4763,7 +5056,9 @@ function showTypingTest() {
 
 function ttInitPass() {
   const p = PASSAGES[Math.min(ttS.att, PASSAGES.length - 1)]; ttS.pass = p;
-  document.getElementById('tt-pas').innerHTML = p.split('').map((c, i) => `<span class="tc" id="tc${i}">${c === ' ' ? '&nbsp;' : c}</span>`).join('');
+  const pasEl = document.getElementById('tt-pas');
+  pasEl.innerHTML = p.split('').map((c, i) => `<span class="tc" id="tc${i}">${c === ' ' ? '&nbsp;' : c}</span>`).join('');
+  pasEl.scrollTop = 0;
   document.getElementById('tc0')?.classList.add('cur');
 }
 
@@ -4836,22 +5131,58 @@ function ttReset() {
 }
 
 async function finishProfile() {
+  // Upload profile photo if one was selected
+  if (pendingPhotoFile) await uploadProfilePhoto();
   // Upload resume if one was selected
   if (pendingResumeFile) await uploadResume();
 
   // Save core profile fields to Supabase
   if (AUTH.id) {
-    const nameEl   = document.querySelector('#pf-step-0 input.fi');
-    const roleEl   = document.querySelector('#pf-step-1 input.fi');
     try {
-      await supa.from('candidate_profiles').update({
-        profile_pct: 100,
-      }).eq('user_id', AUTH.id);
+      const nameVal  = document.getElementById('pf-name')?.value?.trim() || AUTH.name;
+      const phoneVal = document.getElementById('pf-phone')?.value?.trim() || '';
+      const cityVal  = document.getElementById('pf-city')?.value?.trim()  || '';
+      const roleVal  = document.querySelector('[id="pf-jobtitle"]')?.value?.trim() || '';
+      const eduQual  = document.getElementById('edu-qual')?.value?.trim() || '';
+
+      // Collect selected languages
+      const langChips = document.querySelectorAll('#lang-known-chips .chip.on');
+      const langs = Array.from(langChips).map(c => c.textContent.trim()).join(', ');
+
+      // Update users table
       await supa.from('users').update({
-        full_name: nameEl?.value?.trim() || AUTH.name,
+        full_name: nameVal,
+        phone:     phoneVal,
+        city:      cityVal,
         updated_at: new Date().toISOString(),
       }).eq('id', AUTH.id);
-    } catch(e) { console.warn('Profile save partial error:', e); }
+
+      // Upsert candidate_profiles
+      const { data: existingCp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
+      const profileData = {
+        user_id:     AUTH.id,
+        role_title:  roleVal,
+        languages:   langs,
+        profile_pct: 100,
+        ai_verified: false,
+      };
+      if (existingCp) {
+        await supa.from('candidate_profiles').update(profileData).eq('user_id', AUTH.id);
+      } else {
+        await supa.from('candidate_profiles').insert(profileData);
+      }
+
+      // Update nav display name
+      AUTH.name = nameVal;
+      const unEl = document.getElementById('cd-uname');
+      const roleEl = document.getElementById('cd-urole');
+      if (unEl) unEl.textContent = nameVal;
+      if (roleEl && roleVal) roleEl.textContent = roleVal;
+
+    } catch(e) {
+      console.warn('Profile save error:', e);
+      toast('Profile saved locally. Some fields may not have synced — please try again.', 'tw2', 5000);
+    }
   }
 
   toast('Profile submitted! You are now live on PitchFirst 🎉', 'ts');
@@ -5193,9 +5524,15 @@ async function addMarqueeItem() {
     }
 
     // ── Save to marquee_items table ─────────────────────────────────────────
-    const { data: cp } = await supa.from('candidate_profiles')
+    let { data: cp } = await supa.from('candidate_profiles')
       .select('id').eq('user_id', AUTH.id).single();
-    if (!cp) throw new Error('Candidate profile not found');
+    if (!cp) {
+      // Auto-create profile if missing
+      const { data: newCp } = await supa.from('candidate_profiles')
+        .insert({ user_id: AUTH.id }).select('id').single();
+      cp = newCp;
+    }
+    if (!cp) throw new Error('Could not create candidate profile. Please complete your profile setup first.');
 
     const { data: item, error: dbErr } = await supa.from('marquee_items').insert({
       candidate_id:  cp.id,
@@ -6116,10 +6453,15 @@ async function submitVideoUpload() {
       if (upErr) throw upErr;
     }
 
-    // ── Get candidate profile id ───────────────────────────────────────────
-    const { data: cp } = await supa.from('candidate_profiles')
+    // ── Get or create candidate profile ─────────────────────────────────────
+    let { data: cp } = await supa.from('candidate_profiles')
       .select('id').eq('user_id', AUTH.id).single();
-    if (!cp) throw new Error('Candidate profile not found');
+    if (!cp) {
+      const { data: newCp } = await supa.from('candidate_profiles')
+        .insert({ user_id: AUTH.id }).select('id').single();
+      cp = newCp;
+    }
+    if (!cp) throw new Error('Please complete your profile setup before uploading a video.');
 
     // ── Upsert into candidate_videos (one video per candidate) ────────────
     const { data: vid, error: dbErr } = await supa.from('candidate_videos').upsert({
