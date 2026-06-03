@@ -2840,15 +2840,15 @@ async function supaRestoreSession() {
 async function supaLoadUserIntoAUTH(user) {
   const { data: profile, error: profileErr } = await supa.from('users').select('*').eq('id', user.id).single();
   if (!profile) {
-    // Profile row missing (trigger delay or first-time signup race condition)
-    // Build a minimal AUTH from the auth user metadata so the dashboard still opens
     const meta = user.user_metadata || {};
     const role = meta.role || 'candidate';
     const planType = isLifetimeFreeAccount(user.email) ? 'lifetime' : 'pro';
     AUTH = { in: true, role, plan: planType, name: meta.full_name || user.email, id: user.id, email: user.email };
     setLoggedIn();
-    if (role === 'employer') { navTo('employer'); setTimeout(() => { renderAll(); rzpUpdateBillingUI(); }, 300); }
-    else { initCandDash(); navTo('cdash'); }
+    if (role === 'employer') {
+      navTo('employer');
+      setTimeout(() => { renderAll(); rzpUpdateBillingUI(); loadRolesFromDB(); loadCompanyProfile(); loadCandidatesFromDB(); }, 300);
+    } else { initCandDash(); navTo('cdash'); }
     return;
   }
 
@@ -3798,10 +3798,6 @@ function doCandSignup() {
 }
 
 // ── Demo / preset credentials (bypass Supabase for known test accounts) ────────
-const DEMO_ACCOUNTS = {
-  'hr@successfusion.in': { password: 'Pitch@2026', role: 'employer', name: 'Success Fusion HR Services', plan: 'lifetime' },
-};
-
 async function doSignin() {
   const email = document.getElementById('si-email')?.value?.trim() || '';
   const password = document.getElementById('si-password')?.value?.trim() || '';
@@ -3812,27 +3808,6 @@ async function doSignin() {
 
   if (btn) { btn.disabled = true; btn.textContent = 'Signing in...'; }
   if (errEl) errEl.style.display = 'none';
-
-  // ── Demo account bypass — no Supabase call needed ──────────────────────────
-  const demo = DEMO_ACCOUNTS[email.toLowerCase()];
-  if (demo) {
-    if (password !== demo.password) {
-      if (btn) { btn.disabled = false; btn.textContent = 'Sign In →'; }
-      if (errEl) { errEl.style.display = ''; errEl.textContent = 'Incorrect password.'; }
-      toast('Incorrect password.', 'te');
-      return;
-    }
-    AUTH = { in: true, role: demo.role, plan: demo.plan, name: demo.name, email };
-    closeModal('modal-auth');
-    if (btn) { btn.disabled = false; btn.textContent = 'Sign In →'; }
-    setLoggedIn();
-    if (demo.role === 'employer') {
-      navTo('employer');
-      setTimeout(() => { renderAll(); rzpUpdateBillingUI(); loadRolesFromDB(); loadCompanyProfile(); loadCandidatesFromDB(); }, 300);
-    } else { initCandDash(); navTo('cdash'); }
-    toast('Welcome back, ' + demo.name.split(' ')[0] + '! ✓', 'ts');
-    return;
-  }
 
   try {
     const user = await supaSignIn(email, password);
