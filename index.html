@@ -5148,8 +5148,9 @@ async function submitPitch() {
 
   } catch(err) {
     statusEl.textContent = 'Upload failed — please try again';
-    toast('Upload failed: ' + (err.message || 'Please try again'), 'te');
-    console.error('submitPitch error:', err);
+    const errDetail = JSON.stringify({ message: err.message, code: err.code, details: err.details, hint: err.hint, status: err.status });
+    toast('Upload failed: ' + errDetail, 'te', 15000);
+    console.error('submitPitch FULL ERROR:', err, errDetail);
   } finally {
     if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit Pitch →'; }
   }
@@ -5207,7 +5208,9 @@ async function uploadResume() {
   } catch(err) {
     document.getElementById('resume-upload-status').textContent = '✗ Upload failed — try again';
     document.getElementById('resume-upload-status').style.color = 'var(--red)';
-    toast('Resume upload failed: ' + (err.message || 'Please try again'), 'te');
+    const errDetail = JSON.stringify({ message: err.message, code: err.code, details: err.details, hint: err.hint, status: err.status, error: err.error });
+    toast('Resume error: ' + errDetail, 'te', 15000);
+    console.error('uploadResume FULL ERROR:', err);
     return null;
   }
 }
@@ -5782,8 +5785,9 @@ async function addMarqueeItem() {
     toast(`"${title}" pinned to The Marquee ✦`, 'ts');
 
   } catch(err) {
-    toast('Failed to save: ' + (err.message || 'Please try again'), 'te');
-    console.error('Marquee save error:', err);
+    const errDetail = JSON.stringify({ message: err.message, code: err.code, details: err.details, hint: err.hint, status: err.status, error: err.error });
+    toast('Marquee error: ' + errDetail, 'te', 15000);
+    console.error('Marquee FULL ERROR:', err);
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Pin to Marquee ✦'; }
   }
