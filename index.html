@@ -1116,7 +1116,7 @@ img{max-width:100%}
     <div class="mt" id="cp-edit-title">Edit</div>
     <div class="ms">Changes save to your company profile instantly</div>
     <div id="cp-edit-body"></div>
-    <button class="btn bg" style="width:100%;margin-top:18px" onclick="saveCpEdit()">Save Changes ✓</button>
+    <button class="btn bp" style="width:100%;margin-top:18px" onclick="saveCpEdit()">Save Changes →</button>
   </div>
 </div>
 
@@ -1559,8 +1559,8 @@ img{max-width:100%}
   <div class="emp-layout">
     <aside class="emp-sb">
       <div class="emp-sb-top">
-        <div class="emp-co-logo">SF</div>
-        <div class="emp-co-name">Success Fusion HR Services</div>
+        <div class="emp-co-logo" id="emp-co-logo">SF</div>
+        <div class="emp-co-name" id="emp-co-name">Loading...</div>
         <div class="emp-co-plan">Employer Pro · Active</div>
       </div>
       <div class="esbl">Main</div>
@@ -1587,7 +1587,7 @@ img{max-width:100%}
       <!-- OVERVIEW -->
       <div class="ep active" id="ep-overview">
         <div class="eph">
-          <div><div class="eph-title">Dashboard Overview</div><div class="eph-sub">Success Fusion HR Services · Active subscription</div></div>
+          <div><div class="eph-title">Dashboard Overview</div><div id="emp-overview-sub" class="eph-sub">Loading...</div></div>
           <button class="btn bp bsm" onclick="openModal('modal-post')">+ Post New Role</button>
         </div>
         <div class="sg">
@@ -1757,25 +1757,24 @@ img{max-width:100%}
         <div class="cp-layout">
           <div>
             <div class="cp-card">
-              <div class="cp-logo">FL</div>
-              <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;margin-bottom:2px">Success Fusion HR Services</div>
-              <div style="font-size:12.5px;color:var(--slate);margin-bottom:12px">India's fastest-growing outbound BFSI sales company</div>
+              <div class="cp-logo" id="cp-logo-initials">SF</div>
+              <div id="cp-name" style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;margin-bottom:2px">Loading...</div>
+              <div id="cp-tagline" style="font-size:12.5px;color:var(--slate);margin-bottom:12px">Add a tagline to attract candidates</div>
               <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
                 <span style="background:var(--gs);color:#0f6e56;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;border:1px solid rgba(16,185,129,.2)">● Active</span>
                 <span style="background:var(--bs);color:var(--blue);font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;border:1px solid rgba(37,99,235,.15)">✓ Verified</span>
                 <span style="background:var(--vs);color:var(--vg);font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;border:1px solid rgba(124,58,237,.15)">Pro Employer</span>
               </div>
               <div style="display:flex;gap:8px;margin-bottom:14px">
-                <div class="cp-stat"><div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--vg)">12</div><div style="font-size:10px;color:var(--slate)">Hires</div></div>
-                <div class="cp-stat"><div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--vg)">34</div><div style="font-size:10px;color:var(--slate)">Unlocked</div></div>
-                <div class="cp-stat"><div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--gold)">4.3★</div><div style="font-size:10px;color:var(--slate)">Rating</div></div>
+                <div class="cp-stat"><div id="cp-stat-hires" style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--vg)">0</div><div style="font-size:10px;color:var(--slate)">Hires</div></div>
+                <div class="cp-stat"><div id="cp-stat-apps" style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--vg)">0</div><div style="font-size:10px;color:var(--slate)">Applications</div></div>
+                <div class="cp-stat"><div id="cp-stat-roles" style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--gold)">0</div><div style="font-size:10px;color:var(--slate)">Roles</div></div>
               </div>
-              <div class="cp-ir"><span style="font-size:14px;width:20px">🏭</span> Banking & Finance</div>
-              <div class="cp-ir"><span style="font-size:14px;width:20px">📍</span> Mumbai, Maharashtra</div>
-              <div class="cp-ir"><span style="font-size:14px;width:20px">👥</span> 51–200 employees</div>
-              <div class="cp-ir"><span style="font-size:14px;width:20px">🌐</span> www.fintechleads.in</div>
-              <div class="cp-ir"><span style="font-size:14px;width:20px">📅</span> Founded 2019</div>
-              <div class="cp-ir"><span style="font-size:14px;width:20px">📧</span> hr@fintechleads.in</div>
+              <div id="cp-industry" class="cp-ir"><span style="font-size:14px;width:20px">🏭</span> —</div>
+              <div id="cp-city" class="cp-ir"><span style="font-size:14px;width:20px">📍</span> —</div>
+              <div id="cp-size" class="cp-ir"><span style="font-size:14px;width:20px">👥</span> —</div>
+              <div id="cp-website" class="cp-ir"><span style="font-size:14px;width:20px">🌐</span> —</div>
+              <div id="cp-email-row" class="cp-ir"><span style="font-size:14px;width:20px">📧</span> —</div>
             </div>
             <div class="cp-card">
               <div style="font-size:11px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px">Currently Hiring</div>
@@ -1785,36 +1784,25 @@ img{max-width:100%}
           <div>
             <div class="cp-card">
               <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">About Us <button class="cp-edit-btn" onclick="cpEdit('about')">Edit</button></div>
-              <p style="font-size:13.5px;color:var(--slate);line-height:1.7">Success Fusion HR Services specialises in telecaller and BPO hiring across India. Update your company profile to attract the right candidates.</p>
+              <p id="cp-about" style="font-size:13.5px;color:var(--slate);line-height:1.7">Click Edit to add a description of your company.</p>
             </div>
             <div class="cp-card">
-              <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">Hiring Performance <button class="cp-edit-btn" onclick="toast('Analytics refreshed','s')">Refresh</button></div>
+              <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">Hiring Performance <button class="cp-edit-btn" onclick="loadCompanyProfile()">Refresh</button></div>
               <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-                <div class="cp-kpi"><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500">28</div><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Applications</div></div>
-                <div class="cp-kpi"><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500">12</div><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Hires</div></div>
-                <div class="cp-kpi"><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500">4.2d</div><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Time-to-hire</div></div>
-                <div class="cp-kpi"><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500">43%</div><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Voice rate</div></div>
-                <div class="cp-kpi"><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500">92%</div><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Offer accept</div></div>
-                <div class="cp-kpi"><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500">4.3★</div><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Rating</div></div>
+                <div class="cp-kpi"><div id="cp-kpi-apps" style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500">0</div><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Applications</div></div>
+                <div class="cp-kpi"><div id="cp-kpi-hires" style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500">0</div><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Hires</div></div>
+                <div class="cp-kpi"><div id="cp-kpi-roles" style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500">0</div><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Active Roles</div></div>
+                <div class="cp-kpi"><div id="cp-kpi-interviews" style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500">0</div><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Interviews</div></div>
+                <div class="cp-kpi"><div id="cp-kpi-shortlisted" style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500">0</div><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Shortlisted</div></div>
+                <div class="cp-kpi"><div id="cp-kpi-hired" style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500">0</div><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Hired</div></div>
               </div>
             </div>
             <div class="cp-card">
               <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">Hiring Team <button class="cp-edit-btn" onclick="cpEdit('team')">Edit</button></div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
-                
-                <div style="font-size:13px;color:var(--slate)">Add team members from Settings</div>
-                <div class="cp-team-card" style="cursor:pointer;border-style:dashed" onclick="toast('Invite sent','s')"><div style="width:34px;height:34px;border-radius:50%;border:2px dashed var(--bd);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">+</div><div style="font-size:12px;color:var(--slate)">Invite member</div></div>
-              </div>
-            </div>
-            <div class="cp-card">
-              <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:12px">Reviews <span style="font-size:14px;color:var(--gold)">4.3★</span></div>
-              <div style="background:var(--cream);border-radius:9px;padding:12px;border:1px solid var(--bd);margin-bottom:8px">
-                <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-weight:600;font-size:13px">Meena Rajput</span><span style="color:var(--gold)">★★★★★</span></div>
-                <div style="font-size:12.5px;color:var(--slate)">Great culture, strong training, incentives are real - hit 150% of target in my first month.</div>
-              </div>
-              <div style="background:var(--cream);border-radius:9px;padding:12px;border:1px solid var(--bd)">
-                <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-weight:600;font-size:13px">Arjun Patil</span><span style="color:var(--gold)">★★★★☆</span></div>
-                <div style="font-size:12.5px;color:var(--slate)">Supportive managers. Would appreciate more flexible timing for evening shifts.</div>
+                <div id="cp-hr-head-card" style="display:none" class="cp-team-card"><div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--vg),var(--gold));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">HR</div><div><div id="cp-hr-head-name" style="font-weight:600;font-size:13px"></div><div style="font-size:11px;color:var(--slate)">HR Head</div></div></div>
+                <div id="cp-ta-card" style="display:none" class="cp-team-card"><div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--vg));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">TA</div><div><div id="cp-ta-name" style="font-weight:600;font-size:13px"></div><div style="font-size:11px;color:var(--slate)">Talent Acquisition</div></div></div>
+                <div style="font-size:13px;color:var(--slate)" id="cp-team-empty">Add team members using the Edit button</div>
               </div>
             </div>
           </div>
@@ -1872,20 +1860,20 @@ img{max-width:100%}
 
       <!-- ANALYTICS -->
       <div class="ep" id="ep-analytics">
-        <div class="eph"><div><div class="eph-title">Analytics</div><div class="eph-sub">Last 30 days · Success Fusion HR Services</div></div></div>
+        <div class="eph"><div><div class="eph-title">Analytics</div><div id="analytics-sub" class="eph-sub">Live data from your account</div></div><button class="btn bg bsm" onclick="loadEmployerAnalytics()">Refresh</button></div>
         <div class="sg">
-          <div class="sc"><div class="sclbl">Profile Views</div><div class="scval" style="color:var(--vg)">342</div><div class="scdelta">↑ +18% vs last month</div></div>
-          <div class="sc"><div class="sclbl">Pitches Heard</div><div class="scval" style="color:var(--gold)">89</div><div class="scdelta">↑ +43% vs last month</div></div>
-          <div class="sc"><div class="sclbl">Contacts Unlocked</div><div class="scval">34</div><div class="scdelta">↑ +12 this month</div></div>
-          <div class="sc"><div class="sclbl">Offers Made</div><div class="scval" style="color:var(--green)">12</div><div class="scdelta">92% acceptance rate</div></div>
+          <div class="sc"><div class="sclbl">Total Applications</div><div id="a-total-apps" class="scval" style="color:var(--vg)">0</div><div class="scdelta">All time</div></div>
+          <div class="sc"><div class="sclbl">Interviews Scheduled</div><div id="a-total-interviews" class="scval" style="color:var(--gold)">0</div><div class="scdelta">All time</div></div>
+          <div class="sc"><div class="sclbl">Active Roles</div><div id="a-active-roles" class="scval">0</div><div class="scdelta">Currently live</div></div>
+          <div class="sc"><div class="sclbl">Hired</div><div id="a-hired" class="scval" style="color:var(--green)">0</div><div class="scdelta">Confirmed hires</div></div>
         </div>
         <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:20px">
           <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:16px">Application Funnel</div>
           <div style="display:flex;flex-direction:column;gap:12px">
-            <div style="display:flex;align-items:center;gap:12px"><div style="width:100px;font-size:12px;color:var(--slate);font-weight:600">Views</div><div style="flex:1;height:10px;background:var(--vs);border-radius:5px;overflow:hidden"><div style="height:100%;width:100%;background:var(--vg);border-radius:5px"></div></div><span style="font-family:'DM Mono',monospace;font-size:13px;width:40px;text-align:right">342</span></div>
-            <div style="display:flex;align-items:center;gap:12px"><div style="width:100px;font-size:12px;color:var(--slate);font-weight:600">Pitches Heard</div><div style="flex:1;height:10px;background:var(--vs);border-radius:5px;overflow:hidden"><div style="height:100%;width:26%;background:var(--vg);border-radius:5px"></div></div><span style="font-family:'DM Mono',monospace;font-size:13px;width:40px;text-align:right">89</span></div>
-            <div style="display:flex;align-items:center;gap:12px"><div style="width:100px;font-size:12px;color:var(--slate);font-weight:600">Shortlisted</div><div style="flex:1;height:10px;background:var(--gs);border-radius:5px;overflow:hidden"><div style="height:100%;width:10%;background:var(--green);border-radius:5px"></div></div><span style="font-family:'DM Mono',monospace;font-size:13px;width:40px;text-align:right">34</span></div>
-            <div style="display:flex;align-items:center;gap:12px"><div style="width:100px;font-size:12px;color:var(--slate);font-weight:600">Hired</div><div style="flex:1;height:10px;background:var(--gp);border-radius:5px;overflow:hidden"><div style="height:100%;width:3.5%;background:var(--gold);border-radius:5px"></div></div><span style="font-family:'DM Mono',monospace;font-size:13px;width:40px;text-align:right">12</span></div>
+            <div style="display:flex;align-items:center;gap:12px"><div style="width:100px;font-size:12px;color:var(--slate);font-weight:600">Applications</div><div style="flex:1;height:10px;background:var(--vs);border-radius:5px;overflow:hidden"><div id="funnel-apps-bar" style="height:100%;width:0%;background:var(--vg);border-radius:5px;transition:width .6s ease"></div></div><span id="funnel-apps-num" style="font-family:'DM Mono',monospace;font-size:13px;width:40px;text-align:right">0</span></div>
+            <div style="display:flex;align-items:center;gap:12px"><div style="width:100px;font-size:12px;color:var(--slate);font-weight:600">Interviews</div><div style="flex:1;height:10px;background:var(--vs);border-radius:5px;overflow:hidden"><div id="funnel-interviews-bar" style="height:100%;width:0%;background:var(--vg);border-radius:5px;transition:width .6s ease"></div></div><span id="funnel-interviews-num" style="font-family:'DM Mono',monospace;font-size:13px;width:40px;text-align:right">0</span></div>
+            <div style="display:flex;align-items:center;gap:12px"><div style="width:100px;font-size:12px;color:var(--slate);font-weight:600">Shortlisted</div><div style="flex:1;height:10px;background:var(--gs);border-radius:5px;overflow:hidden"><div id="funnel-sl-bar" style="height:100%;width:0%;background:var(--green);border-radius:5px;transition:width .6s ease"></div></div><span id="funnel-sl-num" style="font-family:'DM Mono',monospace;font-size:13px;width:40px;text-align:right">0</span></div>
+            <div style="display:flex;align-items:center;gap:12px"><div style="width:100px;font-size:12px;color:var(--slate);font-weight:600">Hired</div><div style="flex:1;height:10px;background:var(--gp);border-radius:5px;overflow:hidden"><div id="funnel-hired-bar" style="height:100%;width:0%;background:var(--gold);border-radius:5px;transition:width .6s ease"></div></div><span id="funnel-hired-num" style="font-family:'DM Mono',monospace;font-size:13px;width:40px;text-align:right">0</span></div>
           </div>
         </div>
       </div>
@@ -2907,6 +2895,8 @@ async function supaLoadUserIntoAUTH(user) {
       loadRolesFromDB();
       loadInterviewsFromDB();
       loadVideoInterviewsFromDB();
+      loadCompanyProfile();
+      loadCandidatesFromDB();
     }, 300);
   } else {
     initCandDash(); navTo('cdash');
@@ -3836,8 +3826,10 @@ async function doSignin() {
     closeModal('modal-auth');
     if (btn) { btn.disabled = false; btn.textContent = 'Sign In →'; }
     setLoggedIn();
-    if (demo.role === 'employer') { navTo('employer'); setTimeout(() => { renderAll(); rzpUpdateBillingUI(); }, 300); }
-    else { initCandDash(); navTo('cdash'); }
+    if (demo.role === 'employer') {
+      navTo('employer');
+      setTimeout(() => { renderAll(); rzpUpdateBillingUI(); loadRolesFromDB(); loadCompanyProfile(); loadCandidatesFromDB(); }, 300);
+    } else { initCandDash(); navTo('cdash'); }
     toast('Welcome back, ' + demo.name.split(' ')[0] + '! ✓', 'ts');
     return;
   }
@@ -3856,6 +3848,7 @@ async function doSignin() {
     } else {
       setTimeout(() => {
         loadRolesFromDB(); loadInterviewsFromDB(); loadVideoInterviewsFromDB();
+        loadCompanyProfile(); loadCandidatesFromDB();
       }, 300);
     }
   } catch(err) {
@@ -4108,8 +4101,6 @@ async function postRole() {
           is_active:      true,
         }).select().single();
         if (error) throw error;
-        // Add to local array for immediate render
-        ROLES_DATA.unshift({ id: role.id, title, ind, city, exp, apps: 0 });
       }
     } else {
       // Not logged in — add locally for demo
@@ -4119,12 +4110,9 @@ async function postRole() {
     closeModal('modal-post');
     toast('Role posted! Going live now 🚀', 'ts');
     setTimeout(() => toast('Matching candidates are being notified', 'ti'), 2000);
-    if (document.getElementById('ep-roles').classList.contains('active')) renderRoles();
+    // Always reload from DB to confirm persistence
+    await loadRolesFromDB();
     renderHiring();
-
-    // Update roles count badge
-    const badge = document.querySelector('.esbi .ecnt');
-    if (badge) badge.textContent = ROLES_DATA.length;
 
   } catch(err) {
     toast('Failed to post role: ' + (err.message || 'Please try again'), 'te');
@@ -4135,17 +4123,266 @@ async function postRole() {
 }
 
 function cpEdit(section) {
+  const ep = window._empProfile || {};
   const bodies = {
-    header: `<div class="fgrid"><div class="field"><label>Company Name</label><input class="fi" value="Success Fusion HR Services"></div><div class="field"><label>Industry</label><select class="fi"><option>Banking & Finance</option></select></div><div class="field"><label>City</label><input class="fi" value="Mumbai, Maharashtra"></div><div class="field"><label>Website</label><input class="fi" value=""></div><div class="field"><label>Company Size</label><select class="fi"><option>51–200 employees</option><option>1–50</option><option>201–500</option><option>500+</option></select></div><div class="field fcol"><label>Tagline</label><input class="fi" value=""></div></div>`,
-    about: `<div class="field"><label>About Your Company</label><textarea class="fi" rows="6">Success Fusion HR Services is a recruitment firm specialising in telecaller and BPO hiring across India.</textarea></div>`,
-    team: `<div class="fgrid"><div class="field"><label>HR Head</label><input class="fi" value=""></div><div class="field"><label>Talent Acquisition</label><input class="fi" value=""></div><div class="field fcol"><label>Invite Team Member (email)</label><input class="fi" type="email" placeholder="colleague@company.com"></div></div>`
+    header: `<div class="fgrid">
+      <div class="field fcol"><label>Company Name</label><input class="fi" id="cpe-name" value="${(ep.company_name||'').replace(/"/g,'&quot;')}"></div>
+      <div class="field"><label>Industry</label><input class="fi" id="cpe-industry" value="${(ep.industry||'').replace(/"/g,'&quot;')}"></div>
+      <div class="field"><label>City</label><input class="fi" id="cpe-city" value="${(ep.city||'').replace(/"/g,'&quot;')}"></div>
+      <div class="field"><label>Website</label><input class="fi" id="cpe-website" value="${(ep.website||'').replace(/"/g,'&quot;')}"></div>
+      <div class="field"><label>Company Size</label><select class="fi" id="cpe-size">
+        <option value="">Select size</option>
+        <option value="1-10 employees" ${ep.company_size==='1-10 employees'?'selected':''}>1-10 employees</option>
+        <option value="11-50 employees" ${ep.company_size==='11-50 employees'?'selected':''}>11-50 employees</option>
+        <option value="51-200 employees" ${ep.company_size==='51-200 employees'?'selected':''}>51-200 employees</option>
+        <option value="201-500 employees" ${ep.company_size==='201-500 employees'?'selected':''}>201-500 employees</option>
+        <option value="500+ employees" ${ep.company_size==='500+ employees'?'selected':''}>500+ employees</option>
+      </select></div>
+      <div class="field fcol"><label>Tagline <span style="font-size:11px;color:var(--slate);font-weight:400">(shown to candidates)</span></label><input class="fi" id="cpe-tagline" placeholder="e.g. India's fastest-growing BPO firm" value="${(ep.tagline||'').replace(/"/g,'&quot;')}"></div>
+    </div>`,
+    about: `<div class="field"><label>About Your Company</label>
+      <textarea class="fi" id="cpe-about" rows="6" placeholder="Describe your company, culture, and what makes you a great employer...">${ep.about||''}</textarea></div>`,
+    team: `<div class="fgrid">
+      <div class="field"><label>HR Head Name</label><input class="fi" id="cpe-hr-head" value="${(ep.hr_head||'').replace(/"/g,'&quot;')}" placeholder="e.g. Priya Sharma"></div>
+      <div class="field"><label>Talent Acquisition Name</label><input class="fi" id="cpe-ta" value="${(ep.talent_acquisition||'').replace(/"/g,'&quot;')}" placeholder="e.g. Rahul Verma"></div>
+    </div>`
   };
   document.getElementById('cp-edit-title').textContent = section === 'header' ? 'Edit Company Info' : section === 'about' ? 'Edit About Us' : 'Edit Team';
   document.getElementById('cp-edit-body').innerHTML = bodies[section] || '';
+  document.getElementById('cp-edit-body').dataset.section = section;
   openModal('modal-cp-edit');
 }
-function saveCpEdit() { closeModal('modal-cp-edit'); toast('Changes saved to your company profile ✓', 'ts'); }
+
+async function saveCpEdit() {
+  if (!AUTH.id) { toast('Please sign in first', 'tw2'); return; }
+  const section = document.getElementById('cp-edit-body').dataset.section;
+  let updates = {};
+  if (section === 'header') {
+    updates = {
+      company_name: (document.getElementById('cpe-name')?.value || '').trim(),
+      industry:     (document.getElementById('cpe-industry')?.value || '').trim(),
+      city:         (document.getElementById('cpe-city')?.value || '').trim(),
+      website:      (document.getElementById('cpe-website')?.value || '').trim(),
+      company_size: (document.getElementById('cpe-size')?.value || '').trim(),
+      tagline:      (document.getElementById('cpe-tagline')?.value || '').trim(),
+    };
+  } else if (section === 'about') {
+    updates = { about: (document.getElementById('cpe-about')?.value || '').trim() };
+  } else if (section === 'team') {
+    updates = {
+      hr_head:            (document.getElementById('cpe-hr-head')?.value || '').trim(),
+      talent_acquisition: (document.getElementById('cpe-ta')?.value || '').trim(),
+    };
+  }
+  const saveBtn = document.querySelector('#modal-cp-edit .btn.bp');
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
+  try {
+    const { error } = await supa.from('employer_profiles').update(updates).eq('user_id', AUTH.id);
+    if (error) throw error;
+    window._empProfile = { ...(window._empProfile || {}), ...updates };
+    closeModal('modal-cp-edit');
+    toast('Company profile updated successfully ✓', 'ts');
+    await loadCompanyProfile();
+  } catch(e) {
+    toast('Save failed: ' + (e.message || 'Please try again'), 'te');
+  } finally {
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save Changes →'; }
+  }
+}
+
 function renderAll() { renderCands(); renderRoles(); renderInterviews(); renderSL(); renderHiring(); }
+
+// ── Load company profile from Supabase and populate all elements ──────────────
+async function loadCompanyProfile() {
+  if (!AUTH.id || AUTH.role !== 'employer') return;
+  try {
+    const { data: ep, error } = await supa.from('employer_profiles').select('*').eq('user_id', AUTH.id).single();
+    if (error || !ep) { console.warn('loadCompanyProfile: no profile found', error); return; }
+    window._empProfile = ep;
+
+    const set = (id, val, fallback) => { const el = document.getElementById(id); if (el) el.textContent = (val && val.trim()) ? val : (fallback || ''); };
+
+    set('cp-name', ep.company_name, 'Your Company');
+    set('cp-tagline', ep.tagline, 'Add a tagline to attract candidates');
+    set('cp-about', ep.about, 'Click Edit to add a description of your company.');
+
+    const indEl = document.getElementById('cp-industry');
+    if (indEl) indEl.innerHTML = `<span style="font-size:14px;width:20px">🏭</span> ${ep.industry || 'Not set'}`;
+    const cityEl = document.getElementById('cp-city');
+    if (cityEl) cityEl.innerHTML = `<span style="font-size:14px;width:20px">📍</span> ${ep.city || 'Not set'}`;
+    const sizeEl = document.getElementById('cp-size');
+    if (sizeEl) sizeEl.innerHTML = `<span style="font-size:14px;width:20px">👥</span> ${ep.company_size || 'Not set'}`;
+    const webEl = document.getElementById('cp-website');
+    if (webEl) webEl.innerHTML = `<span style="font-size:14px;width:20px">🌐</span> ${ep.website || 'Not set'}`;
+    const emailRowEl = document.getElementById('cp-email-row');
+    if (emailRowEl) emailRowEl.innerHTML = `<span style="font-size:14px;width:20px">📧</span> ${AUTH.email || ''}`;
+
+    // Initials for logo
+    const initials = (ep.company_name || 'CO').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const logoEl = document.getElementById('cp-logo-initials');
+    if (logoEl) logoEl.textContent = initials;
+    const sbLogoEl = document.getElementById('emp-co-logo');
+    if (sbLogoEl) sbLogoEl.textContent = initials;
+
+    // Sidebar + header name
+    const sbNameEl = document.getElementById('emp-co-name');
+    if (sbNameEl) sbNameEl.textContent = ep.company_name || 'Your Company';
+    const overviewSubEl = document.getElementById('emp-overview-sub');
+    if (overviewSubEl) overviewSubEl.textContent = `${ep.company_name || 'Your Company'} · Active subscription`;
+    AUTH.name = ep.company_name || AUTH.name;
+    const navUnameEl = document.getElementById('nav-uname');
+    if (navUnameEl) navUnameEl.textContent = ep.company_name || AUTH.name;
+
+    // Team
+    if (ep.hr_head) {
+      const hrCard = document.getElementById('cp-hr-head-card');
+      const hrName = document.getElementById('cp-hr-head-name');
+      if (hrCard) hrCard.style.display = '';
+      if (hrName) hrName.textContent = ep.hr_head;
+    }
+    if (ep.talent_acquisition) {
+      const taCard = document.getElementById('cp-ta-card');
+      const taName = document.getElementById('cp-ta-name');
+      if (taCard) taCard.style.display = '';
+      if (taName) taName.textContent = ep.talent_acquisition;
+    }
+    const teamEmpty = document.getElementById('cp-team-empty');
+    if (teamEmpty) teamEmpty.style.display = (ep.hr_head || ep.talent_acquisition) ? 'none' : '';
+
+    // Load live analytics
+    await loadEmployerAnalytics(ep.id);
+  } catch(e) { console.warn('loadCompanyProfile error:', e); }
+}
+
+// ── Load live analytics from DB ───────────────────────────────────────────────
+async function loadEmployerAnalytics(employerProfileId) {
+  if (!AUTH.id || AUTH.role !== 'employer') return;
+  try {
+    let epId = employerProfileId;
+    if (!epId) {
+      const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).single();
+      if (!ep) return;
+      epId = ep.id;
+    }
+
+    // Get all role IDs for this employer
+    const { data: roles } = await supa.from('roles').select('id').eq('employer_id', epId).eq('is_active', true);
+    const roleIds = roles?.map(r => r.id) || [];
+    const activeRoles = roleIds.length;
+
+    // Applications
+    let totalApps = 0, hiredCount = 0, shortlistedCount = 0;
+    if (roleIds.length > 0) {
+      const { data: apps } = await supa.from('applications').select('id,status').in('role_id', roleIds);
+      totalApps = apps?.length || 0;
+      hiredCount = apps?.filter(a => a.status === 'hired').length || 0;
+      shortlistedCount = apps?.filter(a => a.status === 'shortlisted').length || 0;
+    }
+
+    // Interviews
+    const { data: interviews } = await supa.from('interviews').select('id').eq('employer_id', epId);
+    const totalInterviews = interviews?.length || 0;
+
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+    // Analytics page
+    set('a-total-apps', totalApps);
+    set('a-total-interviews', totalInterviews);
+    set('a-active-roles', activeRoles);
+    set('a-hired', hiredCount);
+    const analyticsSubEl = document.getElementById('analytics-sub');
+    if (analyticsSubEl) analyticsSubEl.textContent = `Live data · ${window._empProfile?.company_name || 'Your Company'}`;
+
+    // Funnel bars
+    const maxVal = Math.max(totalApps, 1);
+    set('funnel-apps-num', totalApps);
+    set('funnel-interviews-num', totalInterviews);
+    set('funnel-sl-num', shortlistedCount);
+    set('funnel-hired-num', hiredCount);
+    const appsBar = document.getElementById('funnel-apps-bar');
+    if (appsBar) appsBar.style.width = '100%';
+    const intBar = document.getElementById('funnel-interviews-bar');
+    if (intBar) intBar.style.width = Math.round((totalInterviews/maxVal)*100) + '%';
+    const slBar = document.getElementById('funnel-sl-bar');
+    if (slBar) slBar.style.width = Math.round((shortlistedCount/maxVal)*100) + '%';
+    const hiredBar = document.getElementById('funnel-hired-bar');
+    if (hiredBar) hiredBar.style.width = Math.round((hiredCount/maxVal)*100) + '%';
+
+    // Company profile KPIs
+    set('cp-kpi-apps', totalApps);
+    set('cp-kpi-hires', hiredCount);
+    set('cp-kpi-roles', activeRoles);
+    set('cp-kpi-interviews', totalInterviews);
+    set('cp-kpi-shortlisted', shortlistedCount);
+    set('cp-kpi-hired', hiredCount);
+
+    // Company profile sidebar stats
+    set('cp-stat-hires', hiredCount);
+    set('cp-stat-apps', totalApps);
+    set('cp-stat-roles', activeRoles);
+
+  } catch(e) { console.warn('loadEmployerAnalytics error:', e); }
+}
+
+// ── Load candidates from DB (who applied to this employer's roles) ────────────
+async function loadCandidatesFromDB() {
+  if (!AUTH.id || AUTH.role !== 'employer') return;
+  try {
+    const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).single();
+    if (!ep) return;
+
+    const { data: roles } = await supa.from('roles').select('id').eq('employer_id', ep.id);
+    const roleIds = roles?.map(r => r.id) || [];
+    if (roleIds.length === 0) { renderCands(); return; }
+
+    const { data: apps } = await supa
+      .from('applications')
+      .select('id, role_id, status, candidate_id')
+      .in('role_id', roleIds);
+    if (!apps?.length) { renderCands(); return; }
+
+    // Get unique candidate_profile IDs
+    const candIds = [...new Set(apps.map(a => a.candidate_id).filter(Boolean))];
+    if (!candIds.length) { renderCands(); return; }
+
+    const { data: profiles } = await supa
+      .from('candidate_profiles')
+      .select('id, user_id, role_title, voice_url, resume_url, voice_score, ai_score, languages')
+      .in('id', candIds);
+
+    // Get user names
+    const userIds = profiles?.map(p => p.user_id).filter(Boolean) || [];
+    const { data: users } = await supa.from('users').select('id, full_name, email').in('id', userIds);
+    const userMap = {};
+    users?.forEach(u => { userMap[u.id] = u; });
+
+    CANDS.length = 0;
+    profiles?.forEach((cp, i) => {
+      const u = userMap[cp.user_id] || {};
+      const score = cp.ai_score || cp.voice_score || 0;
+      CANDS.push({
+        id:     cp.user_id,
+        candId: cp.id,
+        name:   u.full_name || 'Candidate',
+        email:  u.email || '',
+        role:   cp.role_title || 'Role not specified',
+        city:   '—',
+        score,
+        sc:     score >= 80 ? 'sg' : score >= 60 ? 'sy' : 'sr',
+        tags:   cp.languages ? cp.languages.split(',').slice(0,2).map(l => `ti:${l.trim()}`) : [],
+        col:    `hsl(${(i*47)%360},50%,58%)`,
+        ini:    (u.full_name || 'C').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase(),
+        sl:     false,
+        voice:  cp.voice_url,
+        resume: cp.resume_url,
+      });
+    });
+
+    renderCands();
+    const badge = document.querySelector('[onclick*="candidates"] .ecnt');
+    if (badge) badge.textContent = CANDS.length;
+  } catch(e) { console.warn('loadCandidatesFromDB error:', e); }
+}
 
 // ── Load employer roles from Supabase ─────────────────────────────────────────
 async function loadRolesFromDB() {
@@ -4154,8 +4391,8 @@ async function loadRolesFromDB() {
     const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).single();
     if (!ep) return;
     const { data: roles } = await supa.from('roles').select('*').eq('employer_id', ep.id).eq('is_active', true).order('created_at', { ascending: false });
-    if (!roles?.length) return;
     ROLES_DATA.length = 0;
+    if (!roles?.length) { renderRoles(); renderHiring(); return; }
     roles.forEach(r => ROLES_DATA.push({ id: r.id, title: r.title, ind: r.industry || '—', city: r.city || '—', exp: r.experience_req || '—', apps: 0, sal: r.salary_range }));
     // Get application counts per role
     const roleIds = roles.map(r => r.id);
