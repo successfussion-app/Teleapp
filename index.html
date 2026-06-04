@@ -2901,6 +2901,7 @@ async function supaLoadUserIntoAUTH(user) {
   } else {
     initCandDash(); navTo('cdash');
     setTimeout(() => {
+      loadCandidateDataFromDB();
       loadMarqueeFromDB();
       loadVideoFromDB();
       loadApplicationsFromDB();
@@ -4451,19 +4452,25 @@ async function loadJobsFromDB() {
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(50);
-    if (!roles?.length) return;
     CD_JOBS.length = 0;
-    roles.forEach(r => CD_JOBS.push({
-      emoji: '📋',
-      title: r.title,
-      co:    r.employer_profiles?.company_name || '—',
-      city:  r.city || '—',
-      type:  r.work_type || 'In-office',
-      ind:   r.industry || '—',
-      sal:   r.salary_range || '—',
-      match: Math.floor(60 + Math.random() * 35), // AI match score — Phase 2
-      id:    r.id,
-    }));
+    if (roles?.length) {
+      roles.forEach(r => CD_JOBS.push({
+        emoji: '📋',
+        title: r.title,
+        co:    r.employer_profiles?.company_name || '—',
+        city:  r.city || '—',
+        type:  r.work_type || 'In-office',
+        ind:   r.industry || '—',
+        sal:   r.salary_range || '—',
+        match: Math.floor(60 + Math.random() * 35),
+        id:    r.id,
+      }));
+    }
+    // Always update the sub text with live count
+    const subEl = document.getElementById('cd-jobs-sub');
+    if (subEl) subEl.textContent = CD_JOBS.length > 0
+      ? `${CD_JOBS.length} opportunit${CD_JOBS.length !== 1 ? 'ies' : 'y'} available now`
+      : 'No open roles yet — check back soon';
     if (typeof renderCDJobs === 'function') renderCDJobs();
   } catch(e) { console.warn('loadJobsFromDB error:', e); }
 }
@@ -4502,7 +4509,8 @@ function showCD(id, el) {
 }
 
 function initCandDash() {
-  // Populate languages from profile chips if available
+  _initCandDash_orig();
+  // Also load languages from profile chips if available
   setTimeout(() => {
     const langChips = document.querySelectorAll('#lang-known-chips .chip.on');
     if (langChips.length > 0) {
@@ -5146,6 +5154,18 @@ async function submitPitch() {
     }
     if (cp) await aaiProcessPitch(audioBlob, cp.id);
 
+    // ── 4. Update AUTH and UI ────────────────────────────────────────────────
+    if (AUTH.candidateProfile) {
+      AUTH.candidateProfile.voice_url = urlData.publicUrl;
+    } else {
+      AUTH.candidateProfile = { voice_url: urlData.publicUrl };
+    }
+    statusEl.textContent = '✓ Pitch saved! AI analysis running...';
+    toast('Voice pitch saved successfully ✓', 'ts');
+
+    // Refresh candidate dashboard display
+    setTimeout(() => { _initCandDash_orig(); loadMarqueeFromDB(); }, 800);
+
   } catch(err) {
     statusEl.textContent = 'Upload failed — please try again';
     const errDetail = JSON.stringify({ message: err.message, code: err.code, details: err.details, hint: err.hint, status: err.status });
@@ -5154,6 +5174,25 @@ async function submitPitch() {
   } finally {
     if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit Pitch →'; }
   }
+}
+
+// ── Edit marquee item ─────────────────────────────────────────────────────────
+async function editMarqueeItem(itemId) {
+  const item = marqueeItems.find(x => String(x.id) === String(itemId));
+  if (!item) { toast('Item not found', 'tw2'); return; }
+  // Pre-fill the marquee upload modal with existing data and switch to update mode
+  const titleEl = document.getElementById('mq-title');
+  const descEl  = document.getElementById('mq-desc');
+  const orgEl   = document.getElementById('mq-org');
+  const yearEl  = document.getElementById('mq-year');
+  if (titleEl) titleEl.value = item.title || '';
+  if (descEl)  descEl.value  = item.desc  || '';
+  if (orgEl)   orgEl.value   = item.org   || '';
+  if (yearEl)  yearEl.value  = item.year  || new Date().getFullYear();
+  // Store editing ID
+  window._editingMarqueeId = itemId;
+  openMarqueeUpload();
+  toast('Edit mode — update details and click Pin to save', 'ti');
 }
 
 // ══════════════════════════════════════════
@@ -5843,7 +5882,7 @@ function renderMarquee() {
     <div class="mq-card" onclick="previewMarqueeItem(${item.id})">
       <div class="mq-card-pin">✦ Pinned ${idx + 1}</div>
       <div class="mq-card-actions" onclick="event.stopPropagation()">
-        <button class="mq-action-btn mq-edit-btn" onclick="toast('Edit coming soon','ti')" title="Edit">✎</button>
+        <button class="mq-action-btn mq-edit-btn" onclick="editMarqueeItem('${item.id}')" title="Edit">✎</button>
         <button class="mq-action-btn mq-delete-btn" onclick="deleteMarqueeItem(${item.id})" title="Remove">✕</button>
       </div>
       <div class="mq-media-wrap">
@@ -5905,18 +5944,17 @@ function previewMarqueeItem(id) {
 
 // Also render marquee items in employer candidate modal (in the refs section)
 function renderEmployerMarquee(candId) {
-  // For test candidate (id=1), show marquee items in employer view
-  if (candId !== 1 || marqueeItems.length === 0) return '';
+  if (!marqueeItems.length) return '';
   return `
     <div class="emp-marquee-strip" style="margin-bottom:14px">
       <div class="emp-mq-label">✦ The Marquee - Candidate's pinned proof</div>
       <div class="emp-mq-items">
         ${marqueeItems.map(item => `
-          <div class="emp-mq-item" onclick="toast('${item.icon} ${item.title.substring(0,30)}...','ti')">
+          <div class="emp-mq-item" onclick="toast('${item.icon} ${(item.title||'').substring(0,30)}','ti')">
             <div class="emp-mq-thumb" style="background:${getThumbBg(item.type)}">${item.icon}</div>
             <div class="emp-mq-info">
               <div class="emp-mq-title">${item.title}</div>
-              <div class="emp-mq-type">${item.typeLabel} · ${item.year}</div>
+              <div class="emp-mq-type">${item.typeLabel || ''} · ${item.year || ''}</div>
             </div>
           </div>`).join('')}
       </div>
@@ -6770,7 +6808,56 @@ async function loadMarqueeFromDB() {
   } catch(e) { console.warn('Marquee load error:', e); }
 }
 
-// ── Load candidate's video interview from Supabase on login ──────────────────
+// ── Reload all candidate data from DB and refresh dashboard ──────────────────
+async function loadCandidateDataFromDB() {
+  if (!AUTH.id || AUTH.role !== 'candidate') return;
+  try {
+    const { data: cp } = await supa.from('candidate_profiles').select('*').eq('user_id', AUTH.id).single();
+    if (cp) {
+      AUTH.candidateProfile = cp;
+
+      // Show voice pitch player if voice_url exists
+      if (cp.voice_url) {
+        const emptyMsg = document.getElementById('cd-voice-empty-msg');
+        const dur = document.getElementById('cd-voice-duration');
+        if (emptyMsg) emptyMsg.innerHTML = `
+          <div style="margin-top:8px">
+            <div style="font-size:13px;color:rgba(237,233,254,.6);margin-bottom:10px">✓ Voice pitch recorded</div>
+            <audio controls style="width:100%;border-radius:8px" src="${cp.voice_url}"></audio>
+          </div>`;
+        if (dur) dur.textContent = 'Pitch recorded · AI analysis complete';
+      }
+
+      // Show resume link if resume_url exists
+      if (cp.resume_url) {
+        const resumeStatusEl = document.getElementById('resume-upload-status');
+        if (resumeStatusEl) {
+          resumeStatusEl.innerHTML = `✓ Resume uploaded · <a href="${cp.resume_url}" target="_blank" style="color:var(--vg);text-decoration:underline">View Resume</a>`;
+          resumeStatusEl.style.color = 'var(--green)';
+        }
+        // Update profile card resume section
+        const profResumeEl = document.getElementById('cd-profile-resume');
+        if (profResumeEl) profResumeEl.innerHTML = `<a href="${cp.resume_url}" target="_blank" style="color:var(--vg)">📄 View Resume</a>`;
+      }
+
+      // Profile picture
+      if (cp.avatar_url || AUTH.avatarUrl) {
+        const url = cp.avatar_url || AUTH.avatarUrl;
+        const avEls = document.querySelectorAll('#cd-av-init, .cd-avatar-img');
+        avEls.forEach(el => {
+          if (el.tagName === 'IMG') { el.src = url; }
+          else {
+            el.style.backgroundImage = `url(${url})`;
+            el.style.backgroundSize = 'cover';
+            el.style.backgroundPosition = 'center';
+            el.textContent = '';
+          }
+        });
+      }
+    }
+    _initCandDash_orig();
+  } catch(e) { console.warn('loadCandidateDataFromDB error:', e); }
+}
 async function loadVideoFromDB() {
   if (!AUTH.id) return;
   try {
@@ -6800,20 +6887,19 @@ async function loadVideoFromDB() {
   } catch(e) { console.warn('Video load error:', e); }
 }
 function getVideoInterviewStrip(candId) {
-  // For test candidate (id=1), show video after upload
-  if (candId !== 1 || !videoData) return '';
+  if (!videoData) return '';
   return `
     <div style="background:linear-gradient(135deg,#1a0a2e,#3b0764);border-radius:var(--r12);padding:16px 18px;margin-bottom:14px;border:1px solid rgba(190,24,93,.2)">
       <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(244,114,182,.5);margin-bottom:10px;display:flex;align-items:center;gap:6px">
         <span>🎬</span> Video Interview
       </div>
       <div style="display:flex;align-items:center;gap:12px">
-        <div style="width:80px;height:52px;background:rgba(255,255,255,.06);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:1px solid rgba(255,255,255,.1);cursor:pointer" onclick="toast('▶ Playing video interview...','i')">▶</div>
+        <div style="width:80px;height:52px;background:rgba(255,255,255,.06);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:1px solid rgba(255,255,255,.1);cursor:pointer" onclick="${videoData.link ? `window.open('${videoData.link}','_blank')` : `toast('No playback link available','tw2')`}">▶</div>
         <div style="flex:1">
-          <div style="font-weight:700;font-size:13.5px;color:#fff;margin-bottom:2px">${videoData.title}</div>
+          <div style="font-weight:700;font-size:13.5px;color:#fff;margin-bottom:2px">${videoData.title || 'Video Interview'}</div>
           <div style="font-size:12px;color:rgba(244,114,182,.6)">${videoData.desc || 'Pre-recorded interview'}</div>
         </div>
-        <button class="btn bsm" style="background:rgba(190,24,93,.3);color:#f9a8d4;border:1px solid rgba(190,24,93,.3);flex-shrink:0" onclick="toast('▶ Playing video interview...','i');setTimeout(()=>toast('Playback complete','ts'),4500)">▶ Watch</button>
+        <button class="btn bsm" style="background:rgba(190,24,93,.3);color:#f9a8d4;border:1px solid rgba(190,24,93,.3);flex-shrink:0" onclick="${videoData.link ? `window.open('${videoData.link}','_blank')` : `toast('No playback link','tw2')`}">▶ Watch</button>
       </div>
     </div>`;
 }
