@@ -2867,7 +2867,7 @@ async function supaLoadUserIntoAUTH(user) {
       // Show languages on sidebar if present
       if (cp.languages) {
         const langEl = document.getElementById('cd-langs');
-        if (langEl) langEl.textContent = cp.languages;
+        if (langEl) langEl.textContent = Array.isArray(cp.languages) ? cp.languages.join(' · ') : cp.languages;
       }
     }
   }
@@ -4556,7 +4556,10 @@ function _initCandDash_orig() {
   const profSal = document.getElementById('cd-profile-salary');
   if (profSal) profSal.textContent = cp?.salary_min ? `₹${cp.salary_min.toLocaleString('en-IN')} – ₹${cp.salary_max.toLocaleString('en-IN')} / mo` : '—';
   const profLangs = document.getElementById('cd-profile-langs');
-  if (profLangs) profLangs.textContent = cp?.languages?.join(', ') || '—';
+  if (profLangs) {
+    const langs = cp?.languages;
+    profLangs.textContent = !langs ? '—' : Array.isArray(langs) ? langs.join(', ') : langs;
+  }
 
   // Voice pitch scores
   const vs = cp?.voice_score;
@@ -4598,11 +4601,13 @@ function _initCandDash_orig() {
   renderCDApps();
   renderCDRecJobs();
 
-  // AI mentor context
   const ctx = document.getElementById('cb-profile-context');
-  if (ctx) ctx.textContent = cp?.role_title
-    ? `${firstName} · ${cp.experience_yrs || '—'} yrs · ${cp.role_title} · ${cp.wpm || 0} WPM · Voice Score: ${cp.voice_score?.overall || 0}`
-    : `${firstName} · Profile incomplete · Complete your profile for personalised advice`;
+  if (ctx) {
+    const langStr = !cp?.languages ? '' : Array.isArray(cp.languages) ? cp.languages.join(', ') : cp.languages;
+    ctx.textContent = cp?.role_title
+      ? `${firstName} · ${cp.experience_yrs || '—'} yrs · ${cp.role_title} · ${cp.wpm || 0} WPM · Voice Score: ${cp.voice_score || 0} · Languages: ${langStr}`
+      : `${firstName} · Profile incomplete · Complete your profile for personalised advice`;
+  }
 }
 
 // ══════════════════════════════════════════
