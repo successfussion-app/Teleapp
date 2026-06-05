@@ -2827,10 +2827,27 @@ const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
 
 // ── SESSION: restore login state on page load ─────────────────────────────────
 async function supaRestoreSession() {
-  const { data: { session } } = await supa.auth.getSession();
-  if (!session) return;
-  await supaLoadUserIntoAUTH(session.user);
+  try {
+    const { data: { session } } = await supa.auth.getSession();
+    if (session?.user) {
+      await supaLoadUserIntoAUTH(session.user);
+    }
+  } catch(e) {
+    console.warn('supaRestoreSession error:', e);
+  }
 }
+
+// ── AUTH STATE CHANGE: keep session alive across refreshes ────────────────────
+supa.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' && session?.user && !AUTH.in) {
+    await supaLoadUserIntoAUTH(session.user);
+  } else if (event === 'TOKEN_REFRESHED' && session?.user && AUTH.in) {
+    // Token silently refreshed — no action needed, session stays alive
+  } else if (event === 'SIGNED_OUT') {
+    AUTH = { in: false };
+    navTo('landing');
+  }
+});
 
 // ── Load user profile from DB into AUTH state ─────────────────────────────────
 async function supaLoadUserIntoAUTH(user) {
@@ -2850,7 +2867,7 @@ async function supaLoadUserIntoAUTH(user) {
 
   // Determine plan — lifetime free overrides everything
   const planType = isLifetimeFreeAccount(profile.email) ? 'lifetime' : 'pro';
-  AUTH = { in: true, role: profile.role, plan: planType, name: profile.full_name || profile.email, id: user.id, email: profile.email };
+  AUTH = { in: true, role: profile.role, plan: planType, name: profile.full_name || profile.email, id: user.id, email: profile.email, avatarUrl: profile.avatar_url || null };
 
   // Load display name from sub-profile
   if (profile.role === 'employer') {
@@ -5399,14 +5416,49 @@ async function uploadProfilePhoto() {
       .from('profile-photos')
       .upload(path, pendingPhotoFile, { contentType: pendingPhotoFile.type, upsert: true });
     if (error) throw error;
+
     const { data } = supa.storage.from('profile-photos').getPublicUrl(path);
-    await supa.from('users').update({ avatar_url: data.publicUrl }).eq('id', AUTH.id);
-    // Update nav avatar
+    const publicUrl = data.publicUrl;
+
+    // Save to users table
+    await supa.from('users').update({ avatar_url: publicUrl }).eq('id', AUTH.id);
+
+    // Also save to candidate_profiles so loadCandidateDataFromDB picks it up
+    if (AUTH.role === 'candidate') {
+      await supa.from('candidate_profiles').update({ avatar_url: publicUrl }).eq('user_id', AUTH.id);
+      if (AUTH.candidateProfile) AUTH.candidateProfile.avatar_url = publicUrl;
+    }
+
+    AUTH.avatarUrl = publicUrl;
+
+    // Update ALL avatar elements immediately
+    const applyAvatar = (el) => {
+      if (!el) return;
+      el.style.backgroundImage = `url(${publicUrl})`;
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+      el.style.borderRadius = '50%';
+      el.textContent = '';
+    };
+
+    applyAvatar(document.getElementById('cd-av-init'));
+    applyAvatar(document.getElementById('cd-profile-av'));
+
     const navAv = document.getElementById('nav-av');
-    if (navAv) navAv.innerHTML = `<img src="${data.publicUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
-    return data.publicUrl;
+    if (navAv) navAv.innerHTML = `<img src="${publicUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+
+    // Update the photo preview in the form
+    const photoPreview = document.getElementById('photo-preview');
+    if (photoPreview) photoPreview.src = publicUrl;
+    const photoStatus = document.getElementById('photo-status');
+    if (photoStatus) photoStatus.textContent = '✓ Profile photo updated';
+
+    pendingPhotoFile = null;
+    toast('Profile photo updated ✓', 'ts');
+    return publicUrl;
   } catch(e) {
     console.warn('Photo upload error:', e);
+    toast('Photo upload failed: ' + (e.message || 'Please try again'), 'te');
     return null;
   }
 }
@@ -7032,17 +7084,27 @@ async function loadCandidateDataFromDB() {
         if (profResumeEl) profResumeEl.innerHTML = `<a href="${resumeLink}" target="_blank" style="color:var(--vg)">📄 View Resume</a>`;
       }
 
-      // Avatar
-      const avatarUrl = cp.avatar_url || AUTH.avatarUrl;
+      // Avatar — check both candidate_profiles and users table
+      let avatarUrl = cp.avatar_url || AUTH.avatarUrl;
+      if (!avatarUrl) {
+        const { data: u } = await supa.from('users').select('avatar_url').eq('id', AUTH.id).single();
+        if (u?.avatar_url) avatarUrl = u.avatar_url;
+      }
       if (avatarUrl) {
+        AUTH.avatarUrl = avatarUrl;
         ['cd-av-init','cd-profile-av'].forEach(id => {
           const el = document.getElementById(id);
           if (!el) return;
           el.style.backgroundImage = `url(${avatarUrl})`;
           el.style.backgroundSize = 'cover';
           el.style.backgroundPosition = 'center';
+          el.style.borderRadius = '50%';
           el.textContent = '';
         });
+        const navAv = document.getElementById('nav-av');
+        if (navAv && !navAv.querySelector('img')) {
+          navAv.innerHTML = `<img src="${avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+        }
       }
     }
     await loadMarqueeFromDB();
