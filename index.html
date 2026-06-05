@@ -2590,7 +2590,7 @@ img{max-width:100%}
           <optgroup label="Government &amp; Non-Profit"><option>Government / PSU</option><option>NGO &amp; Non-Profit</option><option>Social Enterprise</option></optgroup>
           <optgroup label="Other"><option>Legal Services</option><option>Accounting &amp; CA Firms</option><option>Agriculture &amp; Agri-Tech</option><option>Energy &amp; Utilities</option><option>Other</option></optgroup>
         </select></div>
-      <div class="field"><label><span class="star">★</span> Years of Experience</label><input class="fi" type="number" value="" min="0" placeholder="0"></div><div class="field"><label>Current CTC (LPA)</label><input class="fi" type="number" placeholder="0 for freshers"></div><div class="field"><label><span class="star">★</span> Expected CTC (LPA)</label><div class="fr2"><input class="fi" type="number" placeholder="Min" style="flex:1"><span style="color:var(--slate)">to</span><input class="fi" type="number" placeholder="Max" style="flex:1"></div></div><div class="field"><label><span class="star">★</span> Work Preference</label><div class="chips" id="wp-c"><div class="chip on" onclick="sc(this,'wp-c')">Remote</div><div class="chip" onclick="sc(this,'wp-c')">Hybrid</div><div class="chip" onclick="sc(this,'wp-c')">In-office</div></div></div></div>
+      <div class="field"><label><span class="star">★</span> Years of Experience</label><input class="fi" id="pf-exp-yrs" type="number" value="" min="0" placeholder="0"></div><div class="field"><label>Current CTC (LPA)</label><input class="fi" id="pf-current-ctc" type="number" placeholder="0 for freshers"></div><div class="field"><label><span class="star">★</span> Expected CTC (LPA)</label><div class="fr2"><input class="fi" id="pf-sal-min" type="number" placeholder="Min" style="flex:1"><span style="color:var(--slate)">to</span><input class="fi" id="pf-sal-max" type="number" placeholder="Max" style="flex:1"></div></div><div class="field"><label><span class="star">★</span> Work Preference</label><div class="chips" id="wp-c"><div class="chip on" onclick="sc(this,'wp-c')">Remote</div><div class="chip" onclick="sc(this,'wp-c')">Hybrid</div><div class="chip" onclick="sc(this,'wp-c')">In-office</div></div></div></div>
       <div class="step-nav"><button class="btn bgh bsm" onclick="goSec(0)">← Back</button><div class="step-prog">2 of 10</div><button class="btn bg bsm" onclick="goSec(2)">Next →</button></div>
     </div>
     <div class="sec" id="sec-2">
@@ -4610,9 +4610,28 @@ function _initCandDash_orig() {
   const profLoc = document.getElementById('cd-profile-location');
   if (profLoc) profLoc.textContent = cp?.city ? `📍 ${cp.city}` : 'Complete your profile to show location';
   const profExp = document.getElementById('cd-profile-exp');
-  if (profExp) profExp.textContent = cp?.experience_yrs ? `${cp.experience_yrs} Yr${cp.experience_yrs !== 1 ? 's' : ''} · ${cp.industry || '—'}` : '—';
+  if (profExp) profExp.textContent = cp?.experience_yrs != null ? `${cp.experience_yrs} Yr${cp.experience_yrs !== 1 ? 's' : ''}${cp.industry ? ' · ' + cp.industry : ''}` : '—';
   const profSal = document.getElementById('cd-profile-salary');
-  if (profSal) profSal.textContent = cp?.salary_min ? `₹${cp.salary_min.toLocaleString('en-IN')} – ₹${cp.salary_max.toLocaleString('en-IN')} / mo` : '—';
+  if (profSal) {
+    if (cp?.salary_min && cp?.salary_max) {
+      profSal.textContent = `₹${Number(cp.salary_min).toLocaleString('en-IN')} – ₹${Number(cp.salary_max).toLocaleString('en-IN')} / mo`;
+    } else if (cp?.salary_min) {
+      profSal.textContent = `₹${Number(cp.salary_min).toLocaleString('en-IN')}+ / mo`;
+    } else {
+      profSal.textContent = '—';
+    }
+  }
+
+  // Skills
+  const skillsEl = document.getElementById('cd-profile-skills');
+  if (skillsEl) {
+    if (cp?.skills && cp.skills.trim()) {
+      const skillArr = cp.skills.split(',').map(s => s.trim()).filter(Boolean);
+      skillsEl.innerHTML = skillArr.map(s => `<span style="background:var(--vs);color:var(--vg);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid rgba(124,58,237,.15)">${s}</span>`).join('');
+    } else {
+      skillsEl.innerHTML = '<span style="font-size:13px;color:var(--slate)">Complete your profile to add skills</span>';
+    }
+  }
   const profLangs = document.getElementById('cd-profile-langs');
   if (profLangs) {
     const langs = cp?.languages;
@@ -4633,13 +4652,31 @@ function _initCandDash_orig() {
   }
 
   // Typing test scores
+  const typingCard = document.getElementById('cd-typing-score-card');
+  const typingEmpty = document.getElementById('cd-typing-empty');
   if (cp?.wpm) {
+    if (typingCard) typingCard.style.display = '';
+    if (typingEmpty) typingEmpty.style.display = 'none';
     const wpmEl = document.getElementById('cd-tt-wpm');
     const accEl = document.getElementById('cd-tt-acc');
     const gradeEl = document.getElementById('cd-tt-grade');
     if (wpmEl) wpmEl.textContent = cp.wpm;
-    if (accEl) accEl.textContent = cp.accuracy ? `${cp.accuracy}%` : '—';
-    if (gradeEl) gradeEl.textContent = cp.wpm >= 50 ? 'Excellent' : cp.wpm >= 35 ? 'Good' : 'Needs Work';
+    if (accEl) accEl.textContent = cp.typing_accuracy ? `${cp.typing_accuracy}%` : '—';
+    const g = cp.wpm >= 60 ? 'Excellent' : cp.wpm >= 45 ? 'Good' : cp.wpm >= 30 ? 'Average' : 'Needs Practice';
+    const gc = cp.wpm >= 60 ? 'var(--green)' : cp.wpm >= 45 ? 'var(--gold)' : cp.wpm >= 30 ? '#0891b2' : 'var(--red)';
+    if (gradeEl) { gradeEl.textContent = g; gradeEl.style.color = gc; }
+  } else {
+    // No score yet — hide score card, show take test prompt
+    if (typingCard) typingCard.style.display = 'none';
+    const typingArea = document.getElementById('cd-typing-test-area');
+    if (typingArea) typingArea.style.display = '';
+    if (!typingEmpty) {
+      const prompt = document.createElement('div');
+      prompt.id = 'cd-typing-empty';
+      prompt.style.cssText = 'text-align:center;padding:20px;font-size:14px;color:var(--slate)';
+      prompt.innerHTML = 'No typing test taken yet.<br><button class="btn bp bsm" style="margin-top:10px" onclick="showTypingTest()">Take Test Now →</button>';
+      typingCard?.parentNode?.insertBefore(prompt, typingCard);
+    }
   }
 
   // Settings tab - email / phone
@@ -5506,10 +5543,22 @@ async function finishProfile() {
       const cityVal  = document.getElementById('pf-city')?.value?.trim()  || '';
       const roleVal  = document.querySelector('[id="pf-jobtitle"]')?.value?.trim() || '';
       const eduQual  = document.getElementById('edu-qual')?.value?.trim() || '';
+      const expYrs   = parseInt(document.getElementById('pf-exp-yrs')?.value) || 0;
+      const salMin   = parseInt(document.getElementById('pf-sal-min')?.value) || 0;
+      const salMax   = parseInt(document.getElementById('pf-sal-max')?.value) || 0;
+      const industry = document.getElementById('pf-industry')?.value?.trim() || '';
 
       // Collect selected languages
       const langChips = document.querySelectorAll('#lang-known-chips .chip.on');
       const langs = Array.from(langChips).map(c => c.textContent.trim()).join(', ');
+
+      // Collect skills
+      const skillChips = document.querySelectorAll('#skills-chips .chip.on, #skill-chips .chip.on, #skills-c .chip.on');
+      const skills = Array.from(skillChips).map(c => c.textContent.trim()).join(', ');
+
+      // Collect availability
+      const availChips = document.querySelectorAll('#avail-c .chip.on, #wp-c .chip.on');
+      const availability = Array.from(availChips).map(c => c.textContent.trim()).join(', ');
 
       // Update users table
       await supa.from('users').update({
@@ -5522,11 +5571,17 @@ async function finishProfile() {
       // Upsert candidate_profiles
       const { data: existingCp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
       const profileData = {
-        user_id:     AUTH.id,
-        role_title:  roleVal,
-        languages:   langs,
-        profile_pct: 100,
-        ai_verified: false,
+        user_id:        AUTH.id,
+        role_title:     roleVal,
+        languages:      langs,
+        profile_pct:    100,
+        ai_verified:    false,
+        experience_yrs: expYrs || null,
+        salary_min:     salMin || null,
+        salary_max:     salMax || null,
+        industry:       industry || null,
+        skills:         skills || null,
+        availability:   availability || null,
       };
       if (existingCp) {
         await supa.from('candidate_profiles').update(profileData).eq('user_id', AUTH.id);
@@ -6938,8 +6993,10 @@ async function loadCandidateDataFromDB() {
     const { data: cp } = await supa.from('candidate_profiles').select('*').eq('user_id', AUTH.id).single();
     if (cp) {
       AUTH.candidateProfile = cp;
+      // Run init with fresh data first
+      _initCandDash_orig();
 
-      // Show voice pitch player if voice_url exists
+      // Voice pitch audio player (must run AFTER _initCandDash_orig which may reset it)
       if (cp.voice_url) {
         const emptyMsg = document.getElementById('cd-voice-empty-msg');
         const dur = document.getElementById('cd-voice-duration');
@@ -6947,35 +7004,25 @@ async function loadCandidateDataFromDB() {
           <div style="margin-top:8px">
             <div style="font-size:13px;color:rgba(237,233,254,.7);margin-bottom:10px;font-weight:600">✓ Voice pitch recorded</div>
             <audio controls style="width:100%;border-radius:8px;margin-bottom:8px" src="${cp.voice_url}"></audio>
-            <button class="btn bsm" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15);margin-top:4px" onclick="navTo('candidate-profile');setTimeout(()=>document.getElementById('step-voice')?.scrollIntoView({behavior:'smooth'}),400)">↺ Re-record</button>
+            <button class="btn bsm" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15);margin-top:4px" onclick="navTo('candidate-profile');setTimeout(()=>document.getElementById('sec-2')?.scrollIntoView({behavior:'smooth'}),400)">↺ Re-record</button>
           </div>`;
         if (dur) dur.textContent = 'Pitch recorded · Click play to preview';
-
-        // Update tips based on actual scores if available
         const score = cp.voice_score || cp.ai_score || 0;
         const tipsEl = document.getElementById('cd-voice-tips');
-        if (tipsEl && score > 0) {
-          tipsEl.innerHTML = `
-            <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--cream);border-radius:9px"><span>🎯</span><span><strong>Clarity:</strong> ${score >= 80 ? 'Great clarity! Keep speaking at this pace.' : 'Speak slightly slower. Pause after key points.'}</span></div>
-            <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--cream);border-radius:9px"><span>💪</span><span><strong>Confidence:</strong> ${score >= 75 ? 'Strong confidence in your delivery.' : 'Start with your strongest achievement to build momentum.'}</span></div>
-            <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--gp);border-radius:9px;border:1px solid rgba(200,134,10,.1)"><span>⚡</span><span><strong>Overall Score: ${score}</strong> — ${score >= 80 ? 'Excellent pitch! Employers are likely to shortlist you.' : score >= 60 ? 'Good pitch. A few more improvements will push you to the top.' : 'Keep practising — re-record to improve your score.'}</span></div>`;
-        }
+        if (tipsEl) tipsEl.innerHTML = `
+          <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--cream);border-radius:9px"><span>🎯</span><span><strong>Clarity:</strong> ${score >= 80 ? 'Great clarity! Keep speaking at this pace.' : 'Speak slightly slower and pause after key points.'}</span></div>
+          <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--cream);border-radius:9px"><span>💪</span><span><strong>Confidence:</strong> ${score >= 75 ? 'Strong, confident delivery.' : 'Lead with your strongest achievement to build momentum.'}</span></div>
+          <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--gp);border-radius:9px;border:1px solid rgba(200,134,10,.1)"><span>⚡</span><span><strong>${score > 0 ? 'Overall Score: ' + score : 'Record your pitch'}</strong> — ${score >= 80 ? 'Excellent! Employers will shortlist you.' : score >= 60 ? 'Good pitch. A few improvements will push you higher.' : score > 0 ? 'Keep practising — re-record to improve.' : 'AI analysis runs automatically after you submit.'}</span></div>`;
       }
 
-      // Show resume link if resume_url exists
+      // Resume link
       if (cp.resume_url) {
-        // Generate a fresh signed URL (resumes bucket is private)
-        const resumePath = cp.resume_url.includes('supabase.co') 
-          ? cp.resume_url.split('/resumes/')[1] 
-          : cp.resume_url;
         let resumeLink = cp.resume_url;
         try {
-          const { data: signedData } = await supa.storage.from('resumes').createSignedUrl(
-            resumePath || `${AUTH.id}/resume.pdf`, 60 * 60
-          );
+          const rawPath = cp.resume_url.includes('/resumes/') ? cp.resume_url.split('/resumes/').pop().split('?')[0] : `${AUTH.id}/resume.pdf`;
+          const { data: signedData } = await supa.storage.from('resumes').createSignedUrl(rawPath, 3600);
           if (signedData?.signedUrl) resumeLink = signedData.signedUrl;
-        } catch(e) { /* use original URL */ }
-
+        } catch(e) { /* use original */ }
         const resumeStatusEl = document.getElementById('resume-upload-status');
         if (resumeStatusEl) {
           resumeStatusEl.innerHTML = `✓ Resume uploaded · <a href="${resumeLink}" target="_blank" style="color:var(--vg);text-decoration:underline">View Resume</a>`;
@@ -6985,22 +7032,21 @@ async function loadCandidateDataFromDB() {
         if (profResumeEl) profResumeEl.innerHTML = `<a href="${resumeLink}" target="_blank" style="color:var(--vg)">📄 View Resume</a>`;
       }
 
-      // Profile picture
-      if (cp.avatar_url || AUTH.avatarUrl) {
-        const url = cp.avatar_url || AUTH.avatarUrl;
-        const avEls = document.querySelectorAll('#cd-av-init, .cd-avatar-img');
-        avEls.forEach(el => {
-          if (el.tagName === 'IMG') { el.src = url; }
-          else {
-            el.style.backgroundImage = `url(${url})`;
-            el.style.backgroundSize = 'cover';
-            el.style.backgroundPosition = 'center';
-            el.textContent = '';
-          }
+      // Avatar
+      const avatarUrl = cp.avatar_url || AUTH.avatarUrl;
+      if (avatarUrl) {
+        ['cd-av-init','cd-profile-av'].forEach(id => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.style.backgroundImage = `url(${avatarUrl})`;
+          el.style.backgroundSize = 'cover';
+          el.style.backgroundPosition = 'center';
+          el.textContent = '';
         });
       }
     }
-    _initCandDash_orig();
+    await loadMarqueeFromDB();
+    await loadVideoFromDB();
   } catch(e) { console.warn('loadCandidateDataFromDB error:', e); }
 }
 async function loadVideoFromDB() {
