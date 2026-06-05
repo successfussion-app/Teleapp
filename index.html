@@ -2109,10 +2109,6 @@ img{max-width:100%}
           <div style="position:relative">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
               <div><div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:#fff">AI Score Breakdown</div><div style="font-size:12px;color:rgba(237,233,254,.4);margin-top:2px" id="cd-voice-duration">No pitch recorded yet</div></div>
-              <div style="display:flex;gap:8px">
-                <button class="btn bsm" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15)" onclick="toast('▶ Playing your voice pitch...','i');setTimeout(()=>toast('Pitch playback complete ✓','ts'),3500)">▶ Preview</button>
-                <button class="btn bsm" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15)" onclick="toast('Re-record anytime - goes live immediately','i')">↺ Re-record</button>
-              </div>
             </div>
             <div class="ai-scores" id="cd-voice-scores" style="display:none">
               <div class="ai-sb"><div class="ai-sv" id="cd-score-clarity">—</div><div class="ai-sl">Clarity</div></div>
@@ -2126,10 +2122,10 @@ img{max-width:100%}
         </div>
         <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:18px 20px">
           <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;margin-bottom:12px">Tips to improve your score</div>
-          <div style="display:flex;flex-direction:column;gap:12px">
-            <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--cream);border-radius:9px"><span>🎯</span><span><strong>Clarity (82):</strong> Speak slightly slower. Pause after key points. Avoid rushing - employers want to hear you think clearly.</span></div>
-            <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--cream);border-radius:9px"><span>💪</span><span><strong>Confidence (78):</strong> Start with your strongest achievement. Avoid "Umm, so..." - lead with impact from the first sentence.</span></div>
-            <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--gp);border-radius:9px;border:1px solid rgba(200,134,10,.1)"><span>⚡</span><span><strong>Energy (85):</strong> Great energy! Stand while recording and smile - it genuinely changes your vocal tone. Keep this consistent.</span></div>
+          <div id="cd-voice-tips" style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--cream);border-radius:9px"><span>🎯</span><span><strong>Clarity:</strong> Speak slightly slower. Pause after key points. Avoid rushing.</span></div>
+            <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--cream);border-radius:9px"><span>💪</span><span><strong>Confidence:</strong> Start with your strongest achievement. Lead with impact from the first sentence.</span></div>
+            <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--gp);border-radius:9px;border:1px solid rgba(200,134,10,.1)"><span>⚡</span><span><strong>Energy:</strong> Stand while recording and smile - it genuinely changes your vocal tone.</span></div>
           </div>
         </div>
       </div>
@@ -3676,6 +3672,68 @@ function navTo(p) {
   document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
   document.getElementById('page-' + p)?.classList.add('active');
   window.scrollTo(0, 0);
+  // Pre-fill candidate profile form from DB data
+  if (p === 'candidate-profile' && AUTH.id && AUTH.role === 'candidate') {
+    setTimeout(() => prefillCandidateProfileForm(), 200);
+  }
+}
+
+async function prefillCandidateProfileForm() {
+  try {
+    // Pre-fill from users table
+    const nameEl  = document.getElementById('pf-name');
+    const phoneEl = document.getElementById('pf-phone');
+    const cityEl  = document.getElementById('pf-city');
+    if (nameEl && AUTH.name) nameEl.value = AUTH.name;
+
+    const { data: u } = await supa.from('users').select('full_name,phone,city').eq('id', AUTH.id).single();
+    if (u) {
+      if (nameEl && u.full_name) nameEl.value = u.full_name;
+      if (phoneEl && u.phone) phoneEl.value = u.phone;
+      if (cityEl && u.city) {
+        const opt = Array.from(cityEl.options).find(o => o.value === u.city || o.text === u.city);
+        if (opt) cityEl.value = opt.value;
+      }
+    }
+
+    // Pre-fill from candidate_profiles
+    const cp = AUTH.candidateProfile;
+    if (!cp) {
+      const { data: cpData } = await supa.from('candidate_profiles').select('*').eq('user_id', AUTH.id).single();
+      if (cpData) AUTH.candidateProfile = cpData;
+    }
+    const cpd = AUTH.candidateProfile;
+    if (cpd) {
+      const roleEl = document.getElementById('pf-jobtitle');
+      if (roleEl && cpd.role_title) {
+        const opt = Array.from(roleEl.options).find(o => o.value === cpd.role_title || o.text === cpd.role_title);
+        if (opt) roleEl.value = opt.value;
+      }
+      // Pre-select language chips
+      if (cpd.languages) {
+        const langStr = Array.isArray(cpd.languages) ? cpd.languages.join(',') : cpd.languages;
+        const langs = langStr.split(',').map(l => l.trim().toLowerCase());
+        document.querySelectorAll('#lang-known-chips .chip').forEach(chip => {
+          if (langs.includes(chip.textContent.trim().toLowerCase())) {
+            chip.classList.add('on');
+          }
+        });
+      }
+      // Show resume status
+      if (cpd.resume_url) {
+        const resumeEl = document.getElementById('resume-upload-status');
+        if (resumeEl) {
+          resumeEl.textContent = '✓ Resume already uploaded';
+          resumeEl.style.color = 'var(--green)';
+        }
+      }
+      // Show voice pitch status  
+      if (cpd.voice_url) {
+        const voiceStatus = document.getElementById('voice-upload-status') || document.querySelector('#step-voice .upload-status');
+        if (voiceStatus) voiceStatus.textContent = '✓ Voice pitch already recorded';
+      }
+    }
+  } catch(e) { console.warn('prefillCandidateProfileForm error:', e); }
 }
 
 function openModal(id) { document.getElementById(id).classList.add('open'); }
@@ -4590,9 +4648,21 @@ function _initCandDash_orig() {
   const phoneEl = document.getElementById('cd-settings-phone');
   if (phoneEl) phoneEl.textContent = cp?.phone ? `${cp.phone} · OTP verified` : '—';
 
-  // Aria greeting - personalise with real name
+  // Aria greeting - personalise with real name and profile
   const ariaGreet = document.getElementById('aria-greeting');
-  if (ariaGreet) ariaGreet.innerHTML = `Hi ${firstName}! 👋 I'm Aria, your AI Career Mentor on PitchFirst.<br><br>I can help you with:<br>• 📋 Understanding job descriptions in plain language<br>• 🏢 Finding the best company match for your profile<br>• 🔄 Evaluating industry shifts - is it feasible and which path to take<br>• 🎯 Interview preparation and salary negotiation<br>• 🎤 Improving your voice pitch score<br><br>What would you like to explore today?`;
+  if (ariaGreet) {
+    const role = cp?.role_title || 'your role';
+    const wpm = cp?.wpm || 0;
+    const langs = !cp?.languages ? '' : Array.isArray(cp.languages) ? cp.languages.slice(0,3).join(', ') : cp.languages.split(',').slice(0,3).join(', ');
+    ariaGreet.innerHTML = `Hi ${firstName}! 👋 I'm Aria, your AI Career Mentor on PitchFirst.<br><br>
+      ${cp?.role_title ? `I can see you're a <strong>${role}</strong>${wpm ? ` with ${wpm} WPM typing speed` : ''}${langs ? ` speaking ${langs}` : ''}. Here's how I can help you:<br><br>` : 'Here\'s how I can help you:<br><br>'}
+      • 📋 Understanding job descriptions in plain language<br>
+      • 🏢 Finding the best company match for your profile<br>
+      • 🔄 Evaluating career transitions - feasibility and path<br>
+      • 🎯 Interview preparation and salary negotiation<br>
+      • 🎤 Improving your voice pitch score<br><br>
+      What would you like to explore today?`;
+  }
 
   renderPlanSection();
   if (typeof renderMarquee === 'function') renderMarquee();
@@ -5366,15 +5436,48 @@ function ttEnd() {
 }
 
 function ttResults() {
-  const r = ttS.res; const aw = Math.round(r.reduce((a, x) => a + x.wpm, 0) / r.length); const aa = Math.round(r.reduce((a, x) => a + x.acc, 0) / r.length);
-  let grade, gc; if (aw >= 60 && aa >= 95) { grade = 'Excellent'; gc = 'var(--green)'; } else if (aw >= 45 && aa >= 90) { grade = 'Good'; gc = 'var(--gold)'; } else if (aw >= 30 && aa >= 85) { grade = 'Average'; gc = '#0891b2'; } else { grade = 'Needs Practice'; gc = 'var(--red)'; }
-  document.getElementById('avg-wpm').textContent = aw; document.getElementById('avg-acc').textContent = aa + '%'; document.getElementById('avg-grade').textContent = grade; document.getElementById('avg-grade').style.color = gc;
+  const r = ttS.res;
+  const aw = Math.round(r.reduce((a, x) => a + x.wpm, 0) / r.length);
+  const aa = Math.round(r.reduce((a, x) => a + x.acc, 0) / r.length);
+  let grade, gc;
+  if (aw >= 60 && aa >= 95) { grade = 'Excellent'; gc = 'var(--green)'; }
+  else if (aw >= 45 && aa >= 90) { grade = 'Good'; gc = 'var(--gold)'; }
+  else if (aw >= 30 && aa >= 85) { grade = 'Average'; gc = '#0891b2'; }
+  else { grade = 'Needs Practice'; gc = 'var(--red)'; }
+
+  document.getElementById('avg-wpm').textContent = aw;
+  document.getElementById('avg-acc').textContent = aa + '%';
+  document.getElementById('avg-grade').textContent = grade;
+  document.getElementById('avg-grade').style.color = gc;
   document.getElementById('att-hist').innerHTML = r.map(x => `<div style="display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.06);padding:8px 14px;border-radius:8px;font-size:12px;color:rgba(237,233,254,.7);font-family:'DM Mono',monospace"><span>Attempt ${x.att}</span><span>${x.wpm} WPM</span><span>${x.acc}% accuracy</span></div>`).join('');
   document.getElementById('final-badge').innerHTML = `<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.25);padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;color:#34d399;margin-top:10px">⌨️ ${aw} WPM avg · ${aa}% · Grade: ${grade}</div>`;
   document.getElementById('tt-res').classList.add('show');
   const pb = document.getElementById('pbar-typing'); if (pb) pb.style.width = Math.min(aw / 80 * 100, 100) + '%';
-  document.getElementById('pcc-type-chk').className = 'pcc-chk pcc-done'; document.getElementById('pcc-type-chk').textContent = '✓';
+  document.getElementById('pcc-type-chk').className = 'pcc-chk pcc-done';
+  document.getElementById('pcc-type-chk').textContent = '✓';
   toast(`Typing test done! ${aw} WPM average · Grade: ${grade}`, 'ts');
+
+  // Update score card immediately
+  const wpmEl = document.getElementById('cd-tt-wpm');
+  const accEl = document.getElementById('cd-tt-acc');
+  const gradeEl = document.getElementById('cd-tt-grade');
+  if (wpmEl) wpmEl.textContent = aw;
+  if (accEl) accEl.textContent = aa + '%';
+  if (gradeEl) { gradeEl.textContent = grade; gradeEl.style.color = gc; }
+
+  // Save to Supabase
+  if (AUTH.id) {
+    supa.from('candidate_profiles')
+      .update({ wpm: aw, typing_accuracy: aa })
+      .eq('user_id', AUTH.id)
+      .then(({ error }) => {
+        if (error) console.warn('Typing save error:', error);
+        else {
+          if (AUTH.candidateProfile) { AUTH.candidateProfile.wpm = aw; AUTH.candidateProfile.typing_accuracy = aa; }
+          toast('Typing score saved to your profile ✓', 'ts');
+        }
+      });
+  }
 }
 
 function ttReset() {
@@ -5431,12 +5534,19 @@ async function finishProfile() {
         await supa.from('candidate_profiles').insert(profileData);
       }
 
-      // Update nav display name
       AUTH.name = nameVal;
+      if (AUTH.candidateProfile) {
+        AUTH.candidateProfile.role_title = roleVal;
+        AUTH.candidateProfile.languages = langs;
+        AUTH.candidateProfile.profile_pct = 100;
+      }
       const unEl = document.getElementById('cd-uname');
       const roleEl = document.getElementById('cd-urole');
       if (unEl) unEl.textContent = nameVal;
       if (roleEl && roleVal) roleEl.textContent = roleVal;
+
+      // Reload full dashboard data from DB
+      setTimeout(() => loadCandidateDataFromDB(), 800);
 
     } catch(e) {
       console.warn('Profile save error:', e);
@@ -5882,37 +5992,38 @@ function renderMarquee() {
     addBtn.style.cursor = used >= 5 ? 'not-allowed' : 'pointer';
   }
 
-  // Render item cards
-  grid.innerHTML = marqueeItems.map((item, idx) => `
-    <div class="mq-card" onclick="previewMarqueeItem(${item.id})">
+  grid.innerHTML = marqueeItems.map((item, idx) => {
+    const safeTitle = (item.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    const safeId = String(item.id);
+    return `
+    <div class="mq-card" onclick="previewMarqueeItem('${safeId}')">
       <div class="mq-card-pin">✦ Pinned ${idx + 1}</div>
       <div class="mq-card-actions" onclick="event.stopPropagation()">
-        <button class="mq-action-btn mq-edit-btn" onclick="editMarqueeItem('${item.id}')" title="Edit">✎</button>
-        <button class="mq-action-btn mq-delete-btn" onclick="deleteMarqueeItem(${item.id})" title="Remove">✕</button>
+        <button class="mq-action-btn mq-edit-btn" onclick="editMarqueeItem('${safeId}')" title="Edit">✎</button>
+        <button class="mq-action-btn mq-delete-btn" onclick="deleteMarqueeItem('${safeId}')" title="Remove">✕</button>
       </div>
       <div class="mq-media-wrap">
         <div class="mq-thumb-placeholder" style="background:${getThumbBg(item.type)}">
           <span>${item.icon}</span>
-          <span style="font-size:11px;color:rgba(255,255,255,.5);font-weight:600;text-transform:uppercase;letter-spacing:.8px">${item.typeLabel}</span>
+          <span style="font-size:11px;color:rgba(255,255,255,.5);font-weight:600;text-transform:uppercase;letter-spacing:.8px">${item.typeLabel || ''}</span>
         </div>
-        ${item.type === 'video' ? `
-        <div class="mq-play-overlay">
-          <div class="mq-play-btn">▶</div>
-        </div>` : ''}
+        ${item.thumb ? `<img src="${item.thumb}" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;border-radius:var(--r12)" onerror="this.style.display='none'">` : ''}
+        ${item.type === 'video' ? `<div class="mq-play-overlay"><div class="mq-play-btn">▶</div></div>` : ''}
       </div>
       <div class="mq-body">
-        <span class="mq-type-badge ${item.typeBadge}">${item.icon} ${item.typeLabel}</span>
-        <div class="mq-title">${item.title}</div>
+        <span class="mq-type-badge ${item.typeBadge || ''}">${item.icon} ${item.typeLabel || ''}</span>
+        <div class="mq-title">${item.title || ''}</div>
         ${item.desc ? `<div class="mq-desc">${item.desc}</div>` : ''}
         <div class="mq-meta">
-          <span>${item.org ? `${item.org} · ` : ''}${item.year}</span>
+          <span>${item.org ? `${item.org} · ` : ''}${item.year || ''}</span>
           <div style="display:flex;align-items:center;gap:12px">
             ${item.views > 0 ? `<span class="mq-stat">👁 ${item.views} employer views</span>` : '<span style="font-size:11px;color:rgba(14,11,7,.25)">Just added</span>'}
             <span style="font-size:11px;padding:2px 8px;border-radius:20px;${item.visible ? 'background:var(--gs);color:#0f6e56' : 'background:rgba(14,11,7,.06);color:var(--slate)'}">${item.visible ? '● Visible' : '● Draft'}</span>
           </div>
         </div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   // Render empty slot prompts
   const emptyTypes = [
@@ -5943,8 +6054,15 @@ function getThumbBg(type) {
 }
 
 function previewMarqueeItem(id) {
-  const item = marqueeItems.find(x => x.id === id); if (!item) return;
-  toast(`${item.icon} Previewing "${item.title.substring(0,40)}${item.title.length > 40 ? '...' : ''}"`, 'ti');
+  const item = marqueeItems.find(x => String(x.id) === String(id));
+  if (!item) return;
+  if (item.externalLink) {
+    window.open(item.externalLink, '_blank');
+  } else if (item.thumb) {
+    window.open(item.thumb, '_blank');
+  } else {
+    toast(`${item.icon} ${(item.title || '').substring(0, 40)}`, 'ti');
+  }
 }
 
 // Also render marquee items in employer candidate modal (in the refs section)
@@ -6827,22 +6945,44 @@ async function loadCandidateDataFromDB() {
         const dur = document.getElementById('cd-voice-duration');
         if (emptyMsg) emptyMsg.innerHTML = `
           <div style="margin-top:8px">
-            <div style="font-size:13px;color:rgba(237,233,254,.6);margin-bottom:10px">✓ Voice pitch recorded</div>
-            <audio controls style="width:100%;border-radius:8px" src="${cp.voice_url}"></audio>
+            <div style="font-size:13px;color:rgba(237,233,254,.7);margin-bottom:10px;font-weight:600">✓ Voice pitch recorded</div>
+            <audio controls style="width:100%;border-radius:8px;margin-bottom:8px" src="${cp.voice_url}"></audio>
+            <button class="btn bsm" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15);margin-top:4px" onclick="navTo('candidate-profile');setTimeout(()=>document.getElementById('step-voice')?.scrollIntoView({behavior:'smooth'}),400)">↺ Re-record</button>
           </div>`;
-        if (dur) dur.textContent = 'Pitch recorded · AI analysis complete';
+        if (dur) dur.textContent = 'Pitch recorded · Click play to preview';
+
+        // Update tips based on actual scores if available
+        const score = cp.voice_score || cp.ai_score || 0;
+        const tipsEl = document.getElementById('cd-voice-tips');
+        if (tipsEl && score > 0) {
+          tipsEl.innerHTML = `
+            <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--cream);border-radius:9px"><span>🎯</span><span><strong>Clarity:</strong> ${score >= 80 ? 'Great clarity! Keep speaking at this pace.' : 'Speak slightly slower. Pause after key points.'}</span></div>
+            <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--cream);border-radius:9px"><span>💪</span><span><strong>Confidence:</strong> ${score >= 75 ? 'Strong confidence in your delivery.' : 'Start with your strongest achievement to build momentum.'}</span></div>
+            <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--gp);border-radius:9px;border:1px solid rgba(200,134,10,.1)"><span>⚡</span><span><strong>Overall Score: ${score}</strong> — ${score >= 80 ? 'Excellent pitch! Employers are likely to shortlist you.' : score >= 60 ? 'Good pitch. A few more improvements will push you to the top.' : 'Keep practising — re-record to improve your score.'}</span></div>`;
+        }
       }
 
       // Show resume link if resume_url exists
       if (cp.resume_url) {
+        // Generate a fresh signed URL (resumes bucket is private)
+        const resumePath = cp.resume_url.includes('supabase.co') 
+          ? cp.resume_url.split('/resumes/')[1] 
+          : cp.resume_url;
+        let resumeLink = cp.resume_url;
+        try {
+          const { data: signedData } = await supa.storage.from('resumes').createSignedUrl(
+            resumePath || `${AUTH.id}/resume.pdf`, 60 * 60
+          );
+          if (signedData?.signedUrl) resumeLink = signedData.signedUrl;
+        } catch(e) { /* use original URL */ }
+
         const resumeStatusEl = document.getElementById('resume-upload-status');
         if (resumeStatusEl) {
-          resumeStatusEl.innerHTML = `✓ Resume uploaded · <a href="${cp.resume_url}" target="_blank" style="color:var(--vg);text-decoration:underline">View Resume</a>`;
+          resumeStatusEl.innerHTML = `✓ Resume uploaded · <a href="${resumeLink}" target="_blank" style="color:var(--vg);text-decoration:underline">View Resume</a>`;
           resumeStatusEl.style.color = 'var(--green)';
         }
-        // Update profile card resume section
         const profResumeEl = document.getElementById('cd-profile-resume');
-        if (profResumeEl) profResumeEl.innerHTML = `<a href="${cp.resume_url}" target="_blank" style="color:var(--vg)">📄 View Resume</a>`;
+        if (profResumeEl) profResumeEl.innerHTML = `<a href="${resumeLink}" target="_blank" style="color:var(--vg)">📄 View Resume</a>`;
       }
 
       // Profile picture
@@ -6870,24 +7010,63 @@ async function loadVideoFromDB() {
     if (!cp?.video_id) return;
     const { data: vid } = await supa.from('candidate_videos').select('*').eq('id', cp.video_id).single();
     if (!vid) return;
+
+    // Get storage URL if we have a storage path
+    let playUrl = vid.external_link || null;
+    if (!playUrl && vid.storage_path) {
+      const { data: urlData } = await supa.storage
+        .from('candidate-videos')
+        .createSignedUrl(vid.storage_path, 60 * 60 * 24);
+      if (urlData?.signedUrl) playUrl = urlData.signedUrl;
+    }
+
     videoData = {
       title: vid.title, desc: vid.description,
-      link: vid.external_link, visible: vid.is_visible,
-      views: vid.views, uploadedAt: new Date(vid.uploaded_at).toLocaleDateString('en-IN'),
+      link: playUrl, visible: vid.is_visible,
+      views: vid.views || 0,
+      uploadedAt: new Date(vid.uploaded_at || vid.created_at).toLocaleDateString('en-IN'),
       storagePath: vid.storage_path,
     };
-    // Show the uploaded card
+
     const emptyState = document.getElementById('video-empty-state');
-    const card       = document.getElementById('video-uploaded-card');
+    const card = document.getElementById('video-uploaded-card');
     if (emptyState) emptyState.style.display = 'none';
     if (card) {
       card.style.display = '';
       const titleEl = document.getElementById('video-card-title');
       const metaEl  = document.getElementById('video-card-meta');
-      const nameEl  = document.getElementById('video-thumb-name');
-      if (titleEl) titleEl.textContent = vid.title;
+      const thumbArea = document.getElementById('video-thumb-area');
+
+      if (titleEl) titleEl.textContent = vid.title || 'Video Interview';
       if (metaEl)  metaEl.textContent  = `Uploaded ${videoData.uploadedAt} · ${vid.is_visible ? 'Visible to employers' : 'Draft'}`;
-      if (nameEl)  nameEl.textContent  = vid.external_link ? vid.external_link.substring(0,40) + '...' : 'interview video';
+
+      // Replace static thumbnail with real player if we have a URL
+      if (thumbArea && playUrl) {
+        const isYoutube = playUrl.includes('youtube') || playUrl.includes('youtu.be');
+        const isLoom = playUrl.includes('loom.com');
+        const isGdrive = playUrl.includes('drive.google.com');
+        if (isYoutube || isLoom || isGdrive) {
+          // External link — show click-to-open
+          thumbArea.innerHTML = `
+            <div style="font-size:36px;margin-bottom:8px">🎬</div>
+            <div style="font-size:13px;color:rgba(237,233,254,.7);font-weight:600;margin-bottom:12px">${vid.title || 'Video Interview'}</div>
+            <button class="btn bsm" style="background:rgba(190,24,93,.8);color:#fff;border:none;font-weight:700" onclick="window.open('${playUrl}','_blank')">▶ Watch Interview</button>`;
+        } else {
+          // Direct storage file — embed video player
+          thumbArea.innerHTML = `<video controls style="width:100%;height:100%;border-radius:12px;object-fit:cover" src="${playUrl}"></video>`;
+        }
+      }
+
+      // Update preview button
+      const previewBtn = card.querySelector('button[onclick*="Playing"]');
+      if (previewBtn && playUrl) {
+        previewBtn.onclick = () => window.open(playUrl, '_blank');
+        previewBtn.textContent = '▶ Watch';
+      }
+
+      // Stats
+      const viewsEl = document.getElementById('video-stat-views');
+      if (viewsEl) viewsEl.textContent = videoData.views;
     }
   } catch(e) { console.warn('Video load error:', e); }
 }
