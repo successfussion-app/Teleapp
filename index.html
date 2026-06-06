@@ -1592,13 +1592,13 @@ img{max-width:100%}
         </div>
         <div class="sg">
           <div class="sc" onclick="showEP('candidates',document.querySelectorAll('.esbi')[1])">
-            <div class="sclbl">Total Applicants</div><div class="scval" style="color:var(--vg)">0</div><div class="scdelta">Post a role to start</div></div>
+            <div class="sclbl">Total Applicants</div><div class="scval" style="color:var(--vg)" id="ov-total-apps">0</div><div class="scdelta" id="ov-apps-d">Post a role to start</div></div>
           <div class="sc" onclick="showEP('roles',document.querySelectorAll('.esbi')[2])">
-            <div class="sclbl">Active Roles</div><div class="scval" style="color:var(--gold)">0</div><div class="scdelta">Post your first role</div></div>
+            <div class="sclbl">Active Roles</div><div class="scval" style="color:var(--gold)" id="ov-active-roles">0</div><div class="scdelta" id="ov-roles-d">Post your first role</div></div>
           <div class="sc" onclick="showEP('shortlisted',document.querySelectorAll('.esbi')[4])">
             <div class="sclbl">Shortlisted</div><div class="scval" style="color:var(--green)" id="ov-sl">0</div><div class="scdelta" id="ov-sl-d">Start shortlisting</div></div>
           <div class="sc" onclick="showEP('interviews',document.querySelectorAll('.esbi')[3])">
-            <div class="sclbl">Interviews</div><div class="scval">0</div><div class="scdelta" style="color:var(--slate)">None scheduled yet</div></div>
+            <div class="sclbl">Interviews</div><div class="scval" id="ov-interviews">0</div><div class="scdelta" style="color:var(--slate)">None scheduled yet</div></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:18px 20px">
@@ -4341,6 +4341,24 @@ async function loadEmployerAnalytics(employerProfileId) {
     set('a-total-interviews', totalInterviews);
     set('a-active-roles', activeRoles);
     set('a-hired', hiredCount);
+
+    // Overview page stats
+    set('ov-total-apps', totalApps);
+    set('ov-active-roles', activeRoles);
+    set('ov-interviews', totalInterviews);
+
+    // Update overview deltas
+    const appsDEl = document.getElementById('ov-apps-d');
+    if (appsDEl) appsDEl.textContent = totalApps > 0 ? `${totalApps} application${totalApps !== 1 ? 's' : ''} received` : 'Post a role to start';
+    const rolesDEl = document.getElementById('ov-roles-d');
+    if (rolesDEl) rolesDEl.textContent = activeRoles > 0 ? `${activeRoles} role${activeRoles !== 1 ? 's' : ''} live now` : 'Post your first role';
+
+    // Sidebar badges
+    const rolesBadge = document.querySelector('.esbi:nth-child(3) .ecnt');
+    if (rolesBadge) rolesBadge.textContent = activeRoles;
+    const intBadge = document.querySelector('.esbi:nth-child(4) .ecnt');
+    if (intBadge) intBadge.textContent = totalInterviews;
+
     const analyticsSubEl = document.getElementById('analytics-sub');
     if (analyticsSubEl) analyticsSubEl.textContent = `Live data · ${window._empProfile?.company_name || 'Your Company'}`;
 
@@ -4379,59 +4397,52 @@ async function loadEmployerAnalytics(employerProfileId) {
 async function loadCandidatesFromDB() {
   if (!AUTH.id || AUTH.role !== 'employer') return;
   try {
-    const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).single();
-    if (!ep) return;
-
-    const { data: roles } = await supa.from('roles').select('id').eq('employer_id', ep.id);
-    const roleIds = roles?.map(r => r.id) || [];
-    if (roleIds.length === 0) { renderCands(); return; }
-
-    const { data: apps } = await supa
-      .from('applications')
-      .select('id, role_id, status, candidate_id')
-      .in('role_id', roleIds);
-    if (!apps?.length) { renderCands(); return; }
-
-    // Get unique candidate_profile IDs
-    const candIds = [...new Set(apps.map(a => a.candidate_id).filter(Boolean))];
-    if (!candIds.length) { renderCands(); return; }
-
+    // Load ALL candidates so employers can discover them
     const { data: profiles } = await supa
       .from('candidate_profiles')
-      .select('id, user_id, role_title, voice_url, resume_url, voice_score, ai_score, languages')
-      .in('id', candIds);
+      .select('id, user_id, role_title, voice_url, resume_url, voice_score, ai_score, languages, wpm, availability, skills')
+      .not('role_title', 'is', null)
+      .order('updated_at', { ascending: false })
+      .limit(100);
 
-    // Get user names
-    const userIds = profiles?.map(p => p.user_id).filter(Boolean) || [];
-    const { data: users } = await supa.from('users').select('id, full_name, email').in('id', userIds);
+    if (!profiles?.length) { renderCands(); return; }
+
+    const userIds = profiles.map(p => p.user_id).filter(Boolean);
+    const { data: users } = await supa.from('users').select('id, full_name, email, city').in('id', userIds);
     const userMap = {};
     users?.forEach(u => { userMap[u.id] = u; });
 
     CANDS.length = 0;
-    profiles?.forEach((cp, i) => {
+    profiles.forEach((cp, i) => {
       const u = userMap[cp.user_id] || {};
       const score = cp.ai_score || cp.voice_score || 0;
+      const langStr = !cp.languages ? '' : Array.isArray(cp.languages) ? cp.languages.join(', ') : cp.languages;
       CANDS.push({
         id:     cp.user_id,
         candId: cp.id,
         name:   u.full_name || 'Candidate',
         email:  u.email || '',
         role:   cp.role_title || 'Role not specified',
-        city:   '—',
+        city:   u.city || '—',
         score,
         sc:     score >= 80 ? 'sg' : score >= 60 ? 'sy' : 'sr',
-        tags:   cp.languages ? cp.languages.split(',').slice(0,2).map(l => `ti:${l.trim()}`) : [],
+        tags:   langStr ? langStr.split(',').slice(0,2).map(l => `ti:${l.trim()}`) : [],
         col:    `hsl(${(i*47)%360},50%,58%)`,
         ini:    (u.full_name || 'C').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase(),
         sl:     false,
         voice:  cp.voice_url,
         resume: cp.resume_url,
+        wpm:    cp.wpm || 0,
       });
     });
 
     renderCands();
     const badge = document.querySelector('[onclick*="candidates"] .ecnt');
     if (badge) badge.textContent = CANDS.length;
+
+    // Update overview count
+    const ovApps = document.getElementById('ov-total-apps');
+    if (ovApps && ovApps.textContent === '0') ovApps.textContent = CANDS.length;
   } catch(e) { console.warn('loadCandidatesFromDB error:', e); }
 }
 
@@ -4455,9 +4466,13 @@ async function loadRolesFromDB() {
       });
     }
     renderRoles(); renderHiring();
-    // Update roles count badge
+    // Update roles count badge and overview
     const badge = document.querySelector('[onclick*="roles"] .ecnt');
     if (badge) badge.textContent = ROLES_DATA.length;
+    const ovRoles = document.getElementById('ov-active-roles');
+    if (ovRoles) ovRoles.textContent = ROLES_DATA.length;
+    const rolesDEl = document.getElementById('ov-roles-d');
+    if (rolesDEl) rolesDEl.textContent = ROLES_DATA.length > 0 ? `${ROLES_DATA.length} role${ROLES_DATA.length !== 1 ? 's' : ''} live now` : 'Post your first role';
   } catch(e) { console.warn('loadRolesFromDB error:', e); }
 }
 
@@ -4468,19 +4483,32 @@ async function loadInterviewsFromDB() {
     const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).single();
     if (!ep) return;
     const { data: invs } = await supa.from('interviews')
-      .select('*, candidate_profiles(user_id, role_title), roles(title)')
+      .select('*')
       .eq('employer_id', ep.id)
       .order('scheduled_at', { ascending: true });
-    if (!invs?.length) return;
+    if (!invs?.length) { renderInterviews(); return; }
     INTERVIEWS_DATA.length = 0;
     for (const iv of invs) {
-      // Get candidate name
-      const { data: cu } = await supa.from('users').select('full_name').eq('id', iv.candidate_profiles?.user_id).single();
+      // Get candidate name separately to avoid join issues
+      let candName = 'Candidate';
+      let roleTitle = '—';
+      if (iv.candidate_id) {
+        const { data: cp } = await supa.from('candidate_profiles').select('user_id, role_title').eq('id', iv.candidate_id).single();
+        if (cp) {
+          roleTitle = cp.role_title || '—';
+          const { data: cu } = await supa.from('users').select('full_name').eq('id', cp.user_id).single();
+          if (cu) candName = cu.full_name;
+        }
+      }
+      if (iv.role_id) {
+        const { data: role } = await supa.from('roles').select('title').eq('id', iv.role_id).single();
+        if (role) roleTitle = role.title;
+      }
       const dateObj = iv.scheduled_at ? new Date(iv.scheduled_at) : null;
       INTERVIEWS_DATA.push({
         id:   iv.id,
-        cand: cu?.full_name || 'Candidate',
-        role: iv.roles?.title || '—',
+        cand: candName,
+        role: roleTitle,
         date: dateObj ? dateObj.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' }) : '—',
         slot: dateObj ? dateObj.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }) : '—',
         st:   iv.status === 'confirmed' ? 'conf' : iv.status === 'completed' ? 'done' : 'pend',
@@ -5582,6 +5610,23 @@ function ttReset() {
 }
 
 async function finishProfile() {
+  // Check mandatory fields - resume and voice pitch required
+  const cp = AUTH.candidateProfile;
+  const hasResume = pendingResumeFile || cp?.resume_url;
+  const hasVoice  = cp?.voice_url;
+
+  if (!hasResume) {
+    toast('Please upload your resume before submitting your profile ★', 'te', 5000);
+    // Scroll to resume step
+    document.querySelector('[data-step="resume"], #step-resume, #sec-resume')?.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  if (!hasVoice) {
+    toast('Please record your voice pitch before submitting your profile ★', 'te', 5000);
+    document.querySelector('[data-step="voice"], #step-voice, #sec-2')?.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+
   // Upload profile photo if one was selected
   if (pendingPhotoFile) await uploadProfilePhoto();
   // Upload resume if one was selected
@@ -6203,15 +6248,19 @@ function addMarqueeOverviewPreview() {
     const mqPreview = document.createElement('div');
     mqPreview.id = 'overview-marquee-preview';
     mqPreview.style.cssText = 'background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:18px 20px;margin-bottom:14px';
-    const itemsHTML = marqueeItems.map(item => `
+    const itemsHTML = marqueeItems.map(item => {
+      const thumbContent = item.thumb
+        ? `<img src="${item.thumb}" style="width:100%;height:72px;object-fit:cover" onerror="this.parentNode.innerHTML='<div style=\\'height:72px;background:${getThumbBg(item.type)};display:flex;align-items:center;justify-content:center;font-size:24px\\'>${item.icon}</div>'">`
+        : `<div style="height:72px;background:${getThumbBg(item.type)};display:flex;align-items:center;justify-content:center;font-size:24px">${item.icon}</div>`;
+      return `
       <div onclick="showCD('marquee',document.querySelector('.marquee-btn'))" style="flex-shrink:0;width:160px;border-radius:12px;overflow:hidden;border:1px solid var(--bd);cursor:pointer;transition:all .2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
-        <div style="height:72px;background:${getThumbBg(item.type)};display:flex;align-items:center;justify-content:center;font-size:24px">${item.icon}</div>
+        ${thumbContent}
         <div style="padding:8px 10px">
-          <div style="font-size:11.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.title}</div>
-          <div style="font-size:10px;color:var(--slate);margin-top:1px">${item.typeLabel} · ${item.year}</div>
+          <div style="font-size:11.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.title || ''}</div>
+          <div style="font-size:10px;color:var(--slate);margin-top:1px">${item.typeLabel || ''} · ${item.year || ''}</div>
         </div>
-      </div>`
-    ).join('');
+      </div>`;
+    }).join('');
     mqPreview.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
         <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;background:linear-gradient(90deg,var(--gold),var(--gl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">The Marquee</div>
