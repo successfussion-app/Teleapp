@@ -2823,7 +2823,14 @@ img{max-width:100%}
 // ══════════════════════════════════════════
 const SUPA_URL  = 'https://ybrbhtcmhhxbtrkrhpyb.supabase.co';
 const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlicmJodGNtaGh4YnRya3JocHliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMTgzNzEsImV4cCI6MjA5NTY5NDM3MX0.HqYdZCGXGF7GlOvZr17Sc-V2JYe7UZQ_UG11Kn7QwL4';
-const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
+const supa = supabase.createClient(SUPA_URL, SUPA_ANON, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    storage: window.localStorage,
+  }
+});
 
 // ── SESSION: restore login state on page load ─────────────────────────────────
 async function supaRestoreSession() {
@@ -3736,18 +3743,32 @@ async function prefillCandidateProfileForm() {
           }
         });
       }
-      // Show resume status
+      // Show resume status with View PDF link
       if (cpd.resume_url) {
         const resumeEl = document.getElementById('resume-upload-status');
+        const nameEl   = document.getElementById('resume-name-display');
         if (resumeEl) {
-          resumeEl.textContent = '✓ Resume already uploaded';
-          resumeEl.style.color = 'var(--green)';
+          // Generate signed URL for view link
+          supa.storage.from('resumes').createSignedUrl(
+            cpd.resume_url.includes('/resumes/') ? cpd.resume_url.split('/resumes/').pop().split('?')[0] : `${AUTH.id}/resume.pdf`,
+            3600
+          ).then(({ data }) => {
+            const link = data?.signedUrl || cpd.resume_url;
+            resumeEl.innerHTML = `✓ Resume uploaded · <a href="${link}" target="_blank" style="color:var(--vg);text-decoration:underline;font-weight:600">View PDF</a>`;
+            resumeEl.style.color = 'var(--green)';
+          }).catch(() => {
+            resumeEl.textContent = '✓ Resume already uploaded';
+            resumeEl.style.color = 'var(--green)';
+          });
         }
+        if (nameEl) nameEl.value = 'Resume already uploaded ✓';
       }
-      // Show voice pitch status  
+      // Show voice pitch status
       if (cpd.voice_url) {
-        const voiceStatus = document.getElementById('voice-upload-status') || document.querySelector('#step-voice .upload-status');
+        const voiceStatus = document.getElementById('voice-record-status');
         if (voiceStatus) voiceStatus.textContent = '✓ Voice pitch already recorded';
+        const pitchStepStatus = document.querySelector('#step-voice .upload-status, .voice-status');
+        if (pitchStepStatus) pitchStepStatus.textContent = '✓ Pitch recorded';
       }
     }
   } catch(e) { console.warn('prefillCandidateProfileForm error:', e); }
@@ -3974,13 +3995,22 @@ function filterCands(f, el) {
 
 function renderCands(search = '') {
   let list = CANDS.filter(c => {
+    const badges = c.badges || [];
     const fs = {
-      all: true, voice: c.hasVoice, remote: c.badges.includes('Remote Ready'),
-      field: c.badges.includes('Field Ready'), gig: c.badges.includes('Gig Ready'),
-      office: c.badges.includes('In-Office Ready'), typing: c.wpm >= 40, verified: c.score >= 85
+      all: true,
+      voice:  !!c.hasVoice,
+      remote: badges.includes('Remote Ready'),
+      field:  badges.includes('Field Ready'),
+      gig:    badges.includes('Gig Ready'),
+      office: badges.includes('In-Office Ready'),
+      typing: (c.wpm || 0) >= 40,
+      verified: (c.score || 0) >= 85,
     };
     const matchF = fs[curFilter] !== undefined ? fs[curFilter] : true;
-    const matchS = !search || c.name.toLowerCase().includes(search) || c.role.toLowerCase().includes(search) || c.city.toLowerCase().includes(search);
+    const name = c.name || '';
+    const role = c.role || '';
+    const city = c.city || '';
+    const matchS = !search || name.toLowerCase().includes(search) || role.toLowerCase().includes(search) || city.toLowerCase().includes(search);
     return matchF && matchS;
   });
   document.getElementById('pool-sub').textContent = list.length
@@ -4417,22 +4447,37 @@ async function loadCandidatesFromDB() {
       const u = userMap[cp.user_id] || {};
       const score = cp.ai_score || cp.voice_score || 0;
       const langStr = !cp.languages ? '' : Array.isArray(cp.languages) ? cp.languages.join(', ') : cp.languages;
+      const availStr = cp.availability || 'Immediate';
+      const badges = [];
+      if (availStr.toLowerCase().includes('remote')) badges.push('Remote Ready');
+      if (availStr.toLowerCase().includes('field')) badges.push('Field Ready');
+      if (availStr.toLowerCase().includes('gig')) badges.push('Gig Ready');
+      if (availStr.toLowerCase().includes('office') || availStr.toLowerCase().includes('in-office')) badges.push('In-Office Ready');
+      if (!badges.length) badges.push('Remote Ready'); // default
+
       CANDS.push({
-        id:     cp.user_id,
-        candId: cp.id,
-        name:   u.full_name || 'Candidate',
-        email:  u.email || '',
-        role:   cp.role_title || 'Role not specified',
-        city:   u.city || '—',
+        id:       cp.user_id,
+        candId:   cp.id,
+        name:     u.full_name || 'Candidate',
+        email:    u.email || '',
+        role:     cp.role_title || 'Role not specified',
+        city:     u.city || '—',
+        exp:      cp.experience_yrs ? `${cp.experience_yrs} yr${cp.experience_yrs !== 1 ? 's' : ''}` : 'Fresher',
+        lang:     langStr ? langStr.split(',').slice(0,2).map(l=>l.trim()).join(', ') : '—',
+        avail:    availStr,
+        ac:       availStr.toLowerCase().includes('immediate') ? 'g' : 'y',
         score,
-        sc:     score >= 80 ? 'sg' : score >= 60 ? 'sy' : 'sr',
-        tags:   langStr ? langStr.split(',').slice(0,2).map(l => `ti:${l.trim()}`) : [],
-        col:    `hsl(${(i*47)%360},50%,58%)`,
-        ini:    (u.full_name || 'C').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase(),
-        sl:     false,
-        voice:  cp.voice_url,
-        resume: cp.resume_url,
-        wpm:    cp.wpm || 0,
+        sc:       score >= 80 ? 'sg' : score >= 60 ? 'sy' : 'sr',
+        tags:     badges.map(b => `ti:${b}`),
+        badges,
+        col:      `hsl(${(i*47)%360},50%,58%)`,
+        ini:      (u.full_name || 'C').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase(),
+        sl:       false,
+        hasVoice: !!cp.voice_url,
+        voice:    cp.voice_url,
+        resume:   cp.resume_url,
+        wpm:      cp.wpm || 0,
+        refs:     [],
       });
     });
 
@@ -4697,31 +4742,30 @@ function _initCandDash_orig() {
   }
 
   // Typing test scores
-  const typingCard = document.getElementById('cd-typing-score-card');
+  const typingCard  = document.getElementById('cd-typing-score-card');
+  const typingArea  = document.getElementById('cd-typing-test-area');
   const typingEmpty = document.getElementById('cd-typing-empty');
-  if (cp?.wpm) {
+  if (cp?.wpm && cp.wpm > 0) {
+    // Has a score — show it
     if (typingCard) typingCard.style.display = '';
+    if (typingArea) typingArea.style.display = 'none';
     if (typingEmpty) typingEmpty.style.display = 'none';
-    const wpmEl = document.getElementById('cd-tt-wpm');
-    const accEl = document.getElementById('cd-tt-acc');
+    const wpmEl   = document.getElementById('cd-tt-wpm');
+    const accEl   = document.getElementById('cd-tt-acc');
     const gradeEl = document.getElementById('cd-tt-grade');
     if (wpmEl) wpmEl.textContent = cp.wpm;
     if (accEl) accEl.textContent = cp.typing_accuracy ? `${cp.typing_accuracy}%` : '—';
-    const g = cp.wpm >= 60 ? 'Excellent' : cp.wpm >= 45 ? 'Good' : cp.wpm >= 30 ? 'Average' : 'Needs Practice';
+    const g  = cp.wpm >= 60 ? 'Excellent' : cp.wpm >= 45 ? 'Good' : cp.wpm >= 30 ? 'Average' : 'Needs Practice';
     const gc = cp.wpm >= 60 ? 'var(--green)' : cp.wpm >= 45 ? 'var(--gold)' : cp.wpm >= 30 ? '#0891b2' : 'var(--red)';
     if (gradeEl) { gradeEl.textContent = g; gradeEl.style.color = gc; }
+    // Update progress checklist
+    const pccChk = document.getElementById('pcc-type-chk');
+    if (pccChk) { pccChk.className = 'pcc-chk pcc-done'; pccChk.textContent = '✓'; }
   } else {
-    // No score yet — hide score card, show take test prompt
+    // No score yet — hide score card, show test area
     if (typingCard) typingCard.style.display = 'none';
-    const typingArea = document.getElementById('cd-typing-test-area');
     if (typingArea) typingArea.style.display = '';
-    if (!typingEmpty) {
-      const prompt = document.createElement('div');
-      prompt.id = 'cd-typing-empty';
-      prompt.style.cssText = 'text-align:center;padding:20px;font-size:14px;color:var(--slate)';
-      prompt.innerHTML = 'No typing test taken yet.<br><button class="btn bp bsm" style="margin-top:10px" onclick="showTypingTest()">Take Test Now →</button>';
-      typingCard?.parentNode?.insertBefore(prompt, typingCard);
-    }
+    if (typingEmpty) typingEmpty.remove(); // remove old empty prompt if exists
   }
 
   // Settings tab - email / phone
@@ -7103,17 +7147,19 @@ async function loadCandidateDataFromDB() {
         const dur = document.getElementById('cd-voice-duration');
         if (emptyMsg) emptyMsg.innerHTML = `
           <div style="margin-top:8px">
-            <div style="font-size:13px;color:rgba(237,233,254,.7);margin-bottom:10px;font-weight:600">✓ Voice pitch recorded</div>
-            <audio controls style="width:100%;border-radius:8px;margin-bottom:8px" src="${cp.voice_url}"></audio>
-            <button class="btn bsm" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15);margin-top:4px" onclick="navTo('candidate-profile');setTimeout(()=>document.getElementById('sec-2')?.scrollIntoView({behavior:'smooth'}),400)">↺ Re-record</button>
+            <audio id="voice-player" controls style="width:100%;border-radius:8px;margin-bottom:12px" src="${cp.voice_url}"></audio>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn bsm" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.2);font-weight:600" onclick="const p=document.getElementById('voice-player');if(p){p.currentTime=0;p.play();}">▶ Preview Pitch</button>
+              <button class="btn bsm" style="background:rgba(255,255,255,.08);color:rgba(237,233,254,.7);border:1px solid rgba(255,255,255,.12)" onclick="navTo('candidate-profile')">↺ Re-record</button>
+            </div>
           </div>`;
-        if (dur) dur.textContent = 'Pitch recorded · Click play to preview';
+        if (dur) dur.textContent = 'Pitch recorded · Click Preview to listen';
         const score = cp.voice_score || cp.ai_score || 0;
         const tipsEl = document.getElementById('cd-voice-tips');
         if (tipsEl) tipsEl.innerHTML = `
-          <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--cream);border-radius:9px"><span>🎯</span><span><strong>Clarity:</strong> ${score >= 80 ? 'Great clarity! Keep speaking at this pace.' : 'Speak slightly slower and pause after key points.'}</span></div>
-          <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--cream);border-radius:9px"><span>💪</span><span><strong>Confidence:</strong> ${score >= 75 ? 'Strong, confident delivery.' : 'Lead with your strongest achievement to build momentum.'}</span></div>
-          <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--gp);border-radius:9px;border:1px solid rgba(200,134,10,.1)"><span>⚡</span><span><strong>${score > 0 ? 'Overall Score: ' + score : 'Record your pitch'}</strong> — ${score >= 80 ? 'Excellent! Employers will shortlist you.' : score >= 60 ? 'Good pitch. A few improvements will push you higher.' : score > 0 ? 'Keep practising — re-record to improve.' : 'AI analysis runs automatically after you submit.'}</span></div>`;
+          <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--cream);border-radius:9px"><span>🎯</span><span><strong>Clarity:</strong> ${score >= 80 ? 'Great clarity! Keep speaking at this pace.' : 'Speak slightly slower and pause after each key point.'}</span></div>
+          <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--cream);border-radius:9px"><span>💪</span><span><strong>Confidence:</strong> ${score >= 75 ? 'Strong, confident delivery — employers will notice.' : 'Lead with your strongest achievement. Avoid filler words like umm or so.'}</span></div>
+          <div style="display:flex;gap:10px;font-size:13.5px;padding:10px;background:var(--gp);border-radius:9px;border:1px solid rgba(200,134,10,.1)"><span>⚡</span><span><strong>${score > 0 ? 'AI Score: ' + score + '/100' : 'Score pending'}</strong> — ${score >= 80 ? 'Excellent! You are in the top tier of candidates.' : score >= 60 ? 'Good pitch. Small improvements will push you into the top 20%.' : score > 0 ? 'Re-record with more energy and a strong opening line.' : 'AI analysis runs automatically after submitting your pitch.'}</span></div>`;
       }
 
       // Resume link
@@ -7158,7 +7204,47 @@ async function loadCandidateDataFromDB() {
     }
     await loadMarqueeFromDB();
     await loadVideoFromDB();
+    await loadReferencesFromDB();
   } catch(e) { console.warn('loadCandidateDataFromDB error:', e); }
+}
+
+// ── Load references from DB ───────────────────────────────────────────────────
+async function loadReferencesFromDB() {
+  if (!AUTH.id || AUTH.role !== 'candidate') return;
+  try {
+    const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
+    if (!cp) return;
+    const { data: refs } = await supa.from('references').select('*').eq('candidate_id', cp.id);
+    if (!refs?.length) return;
+
+    const refsEmpty = document.getElementById('cd-profile-refs-empty');
+    const refsList  = document.getElementById('cd-profile-refs-list');
+
+    if (refsEmpty) refsEmpty.style.display = 'none';
+    if (refsList) {
+      refsList.innerHTML = refs.map(r => `
+        <div style="background:var(--cream);border-radius:9px;padding:12px;border:1px solid var(--bd);margin-bottom:8px">
+          <div style="font-weight:600;font-size:13.5px">${r.full_name || '—'}</div>
+          <div style="font-size:12px;color:var(--slate)">${r.designation || ''}${r.company ? ' · ' + r.company : ''}</div>
+          ${r.phone ? `<div style="font-size:12px;color:var(--slate);margin-top:3px">📞 ${r.phone}</div>` : ''}
+        </div>`).join('');
+    } else {
+      // Create the list element if it doesn't exist
+      const container = refsEmpty?.parentNode;
+      if (container) {
+        const div = document.createElement('div');
+        div.id = 'cd-profile-refs-list';
+        div.innerHTML = refs.map(r => `
+          <div style="background:var(--cream);border-radius:9px;padding:12px;border:1px solid var(--bd);margin-bottom:8px">
+            <div style="font-weight:600;font-size:13.5px">${r.full_name || '—'}</div>
+            <div style="font-size:12px;color:var(--slate)">${r.designation || ''}${r.company ? ' · ' + r.company : ''}</div>
+            ${r.phone ? `<div style="font-size:12px;color:var(--slate);margin-top:3px">📞 ${r.phone}</div>` : ''}
+          </div>`).join('');
+        container.insertBefore(div, refsEmpty);
+        if (refsEmpty) refsEmpty.style.display = 'none';
+      }
+    }
+  } catch(e) { console.warn('loadReferencesFromDB error:', e); }
 }
 async function loadVideoFromDB() {
   if (!AUTH.id) return;
