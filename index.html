@@ -4017,18 +4017,18 @@ function renderCands(search = '') {
     ? `${list.length} applicants · Sorted by AI match score`
     : 'Candidates who apply to your roles will appear here';
   document.getElementById('cand-list').innerHTML = list.length ? list.map(c => `
-    <div class="cc" onclick="openCandModal(${c.id})">
+    <div class="cc" onclick="openCandModal('${c.id}')">
       <div class="cc-av" style="background:${c.col}">${c.ini}</div>
       <div>
         <div class="cc-name">${c.name}</div>
-        <div class="cc-role">${c.role} · ${c.exp} · ${c.city} · ${c.lang}</div>
-        <div class="cc-avail"><span class="adot ad${c.ac}"></span>${c.avail}</div>
-        <div class="tr">${c.tags.map(t => { const [cl, lb] = t.split(':'); return `<span class="tag ${cl}">${lb}</span>`; }).join('')}${c.refs.length ? '<span class="tag" style="background:#f0fdf4;color:#15803d;border-color:rgba(21,128,61,.15)">✓ References</span>' : ''}</div>
+        <div class="cc-role">${c.role} · ${c.exp || 'Fresher'} · ${c.city} · ${c.lang || '—'}</div>
+        <div class="cc-avail"><span class="adot ad${c.ac || 'g'}"></span>${c.avail || 'Immediate'}</div>
+        <div class="tr">${(c.tags||[]).map(t => { const [cl, lb] = t.split(':'); return `<span class="tag ${cl}">${lb}</span>`; }).join('')}${(c.refs||[]).length ? '<span class="tag" style="background:#f0fdf4;color:#15803d;border-color:rgba(21,128,61,.15)">✓ References</span>' : ''}</div>
       </div>
       <div class="cc-r">
         <div class="sr ${c.sc}">${c.score}</div>
-        <button class="btn bgh bsm" onclick="event.stopPropagation();${c.hasVoice ? `playP('${c.name}')` : `toast('No voice pitch from ${c.name}','tw2')`}">${c.hasVoice ? '▶ Play Pitch' : 'No Pitch'}</button>
-        <button class="btn ${c.sl ? 'bgn' : 'bgh'} bsm" onclick="event.stopPropagation();toggleSL(${c.id})">${c.sl ? '✓ Shortlisted' : '⭐ Shortlist'}</button>
+        <button class="btn bgh bsm" onclick="event.stopPropagation();${c.hasVoice && c.voice ? `document.getElementById('tmp-audio-player')?.remove();const a=document.createElement('audio');a.id='tmp-audio-player';a.src='${c.voice}';document.body.appendChild(a);a.play();toast('▶ Playing voice pitch...','ti')` : `toast('No voice pitch submitted','tw2')`}">${c.hasVoice ? '▶ Play Pitch' : 'No Pitch'}</button>
+        <button class="btn ${c.sl ? 'bgn' : 'bgh'} bsm" onclick="event.stopPropagation();toggleSL('${c.id}')">${c.sl ? '✓ Shortlisted' : '⭐ Shortlist'}</button>
       </div>
     </div>`).join('') :
     `<div style="text-align:center;padding:48px 20px;color:var(--slate)">
@@ -4042,72 +4042,74 @@ function renderCands(search = '') {
 function playP(name) { toast(`▶ Playing ${name}'s voice pitch...`, 'ti'); setTimeout(() => toast(`✓ Pitch complete for ${name}`, 'ts'), 3500); }
 
 function toggleSL(id) {
-  const c = CANDS.find(x => x.id === id); if (!c) return;
+  const c = CANDS.find(x => String(x.id) === String(id)); if (!c) return;
   c.sl = !c.sl;
   const sl = CANDS.filter(x => x.sl).length;
-  document.getElementById('sl-cnt').textContent = sl;
-  document.getElementById('ov-sl').textContent = sl;
-  document.getElementById('ov-sl-d').textContent = sl > 0 ? `↑ ${sl} shortlisted` : 'Start shortlisting';
+  const slCnt = document.getElementById('sl-cnt'); if (slCnt) slCnt.textContent = sl;
+  const ovSl = document.getElementById('ov-sl'); if (ovSl) ovSl.textContent = sl;
+  const ovSlD = document.getElementById('ov-sl-d'); if (ovSlD) ovSlD.textContent = sl > 0 ? `↑ ${sl} shortlisted` : 'Start shortlisting';
   renderCands(); toast(c.sl ? `${c.name} shortlisted! ⭐` : `${c.name} removed from shortlist`, 'ts');
 }
 
 function openCandModal(id) {
   const c = CANDS.find(x => x.id === id); if (!c) return;
-  const refsHTML = c.refs.length ? c.refs.map(r => `
+  const safeName = (c.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  const refsHTML = (c.refs || []).length ? (c.refs).map(r => `
     <div style="background:var(--cream);border-radius:9px;padding:11px 14px;border:1px solid var(--bd);margin-bottom:8px">
-      <div style="font-weight:700;font-size:13px">${r.name}</div>
-      <div style="font-size:12px;color:var(--slate);margin-top:1px">${r.desg} · ${r.co}</div>
-      <div id="ref-phone-${id}-${r.name.replace(/\s/g,'')}" style="font-size:12px;margin-top:4px;color:var(--slate)">Phone: <em>Unlock contact to reveal</em></div>
+      <div style="font-weight:700;font-size:13px">${r.name || '—'}</div>
+      <div style="font-size:12px;color:var(--slate);margin-top:1px">${r.desg || ''} · ${r.co || ''}</div>
     </div>`).join('') : '<div style="font-size:13px;color:var(--slate);padding:10px">No references added by this candidate.</div>';
 
   const mqStrip = (typeof renderEmployerMarquee === 'function') ? renderEmployerMarquee(c.id) : '';
   const vidStrip = (typeof getVideoInterviewStrip === 'function') ? getVideoInterviewStrip(c.id) : '';
+
+  const voiceSection = c.hasVoice && c.voice ? `
+    <div style="background:var(--voice);border-radius:var(--r12);padding:16px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;color:rgba(237,233,254,.4);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Voice Pitch</div>
+      <audio controls style="width:100%;border-radius:8px;margin-bottom:8px" src="${c.voice}"></audio>
+      <div style="font-size:12px;color:rgba(237,233,254,.5)">AI Score: ${c.score || '—'}/100</div>
+    </div>` : `<div style="background:rgba(14,11,7,.04);border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;font-size:13px;color:var(--slate)">No voice pitch submitted</div>`;
+
+  const resumeBtn = c.resume
+    ? `<button class="btn bg bsm" style="flex:1" onclick="window.open('${c.resume}','_blank')">📄 View Resume</button>`
+    : `<button class="btn bg bsm" style="flex:1;opacity:.5" disabled>📄 No Resume</button>`;
+
   document.getElementById('modal-cand-body').innerHTML = `
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
       <div style="width:54px;height:54px;border-radius:50%;background:${c.col};display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:21px;font-weight:700;color:#fff;flex-shrink:0">${c.ini}</div>
       <div style="flex:1">
         <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;letter-spacing:-.3px">${c.name}</div>
         <div style="font-size:13px;color:var(--slate);margin-top:1px">${c.role} · ${c.city}</div>
-        <div class="tr" style="margin-top:6px">${c.tags.map(t => { const [cl, lb] = t.split(':'); return `<span class="tag ${cl}" style="font-size:10px">${lb}</span>`; }).join('')}</div>
+        <div class="tr" style="margin-top:6px">${(c.tags||[]).map(t => { const [cl, lb] = t.split(':'); return `<span class="tag ${cl}" style="font-size:10px">${lb}</span>`; }).join('')}</div>
       </div>
       <div style="text-align:center"><div class="sr ${c.sc}" style="width:50px;height:50px;font-size:15px;border-width:3px">${c.score}</div><div style="font-size:10px;color:var(--slate);margin-top:3px">AI Score</div></div>
     </div>
-    ${c.hasVoice ? `
-    <div style="background:var(--voice);border-radius:var(--r12);padding:16px;margin-bottom:14px">
-      <div style="font-size:11px;font-weight:700;color:rgba(237,233,254,.4);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Voice Pitch Transcript</div>
-      <div style="font-size:13.5px;color:#fff;line-height:1.7">${c.pitch}</div>
-      <button class="btn bsm" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15);margin-top:12px" onclick="playP('${c.name}')">▶ Play Audio Pitch</button>
-    </div>` : `<div style="background:rgba(14,11,7,.04);border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;font-size:13px;color:var(--slate)">No voice pitch submitted</div>`}
+    ${voiceSection}
     ${vidStrip}
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
-      <div style="background:var(--cream);border-radius:10px;padding:12px;border:1px solid var(--bd);text-align:center"><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px">WPM</div><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500;margin-top:4px">${c.wpm}</div></div>
-      <div style="background:var(--cream);border-radius:10px;padding:12px;border:1px solid var(--bd);text-align:center"><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px">Accuracy</div><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500;margin-top:4px">${c.acc}%</div></div>
-      <div style="background:var(--cream);border-radius:10px;padding:12px;border:1px solid var(--bd);text-align:center"><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px">AI Score</div><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500;margin-top:4px;color:var(--vg)">${c.score}</div></div>
+      <div style="background:var(--cream);border-radius:10px;padding:12px;border:1px solid var(--bd);text-align:center"><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px">WPM</div><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500;margin-top:4px">${c.wpm || '—'}</div></div>
+      <div style="background:var(--cream);border-radius:10px;padding:12px;border:1px solid var(--bd);text-align:center"><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px">Experience</div><div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:500;margin-top:4px">${c.exp || '—'}</div></div>
+      <div style="background:var(--cream);border-radius:10px;padding:12px;border:1px solid var(--bd);text-align:center"><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px">AI Score</div><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500;margin-top:4px;color:var(--vg)">${c.score || '—'}</div></div>
     </div>
     <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:14px;margin-bottom:14px">
       <div style="font-family:'Fraunces',serif;font-size:14px;font-weight:700;margin-bottom:10px">Professional References</div>
-      <div id="refs-section-${id}">${refsHTML}</div>
+      <div>${refsHTML}</div>
     </div>
     ${mqStrip}
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn bg bsm" style="flex:1" onclick="toast('📄 Downloading ${c.name}\\'s resume...','ti');setTimeout(()=>toast('Resume downloaded ✓','ts'),1500)">📄 Download Resume</button>
-      <button class="btn ${c.sl ? 'bgn' : 'bp'} bsm" style="flex:1" onclick="toggleSL(${c.id});closeModal('modal-cand')">${c.sl ? '✓ Shortlisted' : '⭐ Shortlist'}</button>
-      <button class="btn bgh bsm" style="flex:1" onclick="closeModal('modal-cand');toast('Interview invite sent to ${c.name}! 📅','ts')">📅 Interview</button>
-      <button class="btn bd2 bsm" style="flex:1" id="unlock-btn-${id}" onclick="unlockContact(${c.id})">🔓 Unlock Contact</button>
+      ${resumeBtn}
+      <button class="btn ${c.sl ? 'bgn' : 'bp'} bsm" style="flex:1" onclick="toggleSL('${id}');closeModal('modal-cand')">${c.sl ? '✓ Shortlisted' : '⭐ Shortlist'}</button>
+      <button class="btn bgh bsm" style="flex:1" onclick="closeModal('modal-cand');toast('Interview invite sent to ${safeName}! 📅','ts')">📅 Interview</button>
+      <button class="btn bd2 bsm" style="flex:1" id="unlock-btn-${id}" onclick="unlockContact('${id}')">🔓 Unlock Contact</button>
     </div>`;
   openModal('modal-cand');
 }
 
 function unlockContact(id) {
-  const c = CANDS.find(x => x.id === id); if (!c) return;
+  const c = CANDS.find(x => String(x.id) === String(id)); if (!c) return;
   const btn = document.getElementById(`unlock-btn-${id}`);
   if (btn) { btn.textContent = '✓ Contact Unlocked'; btn.className = 'btn bgn bsm'; btn.style.flex = '1'; btn.disabled = true; }
-  // Reveal phone numbers in references for consenting refs
-  c.refs.forEach(r => {
-    const el = document.getElementById(`ref-phone-${id}-${r.name.replace(/\s/g, '')}`);
-    if (el) el.innerHTML = r.consent ? `Phone: <strong style="color:var(--ink)">${r.phone}</strong>` : `Phone: <em style="color:var(--slate)">Hidden - consent not given by candidate</em>`;
-  });
-  toast(`Contact unlocked for ${c.name}! References revealed ✓`, 'ts');
+  toast(`Contact unlocked for ${c.name}! Email: ${c.email}`, 'ts', 6000);
 }
 
 function renderRoles() {
@@ -4138,10 +4140,10 @@ function renderSL() {
   const sl = CANDS.filter(c => c.sl);
   document.getElementById('sl-sub').textContent = sl.length ? `${sl.length} candidates shortlisted` : 'Shortlist candidates from the pool to see them here';
   document.getElementById('sl-list').innerHTML = sl.length ? sl.map(c => `
-    <div class="cc" onclick="openCandModal(${c.id})">
+    <div class="cc" onclick="openCandModal('${c.id}')">
       <div class="cc-av" style="background:${c.col}">${c.ini}</div>
-      <div><div class="cc-name">${c.name}</div><div class="cc-role">${c.role} · ${c.city}</div><div class="tr">${c.tags.map(t => { const [cl, lb] = t.split(':'); return `<span class="tag ${cl}">${lb}</span>`; }).join('')}</div></div>
-      <div class="cc-r"><div class="sr ${c.sc}">${c.score}</div><button class="btn bp bsm" onclick="event.stopPropagation();openScheduleModal(${c.id},'${c.name}')">📅 Interview</button><button class="btn bgh bsm" onclick="event.stopPropagation();toggleSL(${c.id})">Remove</button></div>
+      <div><div class="cc-name">${c.name}</div><div class="cc-role">${c.role} · ${c.city}</div><div class="tr">${(c.tags||[]).map(t => { const [cl, lb] = t.split(':'); return `<span class="tag ${cl}">${lb}</span>`; }).join('')}</div></div>
+      <div class="cc-r"><div class="sr ${c.sc}">${c.score}</div><button class="btn bp bsm" onclick="event.stopPropagation();openScheduleModal('${c.id}','${(c.name||'').replace(/'/g,"\\'")}')">📅 Interview</button><button class="btn bgh bsm" onclick="event.stopPropagation();toggleSL('${c.id}')">Remove</button></div>
     </div>`).join('') :
     `<div style="text-align:center;padding:40px;color:var(--slate);font-size:14px">No candidates shortlisted yet.<br><br><button class="btn bg bsm" onclick="showEP('candidates',document.querySelectorAll('.esbi')[1])">Browse Candidates →</button></div>`;
 }
@@ -4712,11 +4714,12 @@ function _initCandDash_orig() {
     }
   }
 
-  // Skills
+  // Skills — only show placeholder if no skills in DB
   const skillsEl = document.getElementById('cd-profile-skills');
   if (skillsEl) {
-    if (cp?.skills && cp.skills.trim()) {
-      const skillArr = cp.skills.split(',').map(s => s.trim()).filter(Boolean);
+    const skills = cp?.skills;
+    if (skills && skills.trim()) {
+      const skillArr = skills.split(',').map(s => s.trim()).filter(Boolean);
       skillsEl.innerHTML = skillArr.map(s => `<span style="background:var(--vs);color:var(--vg);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid rgba(124,58,237,.15)">${s}</span>`).join('');
     } else {
       skillsEl.innerHTML = '<span style="font-size:13px;color:var(--slate)">Complete your profile to add skills</span>';
