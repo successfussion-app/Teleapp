@@ -4146,6 +4146,8 @@ async function openCandResume(candId, resumeUrl) {
     toast('Error loading resume: ' + (e.message || 'Please try again'), 'te');
   }
 }
+
+function unlockContact(id) {
   const c = CANDS.find(x => String(x.id) === String(id)); if (!c) return;
   const btn = document.getElementById(`unlock-btn-${id}`);
   if (btn) { btn.textContent = '✓ Contact Unlocked'; btn.className = 'btn bgn bsm'; btn.style.flex = '1'; btn.disabled = true; }
