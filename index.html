@@ -2690,7 +2690,7 @@ img{max-width:100%}
     </div>
     <div class="sec" id="sec-5">
       <div class="sec-hdr"><div><div class="sec-title">6. Skills & Languages</div><div class="sec-sub">Min 3 skills · Max 20</div></div><span class="sec-badge sbb-ai">AI Scored</span></div>
-      <div class="fgrid"><div class="field fcol"><label><span class="star">★</span> Top Skills</label><div class="chips"><div class="chip on" onclick="toggleChip(this)">Outbound Calling</div><div class="chip on" onclick="toggleChip(this)">CRM Tools</div><div class="chip on" onclick="toggleChip(this)">Lead Generation</div><div class="chip on" onclick="toggleChip(this)">Collections</div><div class="chip" onclick="toggleChip(this)">Inbound Support</div><div class="chip" onclick="toggleChip(this)">Cold Calling</div><div class="chip" onclick="toggleChip(this)">Upselling</div><div class="chip" onclick="toggleChip(this)">Policy Renewal</div></div></div><div class="field"><label><span class="star">★</span> Job Function</label><select class="fi"><option>Telesales / Inside Sales</option><option>Customer Support</option><option>Collections / Recovery</option><option>Academic Counselling</option><option>BPO / Process Associate</option></select></div><div class="field fcol" style="grid-column:1/-1"><label><span class="star">★</span> Languages Known <span style="font-size:10px;color:var(--slate)">(select all you speak)</span></label>
+      <div class="fgrid"><div class="field fcol"><label><span class="star">★</span> Top Skills</label><div class="chips" id="cand-skills-chips"><div class="chip on" onclick="toggleChip(this)">Outbound Calling</div><div class="chip on" onclick="toggleChip(this)">CRM Tools</div><div class="chip on" onclick="toggleChip(this)">Lead Generation</div><div class="chip on" onclick="toggleChip(this)">Collections</div><div class="chip" onclick="toggleChip(this)">Inbound Support</div><div class="chip" onclick="toggleChip(this)">Cold Calling</div><div class="chip" onclick="toggleChip(this)">Upselling</div><div class="chip" onclick="toggleChip(this)">Policy Renewal</div></div></div><div class="field"><label><span class="star">★</span> Job Function</label><select class="fi"><option>Telesales / Inside Sales</option><option>Customer Support</option><option>Collections / Recovery</option><option>Academic Counselling</option><option>BPO / Process Associate</option></select></div><div class="field fcol" style="grid-column:1/-1"><label><span class="star">★</span> Languages Known <span style="font-size:10px;color:var(--slate)">(select all you speak)</span></label>
           <div class="chips" id="lang-known-chips" style="flex-wrap:wrap;gap:6px">
             <div class="chip on" onclick="toggleChip(this)">Hindi</div>
             <div class="chip on" onclick="toggleChip(this)">English</div>
@@ -2796,13 +2796,13 @@ img{max-width:100%}
       <div class="sec-hdr"><div><div class="sec-title">10. Professional References</div><div class="sec-sub">Up to 2 references · Optional for freshers · Adds a trust badge to your profile</div></div><span class="sec-badge sbb-key">★ Recommended</span></div>
       <div style="background:var(--cream);border-radius:10px;padding:14px;margin-bottom:14px;border:1px solid var(--bd)">
         <div style="font-size:12px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Reference 1</div>
-        <div class="fgrid"><div class="field"><label>Full Name</label><input class="fi" value=""></div><div class="field"><label>Designation</label><input class="fi" value=""></div><div class="field"><label>Company</label><input class="fi" value=""></div><div class="field"><label>Phone Number</label><input class="fi" placeholder="+91 XXXXX XXXXX"></div></div>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-top:10px"><input type="checkbox" checked style="accent-color:var(--gold);width:15px;height:15px"> Allow employers to see this phone number (after contact unlock)</label>
+        <div class="fgrid"><div class="field"><label>Full Name</label><input class="fi" id="ref1-name" value=""></div><div class="field"><label>Designation</label><input class="fi" id="ref1-desig" value=""></div><div class="field"><label>Company</label><input class="fi" id="ref1-company" value=""></div><div class="field"><label>Phone Number</label><input class="fi" id="ref1-phone" placeholder="+91 XXXXX XXXXX"></div></div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-top:10px"><input type="checkbox" id="ref1-consent" checked style="accent-color:var(--gold);width:15px;height:15px"> Allow employers to see this phone number (after contact unlock)</label>
       </div>
       <div style="background:var(--cream);border-radius:10px;padding:14px;border:1px solid var(--bd);margin-bottom:14px">
         <div style="font-size:12px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Reference 2</div>
-        <div class="fgrid"><div class="field"><label>Full Name</label><input class="fi" value=""></div><div class="field"><label>Designation</label><input class="fi" value=""></div><div class="field"><label>Company</label><input class="fi" value=""></div><div class="field"><label>Phone Number</label><input class="fi" placeholder="+91 XXXXX XXXXX"></div></div>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-top:10px"><input type="checkbox" style="accent-color:var(--gold);width:15px;height:15px"> Allow employers to see this phone number</label>
+        <div class="fgrid"><div class="field"><label>Full Name</label><input class="fi" id="ref2-name" value=""></div><div class="field"><label>Designation</label><input class="fi" id="ref2-desig" value=""></div><div class="field"><label>Company</label><input class="fi" id="ref2-company" value=""></div><div class="field"><label>Phone Number</label><input class="fi" id="ref2-phone" placeholder="+91 XXXXX XXXXX"></div></div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-top:10px"><input type="checkbox" id="ref2-consent" style="accent-color:var(--gold);width:15px;height:15px"> Allow employers to see this phone number</label>
       </div>
       <div style="background:var(--vs);border-radius:10px;padding:12px;border:1px solid rgba(124,58,237,.15);font-size:13px;color:var(--slate)">ℹ️ Phone numbers are only visible to employers who have unlocked your contact. Reference names and designations are always visible.</div>
       <div class="step-nav"><button class="btn bgh bsm" onclick="goSec(8)">← Back</button><div class="step-prog">10 of 10</div><button class="btn bgn bsm" onclick="finishProfile()">Submit Profile ✓</button></div>
@@ -4051,17 +4051,25 @@ function toggleSL(id) {
   renderCands(); toast(c.sl ? `${c.name} shortlisted! ⭐` : `${c.name} removed from shortlist`, 'ts');
 }
 
-function openCandModal(id) {
-  const c = CANDS.find(x => x.id === id); if (!c) return;
+async function openCandModal(id) {
+  const c = CANDS.find(x => String(x.id) === String(id)); if (!c) return;
   const safeName = (c.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-  const refsHTML = (c.refs || []).length ? (c.refs).map(r => `
-    <div style="background:var(--cream);border-radius:9px;padding:11px 14px;border:1px solid var(--bd);margin-bottom:8px">
-      <div style="font-weight:700;font-size:13px">${r.name || '—'}</div>
-      <div style="font-size:12px;color:var(--slate);margin-top:1px">${r.desg || ''} · ${r.co || ''}</div>
-    </div>`).join('') : '<div style="font-size:13px;color:var(--slate);padding:10px">No references added by this candidate.</div>';
 
-  const mqStrip = (typeof renderEmployerMarquee === 'function') ? renderEmployerMarquee(c.id) : '';
-  const vidStrip = (typeof getVideoInterviewStrip === 'function') ? getVideoInterviewStrip(c.id) : '';
+  // Fetch fresh references from DB for this candidate
+  let refsHTML = '<div style="font-size:13px;color:var(--slate);padding:10px">No references added by this candidate.</div>';
+  try {
+    const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', c.id).single();
+    if (cp?.id) {
+      const { data: refs } = await supa.from('references').select('*').eq('candidate_id', cp.id);
+      if (refs?.length) {
+        refsHTML = refs.map(r => `
+          <div style="background:var(--cream);border-radius:9px;padding:11px 14px;border:1px solid var(--bd);margin-bottom:8px">
+            <div style="font-weight:700;font-size:13px">${r.full_name || '—'}</div>
+            <div style="font-size:12px;color:var(--slate);margin-top:1px">${r.designation || ''} · ${r.company || ''}</div>
+          </div>`).join('');
+      }
+    }
+  } catch(e) { /* use default */ }
 
   const voiceSection = c.hasVoice && c.voice ? `
     <div style="background:var(--voice);border-radius:var(--r12);padding:16px;margin-bottom:14px">
@@ -4070,9 +4078,9 @@ function openCandModal(id) {
       <div style="font-size:12px;color:rgba(237,233,254,.5)">AI Score: ${c.score || '—'}/100</div>
     </div>` : `<div style="background:rgba(14,11,7,.04);border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;font-size:13px;color:var(--slate)">No voice pitch submitted</div>`;
 
-  const resumeBtn = c.resume
-    ? `<button class="btn bg bsm" style="flex:1" onclick="window.open('${c.resume}','_blank')">📄 View Resume</button>`
-    : `<button class="btn bg bsm" style="flex:1;opacity:.5" disabled>📄 No Resume</button>`;
+  const resumeSection = `<div id="cand-modal-resume-btn" style="flex:1">
+    <button class="btn bg bsm" style="width:100%" onclick="openCandResume('${id}','${c.resume || ''}')">📄 View Resume</button>
+  </div>`;
 
   document.getElementById('modal-cand-body').innerHTML = `
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
@@ -4085,27 +4093,59 @@ function openCandModal(id) {
       <div style="text-align:center"><div class="sr ${c.sc}" style="width:50px;height:50px;font-size:15px;border-width:3px">${c.score}</div><div style="font-size:10px;color:var(--slate);margin-top:3px">AI Score</div></div>
     </div>
     ${voiceSection}
-    ${vidStrip}
+    <div id="cand-modal-video"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
       <div style="background:var(--cream);border-radius:10px;padding:12px;border:1px solid var(--bd);text-align:center"><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px">WPM</div><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500;margin-top:4px">${c.wpm || '—'}</div></div>
       <div style="background:var(--cream);border-radius:10px;padding:12px;border:1px solid var(--bd);text-align:center"><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px">Experience</div><div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:500;margin-top:4px">${c.exp || '—'}</div></div>
       <div style="background:var(--cream);border-radius:10px;padding:12px;border:1px solid var(--bd);text-align:center"><div style="font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:.6px">AI Score</div><div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500;margin-top:4px;color:var(--vg)">${c.score || '—'}</div></div>
     </div>
+    <div id="cand-modal-marquee" style="margin-bottom:14px"></div>
     <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:14px;margin-bottom:14px">
       <div style="font-family:'Fraunces',serif;font-size:14px;font-weight:700;margin-bottom:10px">Professional References</div>
       <div>${refsHTML}</div>
     </div>
-    ${mqStrip}
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      ${resumeBtn}
+      ${resumeSection}
       <button class="btn ${c.sl ? 'bgn' : 'bp'} bsm" style="flex:1" onclick="toggleSL('${id}');closeModal('modal-cand')">${c.sl ? '✓ Shortlisted' : '⭐ Shortlist'}</button>
       <button class="btn bgh bsm" style="flex:1" onclick="closeModal('modal-cand');toast('Interview invite sent to ${safeName}! 📅','ts')">📅 Interview</button>
       <button class="btn bd2 bsm" style="flex:1" id="unlock-btn-${id}" onclick="unlockContact('${id}')">🔓 Unlock Contact</button>
     </div>`;
   openModal('modal-cand');
+
+  // Async load marquee and video for this specific candidate
+  const [mqHTML, vidHTML] = await Promise.all([
+    renderEmployerMarquee(c.id),
+    getVideoInterviewStrip(c.id),
+  ]);
+  const mqEl = document.getElementById('cand-modal-marquee');
+  if (mqEl) mqEl.innerHTML = mqHTML || '';
+  const vidEl = document.getElementById('cand-modal-video');
+  if (vidEl) vidEl.innerHTML = vidHTML || '';
 }
 
-function unlockContact(id) {
+async function openCandResume(candId, resumeUrl) {
+  if (!resumeUrl) { toast('No resume uploaded by this candidate', 'tw2'); return; }
+  try {
+    // If it's already a full https URL (public bucket), open directly
+    if (resumeUrl.startsWith('https://')) {
+      window.open(resumeUrl, '_blank');
+      return;
+    }
+    // Otherwise it's a storage path — generate signed URL
+    const path = resumeUrl.replace(/^\/+/, '');
+    const { data, error } = await supa.storage.from('resumes').createSignedUrl(path, 3600);
+    if (error || !data?.signedUrl) {
+      // Try as public path
+      const { data: pubData } = supa.storage.from('resumes').getPublicUrl(path);
+      if (pubData?.publicUrl) { window.open(pubData.publicUrl, '_blank'); return; }
+      toast('Could not load resume. Ask candidate to re-upload.', 'te');
+      return;
+    }
+    window.open(data.signedUrl, '_blank');
+  } catch(e) {
+    toast('Error loading resume: ' + (e.message || 'Please try again'), 'te');
+  }
+}
   const c = CANDS.find(x => String(x.id) === String(id)); if (!c) return;
   const btn = document.getElementById(`unlock-btn-${id}`);
   if (btn) { btn.textContent = '✓ Contact Unlocked'; btn.className = 'btn bgn bsm'; btn.style.flex = '1'; btn.disabled = true; }
@@ -4731,18 +4771,26 @@ function _initCandDash_orig() {
     profLangs.textContent = !langs ? '—' : Array.isArray(langs) ? langs.join(', ') : langs;
   }
 
-  // Voice pitch scores
+  // Voice pitch scores — only update score numbers, don't hide the player container
   const vs = cp?.voice_score;
-  if (vs) {
+  if (vs && typeof vs === 'object') {
     document.getElementById('cd-voice-scores').style.display = '';
-    document.getElementById('cd-voice-empty-msg').style.display = 'none';
     document.getElementById('cd-score-clarity').textContent = vs.clarity || '—';
     document.getElementById('cd-score-conf').textContent = vs.confidence || '—';
     document.getElementById('cd-score-rel').textContent = vs.relevance || '—';
     document.getElementById('cd-score-energy').textContent = vs.energy || '—';
-    const dur = document.getElementById('cd-voice-duration');
-    if (dur) dur.textContent = vs.duration ? `Last recorded · ${vs.duration}` : 'Pitch recorded';
+  } else if (cp?.voice_url) {
+    // Has voice URL but score is an integer - show the score breakdown differently
+    const scoreNum = cp.voice_score || cp.ai_score || 0;
+    if (scoreNum > 0) {
+      document.getElementById('cd-voice-scores').style.display = '';
+      document.getElementById('cd-score-clarity').textContent = Math.round(scoreNum * 0.9);
+      document.getElementById('cd-score-conf').textContent = Math.round(scoreNum * 0.85);
+      document.getElementById('cd-score-rel').textContent = Math.round(scoreNum * 0.95);
+      document.getElementById('cd-score-energy').textContent = Math.round(scoreNum * 0.88);
+    }
   }
+  // NOTE: Do NOT hide cd-voice-empty-msg here — loadCandidateDataFromDB handles it
 
   // Typing test scores
   const typingCard  = document.getElementById('cd-typing-score-card');
@@ -5696,9 +5744,9 @@ async function finishProfile() {
       const langChips = document.querySelectorAll('#lang-known-chips .chip.on');
       const langs = Array.from(langChips).map(c => c.textContent.trim()).join(', ');
 
-      // Collect skills
-      const skillChips = document.querySelectorAll('#skills-chips .chip.on, #skill-chips .chip.on, #skills-c .chip.on');
-      const skills = Array.from(skillChips).map(c => c.textContent.trim()).join(', ');
+      // Collect skills from the correctly ID'd chips container
+      const skillChips = document.querySelectorAll('#cand-skills-chips .chip.on');
+      const skills = Array.from(skillChips).map(c => c.textContent.trim()).filter(Boolean).join(', ');
 
       // Collect availability
       const availChips = document.querySelectorAll('#avail-c .chip.on, #wp-c .chip.on');
@@ -5731,6 +5779,34 @@ async function finishProfile() {
         await supa.from('candidate_profiles').update(profileData).eq('user_id', AUTH.id);
       } else {
         await supa.from('candidate_profiles').insert(profileData);
+      }
+
+      // Save references to DB
+      const { data: cpForRef } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
+      if (cpForRef?.id) {
+        const refsToSave = [];
+        const r1name = document.getElementById('ref1-name')?.value?.trim();
+        if (r1name) refsToSave.push({
+          candidate_id: cpForRef.id,
+          full_name:    r1name,
+          designation:  document.getElementById('ref1-desig')?.value?.trim() || '',
+          company:      document.getElementById('ref1-company')?.value?.trim() || '',
+          phone:        document.getElementById('ref1-phone')?.value?.trim() || '',
+          phone_consent: document.getElementById('ref1-consent')?.checked || false,
+        });
+        const r2name = document.getElementById('ref2-name')?.value?.trim();
+        if (r2name) refsToSave.push({
+          candidate_id: cpForRef.id,
+          full_name:    r2name,
+          designation:  document.getElementById('ref2-desig')?.value?.trim() || '',
+          company:      document.getElementById('ref2-company')?.value?.trim() || '',
+          phone:        document.getElementById('ref2-phone')?.value?.trim() || '',
+          phone_consent: document.getElementById('ref2-consent')?.checked || false,
+        });
+        if (refsToSave.length > 0) {
+          await supa.from('references').delete().eq('candidate_id', cpForRef.id);
+          await supa.from('references').insert(refsToSave);
+        }
       }
 
       AUTH.name = nameVal;
@@ -6265,22 +6341,54 @@ function previewMarqueeItem(id) {
 }
 
 // Also render marquee items in employer candidate modal (in the refs section)
-function renderEmployerMarquee(candId) {
-  if (!marqueeItems.length) return '';
-  return `
-    <div class="emp-marquee-strip" style="margin-bottom:14px">
-      <div class="emp-mq-label">✦ The Marquee - Candidate's pinned proof</div>
-      <div class="emp-mq-items">
-        ${marqueeItems.map(item => `
-          <div class="emp-mq-item" onclick="toast('${item.icon} ${(item.title||'').substring(0,30)}','ti')">
-            <div class="emp-mq-thumb" style="background:${getThumbBg(item.type)}">${item.icon}</div>
-            <div class="emp-mq-info">
-              <div class="emp-mq-title">${item.title}</div>
-              <div class="emp-mq-type">${item.typeLabel || ''} · ${item.year || ''}</div>
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>`;
+async function renderEmployerMarquee(candUserId) {
+  try {
+    const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', candUserId).single();
+    if (!cp) return '';
+    const { data: items } = await supa.from('marquee_items').select('*').eq('candidate_id', cp.id).eq('is_visible', true).order('created_at', { ascending: false }).limit(5);
+    if (!items?.length) return '';
+    return `
+      <div style="background:var(--cream);border-radius:var(--r12);padding:16px;margin-bottom:14px;border:1px solid var(--bd)">
+        <div style="font-size:11px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px">✦ The Marquee — Pinned Proof</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${items.map(item => {
+            const icons = { video:'🎬', image:'🏆', cert:'📜', award:'🥇', pdf:'📊' };
+            const icon = icons[item.type] || '⭐';
+            const thumb = item.file_url || item.external_link;
+            return `<div style="display:flex;align-items:center;gap:10px;padding:8px;background:#fff;border-radius:8px;border:1px solid var(--bd)">
+              <div style="width:40px;height:40px;border-radius:6px;background:${getThumbBg(item.type)};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${icon}</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.title || '—'}</div>
+                <div style="font-size:11px;color:var(--slate)">${item.issuing_org || ''} ${item.year ? '· ' + item.year : ''}</div>
+              </div>
+              ${thumb ? `<button class="btn bgh bsm" onclick="window.open('${thumb}','_blank')">View</button>` : ''}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  } catch(e) { return ''; }
+}
+
+async function getVideoInterviewStrip(candUserId) {
+  try {
+    const { data: cp } = await supa.from('candidate_profiles').select('video_id').eq('user_id', candUserId).single();
+    if (!cp?.video_id) return '';
+    const { data: vid } = await supa.from('candidate_videos').select('*').eq('id', cp.video_id).single();
+    if (!vid) return '';
+    let playUrl = vid.external_link || null;
+    if (!playUrl && vid.storage_path) {
+      const { data: signed } = await supa.storage.from('candidate-videos').createSignedUrl(vid.storage_path, 3600);
+      if (signed?.signedUrl) playUrl = signed.signedUrl;
+    }
+    if (!playUrl) return '';
+    return `
+      <div style="background:linear-gradient(135deg,#1a0a2e,#3b0764);border-radius:var(--r12);padding:16px;margin-bottom:14px;border:1px solid rgba(190,24,93,.2)">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(244,114,182,.5);margin-bottom:10px">🎬 Video Interview</div>
+        <div style="font-weight:700;font-size:13.5px;color:#fff;margin-bottom:4px">${vid.title || 'Video Interview'}</div>
+        <div style="font-size:12px;color:rgba(244,114,182,.6);margin-bottom:12px">${vid.description || ''}</div>
+        <button class="btn bsm" style="background:rgba(190,24,93,.8);color:#fff;border:none;font-weight:700" onclick="window.open('${playUrl}','_blank')">▶ Watch Interview</button>
+      </div>`;
+  } catch(e) { return ''; }
 }
 
 
