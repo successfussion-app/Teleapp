@@ -4126,33 +4126,19 @@ async function openCandModal(id) {
 async function openCandResume(candId, resumeUrl) {
   if (!resumeUrl) { toast('No resume uploaded by this candidate', 'tw2'); return; }
   try {
-    // Extract just the storage path (strip any full URL prefix)
+    // Extract just the storage path
     let path = resumeUrl;
-    if (path.includes('/resumes/')) {
-      path = path.split('/resumes/').pop().split('?')[0];
-    } else if (path.startsWith('https://')) {
-      // Already a full signed URL — open directly
-      window.open(path, '_blank');
-      return;
-    }
-    // Remove leading slash if present
+    if (path.includes('/resumes/')) path = path.split('/resumes/').pop().split('?')[0];
     path = path.replace(/^\/+/, '');
 
-    // Try signed URL first (works if caller has access)
-    const { data: signed, error: signErr } = await supa.storage
-      .from('resumes').createSignedUrl(path, 3600);
-    if (!signErr && signed?.signedUrl) {
-      window.open(signed.signedUrl, '_blank');
-      return;
-    }
-
-    // Fallback: try public URL (works if bucket is public)
+    // Since resumes bucket is now public, use public URL directly
     const { data: pub } = supa.storage.from('resumes').getPublicUrl(path);
     if (pub?.publicUrl) {
       window.open(pub.publicUrl, '_blank');
       return;
     }
-
+    // Fallback: if full URL was passed, open it directly
+    if (resumeUrl.startsWith('https://')) { window.open(resumeUrl, '_blank'); return; }
     toast('Resume not accessible. The candidate may need to re-upload it.', 'te', 5000);
   } catch(e) {
     toast('Error loading resume: ' + (e.message || 'Please try again'), 'te');
@@ -4632,6 +4618,19 @@ async function loadApplicationsFromDB() {
       .select('*, roles(title, city, salary_range), employer_profiles(company_name)')
       .eq('candidate_id', cp.id)
       .order('applied_at', { ascending: false });
+    const totalApps = apps?.length || 0;
+    const shortlisted = apps?.filter(a => a.status === 'shortlisted' || a.status === 'hired').length || 0;
+
+    // Update sidebar badge
+    const appCnt = document.getElementById('cd-app-cnt');
+    if (appCnt) appCnt.textContent = totalApps;
+
+    // Update overview stats
+    const statApps = document.getElementById('cd-stat-apps');
+    if (statApps) statApps.textContent = totalApps;
+    const statSl = document.getElementById('cd-stat-sl');
+    if (statSl) statSl.textContent = shortlisted;
+
     if (!apps?.length) return;
     CD_APPS.length = 0;
     apps.forEach(a => CD_APPS.push({
@@ -4643,7 +4642,6 @@ async function loadApplicationsFromDB() {
       status: a.status,
     }));
     if (typeof renderCDApps === 'function') renderCDApps();
-    document.getElementById('cd-app-cnt').textContent = CD_APPS.length;
   } catch(e) { console.warn('loadApplicationsFromDB error:', e); }
 }
 
@@ -7449,23 +7447,8 @@ async function loadVideoFromDB() {
     }
   } catch(e) { console.warn('Video load error:', e); }
 }
-function getVideoInterviewStrip(candId) {
-  if (!videoData) return '';
-  return `
-    <div style="background:linear-gradient(135deg,#1a0a2e,#3b0764);border-radius:var(--r12);padding:16px 18px;margin-bottom:14px;border:1px solid rgba(190,24,93,.2)">
-      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(244,114,182,.5);margin-bottom:10px;display:flex;align-items:center;gap:6px">
-        <span>🎬</span> Video Interview
-      </div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="width:80px;height:52px;background:rgba(255,255,255,.06);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:1px solid rgba(255,255,255,.1);cursor:pointer" onclick="${videoData.link ? `window.open('${videoData.link}','_blank')` : `toast('No playback link available','tw2')`}">▶</div>
-        <div style="flex:1">
-          <div style="font-weight:700;font-size:13.5px;color:#fff;margin-bottom:2px">${videoData.title || 'Video Interview'}</div>
-          <div style="font-size:12px;color:rgba(244,114,182,.6)">${videoData.desc || 'Pre-recorded interview'}</div>
-        </div>
-        <button class="btn bsm" style="background:rgba(190,24,93,.3);color:#f9a8d4;border:1px solid rgba(190,24,93,.3);flex-shrink:0" onclick="${videoData.link ? `window.open('${videoData.link}','_blank')` : `toast('No playback link','tw2')`}">▶ Watch</button>
-      </div>
-    </div>`;
-}
+// getVideoInterviewStrip is defined above as async function (fetches from DB)
+
 </script>
 
 <!-- FORGOT PASSWORD MODAL -->
