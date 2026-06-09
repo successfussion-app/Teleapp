@@ -4126,22 +4126,34 @@ async function openCandModal(id) {
 async function openCandResume(candId, resumeUrl) {
   if (!resumeUrl) { toast('No resume uploaded by this candidate', 'tw2'); return; }
   try {
-    // If it's already a full https URL (public bucket), open directly
-    if (resumeUrl.startsWith('https://')) {
-      window.open(resumeUrl, '_blank');
+    // Extract just the storage path (strip any full URL prefix)
+    let path = resumeUrl;
+    if (path.includes('/resumes/')) {
+      path = path.split('/resumes/').pop().split('?')[0];
+    } else if (path.startsWith('https://')) {
+      // Already a full signed URL — open directly
+      window.open(path, '_blank');
       return;
     }
-    // Otherwise it's a storage path — generate signed URL
-    const path = resumeUrl.replace(/^\/+/, '');
-    const { data, error } = await supa.storage.from('resumes').createSignedUrl(path, 3600);
-    if (error || !data?.signedUrl) {
-      // Try as public path
-      const { data: pubData } = supa.storage.from('resumes').getPublicUrl(path);
-      if (pubData?.publicUrl) { window.open(pubData.publicUrl, '_blank'); return; }
-      toast('Could not load resume. Ask candidate to re-upload.', 'te');
+    // Remove leading slash if present
+    path = path.replace(/^\/+/, '');
+
+    // Try signed URL first (works if caller has access)
+    const { data: signed, error: signErr } = await supa.storage
+      .from('resumes').createSignedUrl(path, 3600);
+    if (!signErr && signed?.signedUrl) {
+      window.open(signed.signedUrl, '_blank');
       return;
     }
-    window.open(data.signedUrl, '_blank');
+
+    // Fallback: try public URL (works if bucket is public)
+    const { data: pub } = supa.storage.from('resumes').getPublicUrl(path);
+    if (pub?.publicUrl) {
+      window.open(pub.publicUrl, '_blank');
+      return;
+    }
+
+    toast('Resume not accessible. The candidate may need to re-upload it.', 'te', 5000);
   } catch(e) {
     toast('Error loading resume: ' + (e.message || 'Please try again'), 'te');
   }
@@ -6349,26 +6361,37 @@ async function renderEmployerMarquee(candUserId) {
     if (!cp) return '';
     const { data: items } = await supa.from('marquee_items').select('*').eq('candidate_id', cp.id).eq('is_visible', true).order('created_at', { ascending: false }).limit(5);
     if (!items?.length) return '';
+
+    const itemsHTML = await Promise.all(items.map(async item => {
+      const icon = item.icon || '⭐';
+      let thumbUrl = item.external_link || null;
+
+      // Generate public URL from file_path if available
+      if (!thumbUrl && item.file_path) {
+        const { data: pub } = supa.storage.from('marquee-files').getPublicUrl(item.file_path);
+        if (pub?.publicUrl) thumbUrl = pub.publicUrl;
+      }
+
+      const thumbHTML = thumbUrl
+        ? `<img src="${thumbUrl}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'">`
+        : `<div style="width:40px;height:40px;border-radius:6px;background:${getThumbBg(item.type)};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${icon}</div>`;
+
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px;background:#fff;border-radius:8px;border:1px solid var(--bd)">
+        ${thumbHTML}
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.title || '—'}</div>
+          <div style="font-size:11px;color:var(--slate)">${item.type_label || item.org || ''} ${item.year ? '· ' + item.year : ''}</div>
+        </div>
+        ${thumbUrl ? `<button class="btn bgh bsm" onclick="window.open('${thumbUrl}','_blank')">View</button>` : ''}
+      </div>`;
+    }));
+
     return `
       <div style="background:var(--cream);border-radius:var(--r12);padding:16px;margin-bottom:14px;border:1px solid var(--bd)">
         <div style="font-size:11px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px">✦ The Marquee — Pinned Proof</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          ${items.map(item => {
-            const icons = { video:'🎬', image:'🏆', cert:'📜', award:'🥇', pdf:'📊' };
-            const icon = icons[item.type] || '⭐';
-            const thumb = item.file_url || item.external_link;
-            return `<div style="display:flex;align-items:center;gap:10px;padding:8px;background:#fff;border-radius:8px;border:1px solid var(--bd)">
-              <div style="width:40px;height:40px;border-radius:6px;background:${getThumbBg(item.type)};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${icon}</div>
-              <div style="flex:1;min-width:0">
-                <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.title || '—'}</div>
-                <div style="font-size:11px;color:var(--slate)">${item.issuing_org || ''} ${item.year ? '· ' + item.year : ''}</div>
-              </div>
-              ${thumb ? `<button class="btn bgh bsm" onclick="window.open('${thumb}','_blank')">View</button>` : ''}
-            </div>`;
-          }).join('')}
-        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">${itemsHTML.join('')}</div>
       </div>`;
-  } catch(e) { return ''; }
+  } catch(e) { console.warn('renderEmployerMarquee error:', e); return ''; }
 }
 
 async function getVideoInterviewStrip(candUserId) {
