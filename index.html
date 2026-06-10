@@ -610,12 +610,12 @@ img{max-width:100%}
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-emp" onclick="pickRole('employer')">
           <div style="font-size:32px;margin-bottom:10px">🏢</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Hiring</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen sales talent</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telecaller talent</div>
         </div>
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-cand" onclick="pickRole('candidate')">
           <div style="font-size:32px;margin-bottom:10px">🎤</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Job Hunting</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find sales professionals</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telecaller & BPO jobs</div>
         </div>
       </div>
       <div style="text-align:center;font-size:13px;color:var(--slate)">Already have an account? <span style="color:var(--gold);font-weight:600;cursor:pointer" onclick="showSignin()">Sign in →</span></div>
@@ -3704,7 +3704,6 @@ function navTo(p) {
 
 async function prefillCandidateProfileForm() {
   try {
-    // Pre-fill from users table
     const nameEl  = document.getElementById('pf-name');
     const phoneEl = document.getElementById('pf-phone');
     const cityEl  = document.getElementById('pf-city');
@@ -3720,56 +3719,79 @@ async function prefillCandidateProfileForm() {
       }
     }
 
-    // Pre-fill from candidate_profiles
+    // Always fetch fresh from DB
+    const { data: cpData } = await supa.from('candidate_profiles').select('*').eq('user_id', AUTH.id).single();
+    if (cpData) AUTH.candidateProfile = cpData;
     const cp = AUTH.candidateProfile;
-    if (!cp) {
-      const { data: cpData } = await supa.from('candidate_profiles').select('*').eq('user_id', AUTH.id).single();
-      if (cpData) AUTH.candidateProfile = cpData;
+    if (!cp) return;
+
+    // Job title
+    const roleEl = document.getElementById('pf-jobtitle');
+    if (roleEl && cp.role_title) {
+      const opt = Array.from(roleEl.options).find(o => o.value === cp.role_title || o.text === cp.role_title);
+      if (opt) roleEl.value = opt.value;
     }
-    const cpd = AUTH.candidateProfile;
-    if (cpd) {
-      const roleEl = document.getElementById('pf-jobtitle');
-      if (roleEl && cpd.role_title) {
-        const opt = Array.from(roleEl.options).find(o => o.value === cpd.role_title || o.text === cpd.role_title);
-        if (opt) roleEl.value = opt.value;
+
+    // Experience and salary
+    const expEl = document.getElementById('pf-exp-yrs');
+    if (expEl && cp.experience_yrs != null) expEl.value = cp.experience_yrs;
+    const salMinEl = document.getElementById('pf-sal-min');
+    if (salMinEl && cp.salary_min) salMinEl.value = cp.salary_min;
+    const salMaxEl = document.getElementById('pf-sal-max');
+    if (salMaxEl && cp.salary_max) salMaxEl.value = cp.salary_max;
+
+    // Language chips
+    if (cp.languages) {
+      const langStr = Array.isArray(cp.languages) ? cp.languages.join(',') : cp.languages;
+      const langs = langStr.split(',').map(l => l.trim().toLowerCase());
+      document.querySelectorAll('#lang-known-chips .chip').forEach(chip => {
+        if (langs.includes(chip.textContent.trim().toLowerCase())) chip.classList.add('on');
+        else chip.classList.remove('on');
+      });
+    }
+
+    // Skills chips
+    if (cp.skills) {
+      const skillArr = cp.skills.split(',').map(s => s.trim().toLowerCase());
+      document.querySelectorAll('#cand-skills-chips .chip').forEach(chip => {
+        if (skillArr.includes(chip.textContent.trim().toLowerCase())) chip.classList.add('on');
+        else chip.classList.remove('on');
+      });
+    }
+
+    // References
+    if (cp.id) {
+      supa.from('references').select('*').eq('candidate_id', cp.id).then(({ data: refs }) => {
+        if (!refs?.length) return;
+        const fillRef = (idx, r) => {
+          const prefix = `ref${idx}`;
+          const n = document.getElementById(`${prefix}-name`); if (n) n.value = r.full_name || '';
+          const d = document.getElementById(`${prefix}-desig`); if (d) d.value = r.designation || '';
+          const c = document.getElementById(`${prefix}-company`); if (c) c.value = r.company || '';
+          const p = document.getElementById(`${prefix}-phone`); if (p) p.value = r.phone || '';
+          const ch = document.getElementById(`${prefix}-consent`); if (ch) ch.checked = !!r.phone_consent;
+        };
+        if (refs[0]) fillRef(1, refs[0]);
+        if (refs[1]) fillRef(2, refs[1]);
+      }).catch(() => {});
+    }
+
+    // Resume status
+    if (cp.resume_url) {
+      const path = cp.resume_url.includes('/resumes/') ? cp.resume_url.split('/resumes/').pop().split('?')[0] : cp.resume_url;
+      const { data: pubData } = supa.storage.from('resumes').getPublicUrl(path);
+      const link = pubData?.publicUrl || cp.resume_url;
+      const resumeEl = document.getElementById('resume-upload-status');
+      if (resumeEl) {
+        resumeEl.innerHTML = `✓ Resume uploaded · <a href="${link}" target="_blank" style="color:var(--vg);text-decoration:underline;font-weight:600">View PDF</a>`;
+        resumeEl.style.color = 'var(--green)';
       }
-      // Pre-select language chips
-      if (cpd.languages) {
-        const langStr = Array.isArray(cpd.languages) ? cpd.languages.join(',') : cpd.languages;
-        const langs = langStr.split(',').map(l => l.trim().toLowerCase());
-        document.querySelectorAll('#lang-known-chips .chip').forEach(chip => {
-          if (langs.includes(chip.textContent.trim().toLowerCase())) {
-            chip.classList.add('on');
-          }
-        });
-      }
-      // Show resume status with View PDF link
-      if (cpd.resume_url) {
-        const resumeEl = document.getElementById('resume-upload-status');
-        const nameEl   = document.getElementById('resume-name-display');
-        if (resumeEl) {
-          // Generate signed URL for view link
-          supa.storage.from('resumes').createSignedUrl(
-            cpd.resume_url.includes('/resumes/') ? cpd.resume_url.split('/resumes/').pop().split('?')[0] : `${AUTH.id}/resume.pdf`,
-            3600
-          ).then(({ data }) => {
-            const link = data?.signedUrl || cpd.resume_url;
-            resumeEl.innerHTML = `✓ Resume uploaded · <a href="${link}" target="_blank" style="color:var(--vg);text-decoration:underline;font-weight:600">View PDF</a>`;
-            resumeEl.style.color = 'var(--green)';
-          }).catch(() => {
-            resumeEl.textContent = '✓ Resume already uploaded';
-            resumeEl.style.color = 'var(--green)';
-          });
-        }
-        if (nameEl) nameEl.value = 'Resume already uploaded ✓';
-      }
-      // Show voice pitch status
-      if (cpd.voice_url) {
-        const voiceStatus = document.getElementById('voice-record-status');
-        if (voiceStatus) voiceStatus.textContent = '✓ Voice pitch already recorded';
-        const pitchStepStatus = document.querySelector('#step-voice .upload-status, .voice-status');
-        if (pitchStepStatus) pitchStepStatus.textContent = '✓ Pitch recorded';
-      }
+    }
+
+    // Voice pitch status
+    if (cp.voice_url) {
+      const voiceStatus = document.getElementById('voice-record-status');
+      if (voiceStatus) voiceStatus.textContent = '✓ Voice pitch already recorded';
     }
   } catch(e) { console.warn('prefillCandidateProfileForm error:', e); }
 }
@@ -4023,7 +4045,7 @@ function renderCands(search = '') {
         <div class="cc-name">${c.name}</div>
         <div class="cc-role">${c.role} · ${c.exp || 'Fresher'} · ${c.city} · ${c.lang || '—'}</div>
         <div class="cc-avail"><span class="adot ad${c.ac || 'g'}"></span>${c.avail || 'Immediate'}</div>
-        <div class="tr">${(c.tags||[]).map(t => { const [cl, lb] = t.split(':'); return `<span class="tag ${cl}">${lb}</span>`; }).join('')}${(c.refs||[]).length ? '<span class="tag" style="background:#f0fdf4;color:#15803d;border-color:rgba(21,128,61,.15)">✓ References</span>' : ''}</div>
+        <div class="tr">${(c.tags||[]).map(t => { const lb = t.includes(':') ? t.split(':')[1] : t; return `<span style="background:var(--vs);color:var(--vg);border:1px solid rgba(124,58,237,.2);font-size:10px;padding:2px 8px;border-radius:5px;font-weight:600">${lb}</span>`; }).join('')}${(c.refs||[]).length ? '<span class="tag" style="background:#f0fdf4;color:#15803d;border-color:rgba(21,128,61,.15)">✓ References</span>' : ''}</div>
       </div>
       <div class="cc-r">
         <div class="sr ${c.sc}">${c.score}</div>
@@ -4088,7 +4110,7 @@ async function openCandModal(id) {
       <div style="flex:1">
         <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;letter-spacing:-.3px">${c.name}</div>
         <div style="font-size:13px;color:var(--slate);margin-top:1px">${c.role} · ${c.city}</div>
-        <div class="tr" style="margin-top:6px">${(c.tags||[]).map(t => { const [cl, lb] = t.split(':'); return `<span class="tag ${cl}" style="font-size:10px">${lb}</span>`; }).join('')}</div>
+        <div class="tr" style="margin-top:6px">${(c.tags||[]).map(t => { const lb = t.includes(':') ? t.split(':')[1] : t; return `<span style="background:var(--vs);color:var(--vg);border:1px solid rgba(124,58,237,.2);font-size:10px;padding:2px 8px;border-radius:5px;font-weight:600">${lb}</span>`; }).join('')}</div>
       </div>
       <div style="text-align:center"><div class="sr ${c.sc}" style="width:50px;height:50px;font-size:15px;border-width:3px">${c.score}</div><div style="font-size:10px;color:var(--slate);margin-top:3px">AI Score</div></div>
     </div>
@@ -4182,7 +4204,7 @@ function renderSL() {
   document.getElementById('sl-list').innerHTML = sl.length ? sl.map(c => `
     <div class="cc" onclick="openCandModal('${c.id}')">
       <div class="cc-av" style="background:${c.col}">${c.ini}</div>
-      <div><div class="cc-name">${c.name}</div><div class="cc-role">${c.role} · ${c.city}</div><div class="tr">${(c.tags||[]).map(t => { const [cl, lb] = t.split(':'); return `<span class="tag ${cl}">${lb}</span>`; }).join('')}</div></div>
+      <div><div class="cc-name">${c.name}</div><div class="cc-role">${c.role} · ${c.city}</div><div class="tr">${(c.tags||[]).map(t => { const lb = t.includes(':') ? t.split(':')[1] : t; return `<span style="background:var(--vs);color:var(--vg);border:1px solid rgba(124,58,237,.2);font-size:10px;padding:2px 8px;border-radius:5px;font-weight:600">${lb}</span>`; }).join('')}</div></div>
       <div class="cc-r"><div class="sr ${c.sc}">${c.score}</div><button class="btn bp bsm" onclick="event.stopPropagation();openScheduleModal('${c.id}','${(c.name||'').replace(/'/g,"\\'")}')">📅 Interview</button><button class="btn bgh bsm" onclick="event.stopPropagation();toggleSL('${c.id}')">Remove</button></div>
     </div>`).join('') :
     `<div style="text-align:center;padding:40px;color:var(--slate);font-size:14px">No candidates shortlisted yet.<br><br><button class="btn bg bsm" onclick="showEP('candidates',document.querySelectorAll('.esbi')[1])">Browse Candidates →</button></div>`;
@@ -5816,8 +5838,15 @@ async function finishProfile() {
           phone_consent: document.getElementById('ref2-consent')?.checked || false,
         });
         if (refsToSave.length > 0) {
-          await supa.from('references').delete().eq('candidate_id', cpForRef.id);
-          await supa.from('references').insert(refsToSave);
+          const { error: delErr } = await supa.from('references').delete().eq('candidate_id', cpForRef.id);
+          if (delErr) console.warn('Refs delete error:', delErr);
+          const { error: insErr } = await supa.from('references').insert(refsToSave);
+          if (insErr) {
+            console.error('Refs insert error:', insErr);
+            toast('References saved locally but could not sync: ' + (insErr.message || insErr.code), 'tw2', 6000);
+          } else {
+            toast('References saved ✓', 'ts');
+          }
         }
       }
 
