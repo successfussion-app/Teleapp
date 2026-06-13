@@ -72,6 +72,88 @@ img{max-width:100%}
 
 /* ══ PAGES ══ */
 .page{display:none}.page.active{display:block}
+/* ── Admin Panel Styles ── */
+.akpi{background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:16px;display:flex;flex-direction:column;gap:8px}
+.akpi-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0}
+.akpi-val{font-size:24px;font-weight:700;color:#111;font-family:'DM Mono',monospace;line-height:1}
+.akpi-lbl{font-size:12px;color:#6b7280;font-weight:500}
+.admin-tab{background:none;border:none;padding:8px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:#6b7280;transition:.15s}
+.admin-tab.active-tab{background:#fff;color:#111;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.admin-filter{background:#fff;border:1px solid #e5e7eb;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:#6b7280;transition:.15s}
+.admin-filter.active-filter{background:#111;color:#fff;border-color:#111}
+.admin-action{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid;margin-right:4px;transition:.15s}
+/* ── Mobile Responsive ── */
+@media (max-width:768px){
+  /* Global */
+  body{font-size:14px}
+  /* Landing */
+  .hero{padding:40px 16px 60px}
+  .hero h1{font-size:28px!important;line-height:1.2}
+  .hero-sub{font-size:15px!important}
+  .hero-btns{flex-direction:column;gap:10px;width:100%}
+  .hero-btns .btn{width:100%;text-align:center;justify-content:center}
+  .feat-grid,.steps-grid,.plans-grid{grid-template-columns:1fr!important}
+  /* Candidate Dashboard */
+  #page-cdash .layout,.cd-layout{flex-direction:column!important}
+  .cd-sidebar{width:100%!important;min-height:unset!important;position:relative!important;flex-direction:row!important;overflow-x:auto;padding:8px!important;gap:4px!important}
+  .cd-sidebar .esbi,.cd-sidebar .csbi{font-size:11px!important;padding:8px 10px!important;white-space:nowrap;flex-shrink:0}
+  .cd-sidebar .csbi-lbl{display:none!important}
+  .cdp{padding:16px!important}
+  /* Employer Dashboard */
+  #page-employer .ep-layout,.ep-layout{flex-direction:column!important}
+  .emp-sidebar{width:100%!important;flex-direction:row!important;overflow-x:auto;padding:8px!important;gap:4px!important;position:relative!important}
+  .emp-sidebar .esbi{font-size:11px!important;padding:8px 10px!important;white-space:nowrap;flex-shrink:0}
+  .emp-sidebar .esbi span:first-child{display:none}
+  .ep{padding:16px!important}
+  /* Candidate Profile Form */
+  #page-candidate-profile{padding:12px!important}
+  .fgrid{grid-template-columns:1fr!important}
+  .fr2{flex-direction:column!important;gap:8px!important}
+  /* Modals */
+  .mb .mc{width:95vw!important;max-height:92vh!important;overflow-y:auto;margin:4vh auto!important}
+  /* Nav */
+  .nav-inner{padding:0 12px!important}
+  .nav-logo-text{font-size:16px!important}
+  /* Tables */
+  table{display:block;overflow-x:auto}
+  /* Stats grid */
+  .sg{grid-template-columns:1fr 1fr!important}
+  .sc{padding:12px!important}
+  .scval{font-size:22px!important}
+  /* Candidate card */
+  .cc{flex-direction:column!important;gap:8px!important;padding:14px!important}
+  .cc-r{flex-direction:row!important;flex-wrap:wrap!important;width:100%!important;gap:6px!important}
+  .cc-r .btn{flex:1;min-width:80px}
+  /* Company profile */
+  .cp-layout{grid-template-columns:1fr!important}
+  /* Role cards */
+  .rc-grid{grid-template-columns:1fr!important}
+  /* Admin panel */
+  .akpi{padding:12px!important}
+  .akpi-val{font-size:18px!important}
+  div[style*="grid-template-columns:repeat(4"]{grid-template-columns:1fr 1fr!important}
+  /* Voice pitch recorder */
+  .vpc{padding:14px!important}
+  /* Marquee grid */
+  .mq-grid{grid-template-columns:1fr 1fr!important}
+  /* Profile step nav */
+  .step-nav{overflow-x:auto;padding-bottom:8px}
+  .step-nav .step{min-width:50px}
+  .step-nav .step-lbl{font-size:9px!important}
+  /* Overview stats */
+  #page-cdash .sg,#page-employer .sg{grid-template-columns:1fr 1fr!important}
+}
+@media (max-width:480px){
+  .sg{grid-template-columns:1fr!important}
+  div[style*="grid-template-columns:repeat(4"]{grid-template-columns:1fr!important}
+  div[style*="grid-template-columns:repeat(3"]{grid-template-columns:1fr!important}
+  div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+  .mq-grid{grid-template-columns:1fr!important}
+  .hero h1{font-size:22px!important}
+  .cp-stat{flex:1}
+  /* Employer modal buttons */
+  div[style*="display:flex;gap:8px;flex-wrap:wrap"] .btn{width:100%!important}
+}
 
 /* ══ MODALS ══ */
 .mb{display:none;position:fixed;inset:0;background:rgba(14,11,7,.65);z-index:900;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
@@ -610,12 +692,12 @@ img{max-width:100%}
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-emp" onclick="pickRole('employer')">
           <div style="font-size:32px;margin-bottom:10px">🏢</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Hiring</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen sales talent</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & & screen sales talent</div>
         </div>
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-cand" onclick="pickRole('candidate')">
           <div style="font-size:32px;margin-bottom:10px">🎤</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Job Hunting</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find sales & telesales jobs</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find Find sales & telesales jobs</div>
         </div>
       </div>
       <div style="text-align:center;font-size:13px;color:var(--slate)">Already have an account? <span style="color:var(--gold);font-weight:600;cursor:pointer" onclick="showSignin()">Sign in →</span></div>
@@ -2832,7 +2914,12 @@ const supa = supabase.createClient(SUPA_URL, SUPA_ANON, {
   }
 });
 
-// ── SESSION: restore login state on page load ─────────────────────────────────
+// ── TEST PROFILE EXCLUSIONS — hidden from other users' discovery ──────────────
+const HIDDEN_USER_IDS = new Set([
+  '449b4df4-5381-4865-9e52-74d5fc8af603', // Rubina (test candidate)
+  'f9c6e0a2-46e0-48ac-a4e8-3dc4e8431e87', // Success Fusion (test employer)
+]);
+// These users can still see others — they are only hidden FROM others
 async function supaRestoreSession() {
   try {
     const { data: { session } } = await supa.auth.getSession();
@@ -2919,6 +3006,12 @@ async function supaLoadUserIntoAUTH(user) {
       loadCandidatesFromDB();
     }, 300);
   } else {
+    // Admin check
+    if (profile.email === ADMIN_EMAIL) {
+      navTo('admin');
+      setTimeout(() => loadAdminData(), 400);
+      return;
+    }
     initCandDash(); navTo('cdash');
     setTimeout(() => {
       loadCandidateDataFromDB();
@@ -4499,15 +4592,18 @@ async function loadCandidatesFromDB() {
       .order('updated_at', { ascending: false })
       .limit(100);
 
-    if (!profiles?.length) { renderCands(); return; }
-
-    const userIds = profiles.map(p => p.user_id).filter(Boolean);
+    // Filter out hidden test profiles (unless viewer IS a hidden profile)
+    const filteredProfiles = profiles.filter(cp => {
+      if (HIDDEN_USER_IDS.has(AUTH.id)) return true;
+      return !HIDDEN_USER_IDS.has(cp.user_id);
+    });
+    const userIds = filteredProfiles.map(p => p.user_id).filter(Boolean);
     const { data: users } = await supa.from('users').select('id, full_name, email, city').in('id', userIds);
     const userMap = {};
     users?.forEach(u => { userMap[u.id] = u; });
 
     CANDS.length = 0;
-    profiles.forEach((cp, i) => {
+    filteredProfiles.forEach((cp, i) => {
       const u = userMap[cp.user_id] || {};
       const score = cp.ai_score || cp.voice_score || 0;
       const langStr = !cp.languages ? '' : Array.isArray(cp.languages) ? cp.languages.join(', ') : cp.languages;
@@ -4678,17 +4774,19 @@ async function loadJobsFromDB() {
       .limit(50);
     CD_JOBS.length = 0;
     if (roles?.length) {
-      roles.forEach(r => CD_JOBS.push({
-        emoji: '📋',
-        title: r.title,
-        co:    r.employer_profiles?.company_name || '—',
-        city:  r.city || '—',
-        type:  r.work_type || 'In-office',
-        ind:   r.industry || '—',
-        sal:   r.salary_range || '—',
-        match: Math.floor(60 + Math.random() * 35),
-        id:    r.id,
-      }));
+      roles
+        .filter(r => HIDDEN_USER_IDS.has(AUTH.id) || !HIDDEN_USER_IDS.has(r.employer_id))
+        .forEach(r => CD_JOBS.push({
+          emoji: '📋',
+          title: r.title,
+          co:    r.employer_profiles?.company_name || '—',
+          city:  r.city || '—',
+          type:  r.work_type || 'In-office',
+          ind:   r.industry || '—',
+          sal:   r.salary_range || '—',
+          match: Math.floor(60 + Math.random() * 35),
+          id:    r.id,
+        }));
     }
     // Always update the sub text with live count
     const subEl = document.getElementById('cd-jobs-sub');
@@ -7074,10 +7172,128 @@ function checkSuspensionWarning() {
       <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden"><button style="width:100%;padding:15px 20px;text-align:left;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;font-family:'DM Sans',sans-serif" onclick="toggleFaq(this)">How do I delete my PitchFirst account? <span>+</span></button><div style="display:none;padding:0 20px 15px;font-size:13.5px;color:var(--slate);line-height:1.7">Settings → Account → Danger Zone → Delete Account. Permanently deletes your profile and data within 30 days. Cancel any active subscription first to avoid further charges. This action cannot be undone.</div></div>
     </div>
   </div>
-</div>
+<!-- ══ ADMIN PANEL ══════════════════════════════════════════════════════════ -->
+<div id="page-admin" class="page">
+<div style="min-height:100vh;background:#f4f6f9;font-family:'DM Sans',sans-serif">
 
-<script>
-function submitContactForm() {
+  <!-- Admin Nav -->
+  <div style="background:#fff;border-bottom:1px solid #e5e7eb;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:30px;height:30px;background:linear-gradient(135deg,#1a0a2e,#7c3aed);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px">⚡</div>
+      <span style="font-weight:700;font-size:15px;color:#111">PitchFirst Admin</span>
+      <span style="background:#fee2e2;color:#b91c1c;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px">INTERNAL</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span id="admin-last-refresh" style="font-size:12px;color:#6b7280"></span>
+      <button onclick="loadAdminData()" style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;color:#374151">↻ Refresh</button>
+      <button onclick="navTo('landing')" style="background:#111;border:none;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;color:#fff">← Exit</button>
+    </div>
+  </div>
+
+  <div style="max-width:1200px;margin:0 auto;padding:28px 24px 80px">
+
+    <!-- Tab Nav -->
+    <div style="display:flex;gap:4px;background:#e5e7eb;border-radius:10px;padding:4px;margin-bottom:28px;width:fit-content">
+      <button onclick="adminTab('overview')" id="atab-overview" class="admin-tab active-tab">Overview</button>
+      <button onclick="adminTab('users')" id="atab-users" class="admin-tab">Users</button>
+      <button onclick="adminTab('revenue')" id="atab-revenue" class="admin-tab">Revenue</button>
+    </div>
+
+    <!-- OVERVIEW TAB -->
+    <div id="admin-overview">
+      <!-- KPI Row 1 -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px">
+        <div class="akpi"><div class="akpi-icon" style="background:#ede9fe;color:#7c3aed">👥</div><div class="akpi-val" id="a-total-users">—</div><div class="akpi-lbl">Total Users</div></div>
+        <div class="akpi"><div class="akpi-icon" style="background:#dbeafe;color:#2563eb">🏢</div><div class="akpi-val" id="a-total-employers">—</div><div class="akpi-lbl">Employers</div></div>
+        <div class="akpi"><div class="akpi-icon" style="background:#d1fae5;color:#059669">🎯</div><div class="akpi-val" id="a-total-candidates">—</div><div class="akpi-lbl">Candidates</div></div>
+        <div class="akpi"><div class="akpi-icon" style="background:#fef3c7;color:#d97706">📋</div><div class="akpi-val" id="a-total-roles">—</div><div class="akpi-lbl">Active Roles</div></div>
+      </div>
+      <!-- KPI Row 2 -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px">
+        <div class="akpi"><div class="akpi-icon" style="background:#d1fae5;color:#059669">₹</div><div class="akpi-val" id="a-rev-total">—</div><div class="akpi-lbl">Total Revenue</div></div>
+        <div class="akpi"><div class="akpi-icon" style="background:#dbeafe;color:#2563eb">📅</div><div class="akpi-val" id="a-rev-month">—</div><div class="akpi-lbl">This Month</div></div>
+        <div class="akpi"><div class="akpi-icon" style="background:#d1fae5;color:#059669">✓</div><div class="akpi-val" id="a-pay-success">—</div><div class="akpi-lbl">Payments Success</div></div>
+        <div class="akpi"><div class="akpi-icon" style="background:#fee2e2;color:#dc2626">⏳</div><div class="akpi-val" id="a-pay-pending">—</div><div class="akpi-lbl">Payments Pending</div></div>
+      </div>
+      <!-- KPI Row 3 -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px">
+        <div class="akpi"><div class="akpi-icon" style="background:#fef3c7;color:#d97706">🆕</div><div class="akpi-val" id="a-new-month">—</div><div class="akpi-lbl">New Users (Month)</div></div>
+        <div class="akpi"><div class="akpi-icon" style="background:#fee2e2;color:#dc2626">❌</div><div class="akpi-val" id="a-cancelled">—</div><div class="akpi-lbl">Cancelled Subs</div></div>
+        <div class="akpi"><div class="akpi-icon" style="background:#d1fae5;color:#059669">📊</div><div class="akpi-val" id="a-total-apps-admin">—</div><div class="akpi-lbl">Total Applications</div></div>
+        <div class="akpi"><div class="akpi-icon" style="background:#ede9fe;color:#7c3aed">🎤</div><div class="akpi-val" id="a-voice-pitches">—</div><div class="akpi-lbl">Voice Pitches</div></div>
+      </div>
+
+      <!-- Monthly New Users Chart -->
+      <div style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;padding:20px;margin-bottom:20px">
+        <div style="font-weight:700;font-size:15px;color:#111;margin-bottom:16px">Monthly New Users</div>
+        <div id="admin-user-chart" style="display:flex;align-items:flex-end;gap:8px;height:100px;overflow-x:auto"></div>
+      </div>
+    </div>
+
+    <!-- USERS TAB -->
+    <div id="admin-users" style="display:none">
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+        <button onclick="adminUserFilter('all')" id="aufil-all" class="admin-filter active-filter">All Users</button>
+        <button onclick="adminUserFilter('employer')" id="aufil-employer" class="admin-filter">Employers</button>
+        <button onclick="adminUserFilter('candidate')" id="aufil-candidate" class="admin-filter">Candidates</button>
+        <input id="admin-user-search" placeholder="Search name, email..." oninput="adminFilterUsers()" style="margin-left:auto;padding:8px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;width:220px;outline:none">
+      </div>
+      <div style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="background:#f9fafb;border-bottom:1px solid #e5e7eb">
+              <th style="padding:12px 16px;text-align:left;font-weight:600;color:#374151">Name</th>
+              <th style="padding:12px 16px;text-align:left;font-weight:600;color:#374151">Email</th>
+              <th style="padding:12px 16px;text-align:left;font-weight:600;color:#374151">Phone</th>
+              <th style="padding:12px 16px;text-align:left;font-weight:600;color:#374151">Role</th>
+              <th style="padding:12px 16px;text-align:left;font-weight:600;color:#374151">Joined</th>
+              <th style="padding:12px 16px;text-align:left;font-weight:600;color:#374151">Plan</th>
+              <th style="padding:12px 16px;text-align:left;font-weight:600;color:#374151">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-users-tbody"></tbody>
+        </table>
+        <div id="admin-users-empty" style="display:none;text-align:center;padding:40px;color:#9ca3af;font-size:14px">No users found</div>
+      </div>
+    </div>
+
+    <!-- REVENUE TAB -->
+    <div id="admin-revenue" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <div style="font-weight:700;font-size:16px;color:#111">Monthly Revenue Breakdown</div>
+        <button onclick="downloadRevenueReport()" style="background:#111;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">⬇ Download PDF Report</button>
+      </div>
+      <div style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:20px">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="background:#f9fafb;border-bottom:1px solid #e5e7eb">
+              <th style="padding:12px 16px;text-align:left;font-weight:600;color:#374151">Month</th>
+              <th style="padding:12px 16px;text-align:right;font-weight:600;color:#374151">Subscriptions</th>
+              <th style="padding:12px 16px;text-align:right;font-weight:600;color:#374151">Revenue (₹)</th>
+              <th style="padding:12px 16px;text-align:right;font-weight:600;color:#374151">New Users</th>
+              <th style="padding:12px 16px;text-align:right;font-weight:600;color:#374151">Cancellations</th>
+            </tr>
+          </thead>
+          <tbody id="admin-revenue-tbody"></tbody>
+          <tfoot>
+            <tr style="background:#f9fafb;border-top:2px solid #e5e7eb;font-weight:700">
+              <td style="padding:12px 16px;color:#111">Total</td>
+              <td id="rev-total-subs" style="padding:12px 16px;text-align:right;color:#111">—</td>
+              <td id="rev-total-amt" style="padding:12px 16px;text-align:right;color:#059669">—</td>
+              <td id="rev-total-users" style="padding:12px 16px;text-align:right;color:#111">—</td>
+              <td id="rev-total-cancel" style="padding:12px 16px;text-align:right;color:#dc2626">—</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+<!-- ══ END ADMIN PANEL ══════════════════════════════════════════════════════ -->
+
+</div>
   const n = document.getElementById('contact-name');
   const e = document.getElementById('contact-email');
   const m = document.getElementById('contact-msg');
@@ -7745,8 +7961,261 @@ function confirmNewPassword() {
   toast('Password reset successfully! You can now sign in with your new password ✓', 'ts', 5000);
 }
 
-// ── Restore session on page load (keeps user logged in after refresh) ─────────
-supaRestoreSession();
+// ══ ADMIN PANEL ═══════════════════════════════════════════════════════════════
+const ADMIN_EMAIL = 'rubina.rs96@gmail.com';
+let _adminUsers = [];
+let _adminUserFilter = 'all';
+
+function adminTab(tab) {
+  ['overview','users','revenue'].forEach(t => {
+    document.getElementById('admin-' + t).style.display = t === tab ? '' : 'none';
+    const btn = document.getElementById('atab-' + t);
+    if (btn) btn.className = 'admin-tab' + (t === tab ? ' active-tab' : '');
+  });
+}
+
+function adminUserFilter(f) {
+  _adminUserFilter = f;
+  ['all','employer','candidate'].forEach(t => {
+    const btn = document.getElementById('aufil-' + t);
+    if (btn) btn.className = 'admin-filter' + (t === f ? ' active-filter' : '');
+  });
+  adminRenderUsers();
+}
+
+function adminFilterUsers() {
+  adminRenderUsers();
+}
+
+function adminRenderUsers() {
+  const search = (document.getElementById('admin-user-search')?.value || '').toLowerCase();
+  const tbody = document.getElementById('admin-users-tbody');
+  const emptyEl = document.getElementById('admin-users-empty');
+  if (!tbody) return;
+
+  const filtered = _adminUsers.filter(u => {
+    const roleMatch = _adminUserFilter === 'all' || u.role === _adminUserFilter;
+    const searchMatch = !search ||
+      (u.full_name || '').toLowerCase().includes(search) ||
+      (u.email || '').toLowerCase().includes(search) ||
+      (u.phone || '').toLowerCase().includes(search);
+    return roleMatch && searchMatch;
+  });
+
+  if (!filtered.length) {
+    tbody.innerHTML = '';
+    if (emptyEl) emptyEl.style.display = '';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  tbody.innerHTML = filtered.map(u => {
+    const joined = u.created_at ? new Date(u.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '—';
+    const roleColor = u.role === 'employer' ? '#2563eb' : '#059669';
+    const roleBg = u.role === 'employer' ? '#dbeafe' : '#d1fae5';
+    const isSuspended = u.status === 'suspended';
+    return `<tr style="border-bottom:1px solid #f3f4f6;${isSuspended ? 'opacity:.5;background:#fef9f9' : ''}">
+      <td style="padding:12px 16px;font-weight:600;color:#111">${u.full_name || '—'}</td>
+      <td style="padding:12px 16px;color:#6b7280">${u.email || '—'}</td>
+      <td style="padding:12px 16px;color:#6b7280">${u.phone || '—'}</td>
+      <td style="padding:12px 16px"><span style="background:${roleBg};color:${roleColor};font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px">${u.role || '—'}</span></td>
+      <td style="padding:12px 16px;color:#6b7280">${joined}</td>
+      <td style="padding:12px 16px;color:#6b7280">${u.plan || 'Free'}</td>
+      <td style="padding:12px 16px;white-space:nowrap">
+        <button class="admin-action" style="color:#dc2626;border-color:#fecaca;background:#fff" onclick="adminSuspendUser('${u.id}','${(u.full_name||'').replace(/'/g,"\\'")}','${isSuspended ? 'restore' : 'suspend'}')">${isSuspended ? 'Restore' : 'Suspend'}</button>
+        <button class="admin-action" style="color:#dc2626;border-color:#fecaca;background:#fff" onclick="adminDeleteUser('${u.id}','${(u.full_name||'').replace(/'/g,"\\'")}')">Delete</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function adminSuspendUser(userId, name, action) {
+  if (!confirm(`${action === 'suspend' ? 'Suspend' : 'Restore'} account for ${name}?`)) return;
+  try {
+    const newStatus = action === 'suspend' ? 'suspended' : 'active';
+    await supa.from('users').update({ status: newStatus }).eq('id', userId);
+    const u = _adminUsers.find(x => x.id === userId);
+    if (u) u.status = newStatus;
+    adminRenderUsers();
+    alert(`${name} has been ${action === 'suspend' ? 'suspended' : 'restored'}.`);
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function adminDeleteUser(userId, name) {
+  if (!confirm(`PERMANENTLY DELETE account for ${name}? This cannot be undone.`)) return;
+  if (!confirm(`Are you absolutely sure you want to delete ${name}?`)) return;
+  try {
+    await supa.from('candidate_profiles').delete().eq('user_id', userId);
+    await supa.from('employer_profiles').delete().eq('user_id', userId);
+    await supa.from('users').delete().eq('id', userId);
+    _adminUsers = _adminUsers.filter(u => u.id !== userId);
+    adminRenderUsers();
+    await loadAdminData();
+    alert(`${name}'s account has been deleted.`);
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function loadAdminData() {
+  if (AUTH.email !== ADMIN_EMAIL) { navTo('landing'); return; }
+
+  document.getElementById('admin-last-refresh').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+  try {
+    // Fetch all users
+    const { data: users } = await supa.from('users').select('*').order('created_at', { ascending: false });
+    _adminUsers = users || [];
+
+    const employers = _adminUsers.filter(u => u.role === 'employer');
+    const candidates = _adminUsers.filter(u => u.role === 'candidate');
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const newThisMonth = _adminUsers.filter(u => u.created_at >= monthStart).length;
+
+    set('a-total-users', _adminUsers.length);
+    set('a-total-employers', employers.length);
+    set('a-total-candidates', candidates.length);
+    set('a-new-month', newThisMonth);
+
+    // Roles
+    const { count: roleCount } = await supa.from('roles').select('id', { count: 'exact' }).eq('is_active', true);
+    set('a-total-roles', roleCount || 0);
+
+    // Applications
+    const { count: appCount } = await supa.from('applications').select('id', { count: 'exact' });
+    set('a-total-apps-admin', appCount || 0);
+
+    // Voice pitches
+    const { count: voiceCount } = await supa.from('candidate_profiles').select('id', { count: 'exact' }).not('voice_url', 'is', null);
+    set('a-voice-pitches', voiceCount || 0);
+
+    // Subscriptions & Revenue
+    const { data: subs } = await supa.from('subscriptions').select('*').order('created_at', { ascending: false });
+    const activeSubs = subs?.filter(s => s.status === 'active') || [];
+    const cancelledSubs = subs?.filter(s => s.status === 'cancelled') || [];
+    const successPay = subs?.filter(s => s.status === 'active' || s.status === 'completed') || [];
+    const pendingPay = subs?.filter(s => s.status === 'pending') || [];
+
+    set('a-pay-success', successPay.length);
+    set('a-pay-pending', pendingPay.length);
+    set('a-cancelled', cancelledSubs.length);
+
+    // Revenue calculation
+    const PLAN_PRICES = { 'lifetime': 1999, 'pro': 199, 'premium': 499, 'starter': 99 };
+    let totalRevenue = 0;
+    successPay.forEach(s => {
+      const price = s.amount || PLAN_PRICES[s.plan_type] || 0;
+      totalRevenue += Number(price);
+    });
+
+    const monthRevenue = successPay.filter(s => s.created_at >= monthStart).reduce((acc, s) => {
+      return acc + (s.amount || PLAN_PRICES[s.plan_type] || 0);
+    }, 0);
+
+    set('a-rev-total', '₹' + totalRevenue.toLocaleString('en-IN'));
+    set('a-rev-month', '₹' + monthRevenue.toLocaleString('en-IN'));
+
+    // Monthly user chart
+    const monthCounts = {};
+    _adminUsers.forEach(u => {
+      if (!u.created_at) return;
+      const d = new Date(u.created_at);
+      const key = d.toLocaleString('en-IN', { month:'short', year:'2-digit' });
+      monthCounts[key] = (monthCounts[key] || 0) + 1;
+    });
+    const chartEl = document.getElementById('admin-user-chart');
+    if (chartEl) {
+      const months = Object.entries(monthCounts).slice(-8);
+      const maxVal = Math.max(...months.map(m => m[1]), 1);
+      chartEl.innerHTML = months.map(([month, count]) => `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:48px">
+          <div style="font-size:11px;font-weight:700;color:#374151">${count}</div>
+          <div style="width:32px;background:#7c3aed;border-radius:4px 4px 0 0;height:${Math.round((count/maxVal)*80)}px;min-height:4px"></div>
+          <div style="font-size:10px;color:#9ca3af;text-align:center">${month}</div>
+        </div>`).join('');
+    }
+
+    // Render users table
+    adminRenderUsers();
+
+    // Revenue table
+    const revByMonth = {};
+    _adminUsers.forEach(u => {
+      if (!u.created_at) return;
+      const key = new Date(u.created_at).toLocaleString('en-IN', { month:'long', year:'numeric' });
+      if (!revByMonth[key]) revByMonth[key] = { users: 0, subs: 0, revenue: 0, cancels: 0 };
+      revByMonth[key].users++;
+    });
+    successPay.forEach(s => {
+      if (!s.created_at) return;
+      const key = new Date(s.created_at).toLocaleString('en-IN', { month:'long', year:'numeric' });
+      if (!revByMonth[key]) revByMonth[key] = { users: 0, subs: 0, revenue: 0, cancels: 0 };
+      revByMonth[key].subs++;
+      revByMonth[key].revenue += Number(s.amount || PLAN_PRICES[s.plan_type] || 0);
+    });
+    cancelledSubs.forEach(s => {
+      if (!s.created_at) return;
+      const key = new Date(s.created_at).toLocaleString('en-IN', { month:'long', year:'numeric' });
+      if (!revByMonth[key]) revByMonth[key] = { users: 0, subs: 0, revenue: 0, cancels: 0 };
+      revByMonth[key].cancels++;
+    });
+
+    const revTbody = document.getElementById('admin-revenue-tbody');
+    if (revTbody) {
+      const entries = Object.entries(revByMonth).reverse();
+      let totSubs = 0, totRev = 0, totUsers = 0, totCancel = 0;
+      revTbody.innerHTML = entries.map(([month, d]) => {
+        totSubs += d.subs; totRev += d.revenue; totUsers += d.users; totCancel += d.cancels;
+        return `<tr style="border-bottom:1px solid #f3f4f6">
+          <td style="padding:12px 16px;font-weight:500;color:#111">${month}</td>
+          <td style="padding:12px 16px;text-align:right;color:#374151">${d.subs}</td>
+          <td style="padding:12px 16px;text-align:right;color:#059669;font-weight:600">₹${d.revenue.toLocaleString('en-IN')}</td>
+          <td style="padding:12px 16px;text-align:right;color:#374151">${d.users}</td>
+          <td style="padding:12px 16px;text-align:right;color:#dc2626">${d.cancels}</td>
+        </tr>`;
+      }).join('');
+      set('rev-total-subs', totSubs);
+      set('rev-total-amt', '₹' + totRev.toLocaleString('en-IN'));
+      set('rev-total-users', totUsers);
+      set('rev-total-cancel', totCancel);
+    }
+  } catch(e) { console.error('loadAdminData error:', e); }
+}
+
+async function downloadRevenueReport() {
+  // Build a simple printable HTML report and open in new tab for PDF save
+  const rows = document.getElementById('admin-revenue-tbody')?.innerHTML || '';
+  const totSubs = document.getElementById('rev-total-subs')?.textContent || '—';
+  const totAmt  = document.getElementById('rev-total-amt')?.textContent || '—';
+  const totUsers= document.getElementById('rev-total-users')?.textContent || '—';
+  const totCancel=document.getElementById('rev-total-cancel')?.textContent || '—';
+  const date = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+
+  const html = `<!DOCTYPE html><html><head><title>PitchFirst Revenue Report</title>
+  <style>body{font-family:Arial,sans-serif;padding:40px;color:#111;max-width:800px;margin:0 auto}
+  h1{color:#1a0a2e;margin-bottom:4px}p{color:#6b7280;margin-top:0}
+  table{width:100%;border-collapse:collapse;margin-top:24px}
+  th{background:#f9fafb;padding:12px 16px;text-align:left;border:1px solid #e5e7eb;font-size:13px}
+  td{padding:12px 16px;border:1px solid #e5e7eb;font-size:13px}
+  tfoot tr{background:#f9fafb;font-weight:700}
+  .green{color:#059669}.red{color:#dc2626}
+  @media print{body{padding:20px}}</style></head><body>
+  <h1>PitchFirst — Revenue Report</h1>
+  <p>Generated on ${date} · Internal use only</p>
+  <table><thead><tr><th>Month</th><th>Subscriptions</th><th>Revenue (₹)</th><th>New Users</th><th>Cancellations</th></tr></thead>
+  <tbody>${rows}</tbody>
+  <tfoot><tr><td>Total</td><td>${totSubs}</td><td class="green">${totAmt}</td><td>${totUsers}</td><td class="red">${totCancel}</td></tr></tfoot>
+  </table>
+  <script>window.onload=function(){window.print();}<\/script></body></html>`;
+
+  const win = window.open('', '_blank');
+  if (win) { win.document.write(html); win.document.close(); }
+  else toast('Allow popups to download the PDF report', 'tw2', 4000);
+}
+
+// ══ END ADMIN PANEL ════════════════════════════════════════════════════════════
+
 </script>
 
 </body>
