@@ -7172,6 +7172,7 @@ function checkSuspensionWarning() {
       <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden"><button style="width:100%;padding:15px 20px;text-align:left;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;font-family:'DM Sans',sans-serif" onclick="toggleFaq(this)">How do I delete my PitchFirst account? <span>+</span></button><div style="display:none;padding:0 20px 15px;font-size:13.5px;color:var(--slate);line-height:1.7">Settings → Account → Danger Zone → Delete Account. Permanently deletes your profile and data within 30 days. Cancel any active subscription first to avoid further charges. This action cannot be undone.</div></div>
     </div>
   </div>
+</div>
 <!-- ══ ADMIN PANEL ══════════════════════════════════════════════════════════ -->
 <div id="page-admin" class="page">
 <div style="min-height:100vh;background:#f4f6f9;font-family:'DM Sans',sans-serif">
@@ -7293,7 +7294,8 @@ function checkSuspensionWarning() {
 </div>
 <!-- ══ END ADMIN PANEL ══════════════════════════════════════════════════════ -->
 
-</div>
+<script>
+function submitContactForm() {
   const n = document.getElementById('contact-name');
   const e = document.getElementById('contact-email');
   const m = document.getElementById('contact-msg');
@@ -7962,7 +7964,8 @@ function confirmNewPassword() {
 }
 
 // ══ ADMIN PANEL ═══════════════════════════════════════════════════════════════
-const ADMIN_EMAIL = 'rubina.rs96@gmail.com';
+const ADMIN_EMAIL = 'pitchhire51@gmail.com';
+const ADMIN_PASSWORD = 'Admin@0099';
 let _adminUsers = [];
 let _adminUserFilter = 'all';
 
