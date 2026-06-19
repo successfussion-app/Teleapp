@@ -65,7 +65,7 @@ img{max-width:100%}
 .nav-cta:hover{background:#a36c08;transform:translateY(-1px);box-shadow:0 4px 14px rgba(200,134,10,.35)}
 .nav-user{display:none;align-items:center;gap:10px}
 .nav-user.show{display:flex}
-.nav-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--vg),var(--gold));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;cursor:pointer;flex-shrink:0}
+.nav-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--vg),var(--gold));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;cursor:pointer;flex-shrink:0}
 .nav-uname{font-size:13px;font-weight:600}.nav-urole{font-size:10px;color:var(--slate);margin-top:1px}
 .nav-signout{background:none;border:1.5px solid var(--bd);padding:7px 14px;border-radius:var(--r8);font-size:12px;font-weight:500;cursor:pointer;color:var(--slate);transition:all .2s}
 .nav-signout:hover{border-color:var(--ink);color:var(--ink)}
@@ -95,27 +95,32 @@ img{max-width:100%}
   .feat-grid,.steps-grid,.plans-grid{grid-template-columns:1fr!important}
   /* Candidate Dashboard */
   #page-cdash .layout,.cd-layout{flex-direction:column!important}
-  .cd-sidebar{width:100%!important;min-height:unset!important;position:relative!important;flex-direction:row!important;overflow-x:auto;padding:8px!important;gap:4px!important}
-  .cd-sidebar .esbi,.cd-sidebar .csbi{font-size:11px!important;padding:8px 10px!important;white-space:nowrap;flex-shrink:0}
+  .cd-sidebar{width:100%!important;min-height:unset!important;position:sticky!important;top:0;z-index:50;flex-direction:row!important;overflow-x:auto;overflow-y:hidden;padding:8px 10px!important;gap:4px!important;background:var(--ink);-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .cd-sidebar::-webkit-scrollbar{display:none}
+  .cd-sidebar .esbi,.cd-sidebar .csbi{font-size:11px!important;padding:8px 12px!important;white-space:nowrap;flex-shrink:0;border-radius:8px!important}
   .cd-sidebar .csbi-lbl{display:none!important}
-  .cdp{padding:16px!important}
+  .cdp{padding:14px!important}
   /* Employer Dashboard */
   #page-employer .ep-layout,.ep-layout{flex-direction:column!important}
-  .emp-sidebar{width:100%!important;flex-direction:row!important;overflow-x:auto;padding:8px!important;gap:4px!important;position:relative!important}
-  .emp-sidebar .esbi{font-size:11px!important;padding:8px 10px!important;white-space:nowrap;flex-shrink:0}
+  .emp-sidebar{width:100%!important;flex-direction:row!important;overflow-x:auto;overflow-y:hidden;padding:8px 10px!important;gap:4px!important;position:sticky!important;top:0;z-index:50;background:var(--ink);-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .emp-sidebar::-webkit-scrollbar{display:none}
+  .emp-sidebar .esbi{font-size:11px!important;padding:8px 12px!important;white-space:nowrap;flex-shrink:0;border-radius:8px!important}
   .emp-sidebar .esbi span:first-child{display:none}
-  .ep{padding:16px!important}
+  .ep{padding:14px!important}
   /* Candidate Profile Form */
   #page-candidate-profile{padding:12px!important}
   .fgrid{grid-template-columns:1fr!important}
   .fr2{flex-direction:column!important;gap:8px!important}
   /* Modals */
-  .mb .mc{width:95vw!important;max-height:92vh!important;overflow-y:auto;margin:4vh auto!important}
+  .mb{padding:8px!important;align-items:flex-end!important}
+  .mb .mc,.modal{width:100%!important;max-width:100%!important;max-height:88vh!important;border-radius:20px 20px 0 0!important;margin:0!important;padding:24px 18px 32px!important}
+  .mx{top:12px!important;right:14px!important}
   /* Nav */
   .nav-inner{padding:0 12px!important}
   .nav-logo-text{font-size:16px!important}
+  .nav-uname{display:none!important}
   /* Tables */
-  table{display:block;overflow-x:auto}
+  table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
   /* Stats grid */
   .sg{grid-template-columns:1fr 1fr!important}
   .sc{padding:12px!important}
@@ -137,22 +142,47 @@ img{max-width:100%}
   /* Marquee grid */
   .mq-grid{grid-template-columns:1fr 1fr!important}
   /* Profile step nav */
-  .step-nav{overflow-x:auto;padding-bottom:8px}
+  .step-nav{overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .step-nav::-webkit-scrollbar{display:none}
   .step-nav .step{min-width:50px}
   .step-nav .step-lbl{font-size:9px!important}
   /* Overview stats */
   #page-cdash .sg,#page-employer .sg{grid-template-columns:1fr 1fr!important}
+  /* Chip rows */
+  .tr{flex-wrap:wrap!important;gap:4px!important}
+  /* Interview / schedule modal */
+  #modal-schedule .modal{padding-bottom:40px!important}
+  /* Video upload modal */
+  #modal-video-upload .modal{padding-bottom:40px!important}
+  /* Candidate modal action buttons */
+  #modal-cand-body div[style*="display:flex;gap:8px"]{flex-direction:column!important}
+  #modal-cand-body div[style*="display:flex;gap:8px"] .btn{width:100%!important}
+  /* Profile completion checklist */
+  .pcc-row{flex-direction:column!important;align-items:flex-start!important;gap:6px!important}
+  /* AI Chat bubble */
+  .cbbub{max-width:90%!important}
 }
 @media (max-width:480px){
   .sg{grid-template-columns:1fr!important}
   div[style*="grid-template-columns:repeat(4"]{grid-template-columns:1fr!important}
   div[style*="grid-template-columns:repeat(3"]{grid-template-columns:1fr!important}
   div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+  div[style*="grid-template-columns:1fr 1fr 1fr"]{grid-template-columns:1fr 1fr!important}
   .mq-grid{grid-template-columns:1fr!important}
   .hero h1{font-size:22px!important}
   .cp-stat{flex:1}
   /* Employer modal buttons */
   div[style*="display:flex;gap:8px;flex-wrap:wrap"] .btn{width:100%!important}
+  /* Reduce modal padding further on very small screens */
+  .modal,.mb .mc{padding:18px 14px 28px!important}
+  /* Candidate card score ring */
+  .sr{width:40px!important;height:40px!important;font-size:11px!important}
+  /* Schedule modal chips */
+  #schedule-mode-chips{flex-wrap:wrap!important;gap:6px!important}
+  /* Step nav labels */
+  .step-nav .step-lbl{display:none!important}
+  /* Overview section headings */
+  .ep h2,.cdp h2{font-size:16px!important}
 }
 
 /* ══ MODALS ══ */
@@ -425,7 +455,7 @@ img{max-width:100%}
 .cd-layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 66px)}
 .cd-sb{background:var(--voice);padding:0;display:flex;flex-direction:column;overflow-y:auto}
 .cd-sb-profile{background:linear-gradient(135deg,rgba(124,58,237,.25),rgba(200,134,10,.1));padding:20px 16px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
-.cd-av{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--vg),var(--gold));display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:19px;font-weight:700;color:#fff;margin-bottom:10px}
+.cd-av{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--vg),var(--gold));display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:19px;font-weight:700;color:#fff;margin-bottom:10px}
 .cd-uname{font-weight:700;font-size:14px;color:#fff;margin-bottom:1px}
 .cd-urole{font-size:11px;color:rgba(237,233,254,.4);margin-bottom:8px}
 .cd-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
@@ -601,7 +631,7 @@ img{max-width:100%}
 .sec-group{font-size:11px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.8px;margin:14px 0 9px;padding-left:1px}
 /* Profile strength */
 .pstrength{background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:18px 22px;margin-bottom:22px;display:flex;align-items:center;gap:18px}
-.ps-ring{width:60px;height:60px;flex-shrink:0;position:relative}
+.ps-ring{width:66px;height:66px;flex-shrink:0;position:relative}
 .ps-ring svg{transform:rotate(-90deg)}
 .ps-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--gold)}
 .ps-info{flex:1}
@@ -692,12 +722,12 @@ img{max-width:100%}
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-emp" onclick="pickRole('employer')">
           <div style="font-size:32px;margin-bottom:10px">🏢</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Hiring</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & & screen sales talent</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telecaller talent</div>
         </div>
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-cand" onclick="pickRole('candidate')">
           <div style="font-size:32px;margin-bottom:10px">🎤</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Job Hunting</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find sales & telesales jobs</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telecaller & BPO jobs</div>
         </div>
       </div>
       <div style="text-align:center;font-size:13px;color:var(--slate)">Already have an account? <span style="color:var(--gold);font-weight:600;cursor:pointer" onclick="showSignin()">Sign in →</span></div>
@@ -2143,7 +2173,7 @@ img{max-width:100%}
         <div style="background:var(--voice);border-radius:var(--r12);padding:22px;margin-bottom:14px;position:relative;overflow:hidden">
           <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(124,58,237,.2) 0%,transparent 70%);pointer-events:none"></div>
           <div style="position:relative">
-            <div style="width:52px;height:52px;border-radius:13px;background:linear-gradient(135deg,var(--vg),var(--gold));display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:11px" id="cd-profile-av">—</div>
+            <div style="width:58px;height:58px;border-radius:13px;background:linear-gradient(135deg,var(--vg),var(--gold));display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:11px" id="cd-profile-av">—</div>
             <div style="font-family:'Fraunces',serif;font-size:19px;font-weight:700;color:#fff" id="cd-profile-name"></div>
             <div style="font-size:12.5px;color:rgba(237,233,254,.45);margin-top:3px" id="cd-profile-location">Complete your profile to show location & contact</div>
             <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
@@ -2604,7 +2634,7 @@ img{max-width:100%}
       <button class="btn bgh bsm" onclick="navTo('cdash');showCD('overview',document.querySelector('.cdsbi.active'))">← Back to Dashboard</button>
     </div>
     <div class="pstrength">
-      <div class="ps-ring"><svg width="60" height="60" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="none" stroke="rgba(14,11,7,.08)" stroke-width="5"/><circle cx="30" cy="30" r="26" fill="none" stroke="var(--gold)" stroke-width="5" stroke-linecap="round" id="ps-arc" stroke-dasharray="163.4" stroke-dashoffset="40.8"/></svg><div class="ps-pct" id="ps-pct-lbl">75%</div></div>
+      <div class="ps-ring"><svg width="66" height="66" viewBox="0 0 66 66"><circle cx="33" cy="33" r="29" fill="none" stroke="rgba(14,11,7,.08)" stroke-width="5"/><circle cx="33" cy="33" r="29" fill="none" stroke="var(--gold)" stroke-width="5" stroke-linecap="round" id="ps-arc" stroke-dasharray="163.4" stroke-dashoffset="40.8"/></svg><div class="ps-pct" id="ps-pct-lbl">75%</div></div>
       <div class="ps-info"><div style="font-weight:700;font-size:14px;margin-bottom:3px">Profile Strength</div><div style="font-size:12px;color:var(--slate)">Complete all 10 sections for maximum employer visibility</div></div>
       <div class="ps-bars">
         <div class="psb"><span class="psbt">Resume</span><div class="psb-track"><div class="psb-fill" style="width:100%;background:linear-gradient(to right,var(--gold),var(--gl))"></div></div></div>
@@ -2965,10 +2995,10 @@ async function supaLoadUserIntoAUTH(user) {
 
   // Load display name from sub-profile
   if (profile.role === 'employer') {
-    const { data: ep } = await supa.from('employer_profiles').select('company_name').eq('user_id', user.id).single();
+    const { data: ep } = await supa.from('employer_profiles').select('company_name').eq('user_id', user.id).maybeSingle();
     if (ep) AUTH.name = ep.company_name;
   } else {
-    const { data: cp } = await supa.from('candidate_profiles').select('*').eq('user_id', user.id).single();
+    const { data: cp } = await supa.from('candidate_profiles').select('*').eq('user_id', user.id).maybeSingle();
     if (cp) {
       AUTH.candidateProfile = cp;
       // Show languages on sidebar if present
@@ -2981,7 +3011,7 @@ async function supaLoadUserIntoAUTH(user) {
 
   // Load active subscription (skip for lifetime accounts)
   if (planType !== 'lifetime') {
-    const { data: sub } = await supa.from('subscriptions').select('*').eq('user_id', user.id).eq('status', 'active').order('created_at', { ascending: false }).limit(1).single();
+    const { data: sub } = await supa.from('subscriptions').select('*').eq('user_id', user.id).eq('status', 'active').order('created_at', { ascending: false }).limit(1).maybeSingle();
     if (sub) {
       RZP_SUB.id = sub.razorpay_payment_id;
       RZP_SUB.status = sub.status;
@@ -3151,18 +3181,19 @@ const RESEND_KEY = 're_YNSP9H3E_BwfTyF5CmqUs7w7UDuuroVUj';
 const FROM_EMAIL = 'PitchFirst <support@pitchfirst.app>';
 const SUPPORT_EMAIL = 'support@pitchfirst.app';
 
-// ── Core send function ────────────────────────────────────────────────────────
+// ── Core send function — routed via Supabase Edge Function to avoid CORS ──────
 async function sendEmail({ to, subject, html }) {
   try {
-    const res = await fetch(RESEND_API, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: FROM_EMAIL, to, subject, html })
+    // Primary: call via Supabase Edge Function (avoids browser CORS restriction)
+    const { data: fnData, error: fnErr } = await supa.functions.invoke('send-email', {
+      body: { to, subject, html, from: FROM_EMAIL }
     });
-    const data = await res.json();
-    if (!res.ok) console.error('Resend error:', data);
-    return data;
-  } catch(e) { console.error('Resend failed:', e); }
+    if (!fnErr) return fnData;
+    // Fallback: log email to Supabase table for async delivery
+    await supa.from('email_queue').insert({ to_email: to, subject, html_body: html, from_email: FROM_EMAIL, status: 'pending' }).catch(() => {});
+    console.warn('send-email edge fn error, queued:', fnErr.message);
+    return null;
+  } catch(e) { console.error('sendEmail failed:', e); }
 }
 
 // ── Email templates ───────────────────────────────────────────────────────────
@@ -3813,7 +3844,7 @@ async function prefillCandidateProfileForm() {
     }
 
     // Always fetch fresh from DB
-    const { data: cpData } = await supa.from('candidate_profiles').select('*').eq('user_id', AUTH.id).single();
+    const { data: cpData } = await supa.from('candidate_profiles').select('*').eq('user_id', AUTH.id).maybeSingle();
     if (cpData) AUTH.candidateProfile = cpData;
     const cp = AUTH.candidateProfile;
     if (!cp) return;
@@ -4173,7 +4204,7 @@ async function openCandModal(id) {
   // Fetch fresh references from DB for this candidate
   let refsHTML = '<div style="font-size:13px;color:var(--slate);padding:10px">No references added by this candidate.</div>';
   try {
-    const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', c.id).single();
+    const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', c.id).maybeSingle();
     if (cp?.id) {
       const { data: refs } = await supa.from('references').select('*').eq('candidate_id', cp.id);
       if (refs?.length) {
@@ -4199,7 +4230,7 @@ async function openCandModal(id) {
 
   document.getElementById('modal-cand-body').innerHTML = `
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
-      <div style="width:54px;height:54px;border-radius:50%;background:${c.col};display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:21px;font-weight:700;color:#fff;flex-shrink:0">${c.ini}</div>
+      <div style="width:60px;height:60px;border-radius:50%;background:${c.col};display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:23px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden">${c.avatar ? `<img src="${c.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : c.ini}</div>
       <div style="flex:1">
         <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;letter-spacing:-.3px">${c.name}</div>
         <div style="font-size:13px;color:var(--slate);margin-top:1px">${c.role} · ${c.city}</div>
@@ -4325,7 +4356,7 @@ async function postRole() {
   try {
     if (AUTH.id) {
       // Get employer profile id
-      const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).single();
+      const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
       if (ep) {
         const { data: role, error } = await supa.from('roles').insert({
           employer_id:   ep.id,
@@ -4434,7 +4465,7 @@ function renderAll() { renderCands(); renderRoles(); renderInterviews(); renderS
 async function loadCompanyProfile() {
   if (!AUTH.id || AUTH.role !== 'employer') return;
   try {
-    const { data: ep, error } = await supa.from('employer_profiles').select('*').eq('user_id', AUTH.id).single();
+    const { data: ep, error } = await supa.from('employer_profiles').select('*').eq('user_id', AUTH.id).maybeSingle();
     if (error || !ep) { console.warn('loadCompanyProfile: no profile found', error); return; }
     window._empProfile = ep;
 
@@ -4498,7 +4529,7 @@ async function loadEmployerAnalytics(employerProfileId) {
   try {
     let epId = employerProfileId;
     if (!epId) {
-      const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).single();
+      const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
       if (!ep) return;
       epId = ep.id;
     }
@@ -4587,7 +4618,7 @@ async function loadCandidatesFromDB() {
     // Load ALL candidates so employers can discover them
     const { data: profiles } = await supa
       .from('candidate_profiles')
-      .select('id, user_id, role_title, voice_url, resume_url, voice_score, ai_score, languages, wpm, availability, skills')
+      .select('id, user_id, role_title, voice_url, resume_url, voice_score, ai_score, languages, wpm, availability, skills, avatar_url, experience_yrs')
       .not('role_title', 'is', null)
       .order('updated_at', { ascending: false })
       .limit(100);
@@ -4638,6 +4669,7 @@ async function loadCandidatesFromDB() {
         resume:   cp.resume_url,
         wpm:      cp.wpm || 0,
         refs:     [],
+        avatar:   cp.avatar_url || null,
       });
     });
 
@@ -4655,7 +4687,7 @@ async function loadCandidatesFromDB() {
 async function loadRolesFromDB() {
   if (!AUTH.id || AUTH.role !== 'employer') return;
   try {
-    const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).single();
+    const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
     if (!ep) return;
     const { data: roles } = await supa.from('roles').select('*').eq('employer_id', ep.id).eq('is_active', true).order('created_at', { ascending: false });
     ROLES_DATA.length = 0;
@@ -4685,7 +4717,7 @@ async function loadRolesFromDB() {
 async function loadInterviewsFromDB() {
   if (!AUTH.id || AUTH.role !== 'employer') return;
   try {
-    const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).single();
+    const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
     if (!ep) return;
     const { data: invs } = await supa.from('interviews')
       .select('*')
@@ -4698,7 +4730,7 @@ async function loadInterviewsFromDB() {
       let candName = 'Candidate';
       let roleTitle = '—';
       if (iv.candidate_id) {
-        const { data: cp } = await supa.from('candidate_profiles').select('user_id, role_title').eq('id', iv.candidate_id).single();
+        const { data: cp } = await supa.from('candidate_profiles').select('user_id, role_title').eq('id', iv.candidate_id).maybeSingle();
         if (cp) {
           roleTitle = cp.role_title || '—';
           const { data: cu } = await supa.from('users').select('full_name').eq('id', cp.user_id).single();
@@ -4730,7 +4762,7 @@ async function loadInterviewsFromDB() {
 async function loadApplicationsFromDB() {
   if (!AUTH.id || AUTH.role !== 'candidate') return;
   try {
-    const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
+    const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
     if (!cp) return;
     const { data: apps } = await supa.from('applications')
       .select('*, roles(title, city, salary_range), employer_profiles(company_name)')
@@ -4803,11 +4835,11 @@ async function loadVideoInterviewsFromDB() {
   try {
     let query;
     if (AUTH.role === 'employer') {
-      const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).single();
+      const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
       if (!ep) return;
       query = supa.from('video_interviews').select('*').eq('employer_id', ep.id).neq('status', 'cancelled');
     } else {
-      const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
+      const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
       if (!cp) return;
       query = supa.from('video_interviews').select('*').eq('candidate_id', cp.id).neq('status', 'cancelled');
     }
@@ -5041,16 +5073,29 @@ async function submitSchedule() {
 
     // Save to Supabase if we have IDs
     if (AUTH.id && candId) {
-      const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).single();
-      if (ep) {
-        await supa.from('interviews').insert({
+      const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
+      // Resolve candidate_profiles.id from user_id
+      const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', candId).maybeSingle();
+      if (ep && cp) {
+        // Parse time safely: handles "9:00 AM", "10:00 AM", "14:00" etc.
+        const rawTime = time.split(' ')[0]; // e.g. "9:00" or "14:00"
+        const [hRaw, mRaw] = rawTime.split(':');
+        const isPM = time.toLowerCase().includes('pm');
+        const isAM = time.toLowerCase().includes('am');
+        let hours = parseInt(hRaw, 10);
+        if (isPM && hours < 12) hours += 12;
+        if (isAM && hours === 12) hours = 0;
+        const mins = parseInt(mRaw || '0', 10);
+        const scheduledAt = new Date(`${date}T${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}:00`);
+        const { error: insErr } = await supa.from('interviews').insert({
           employer_id:   ep.id,
-          candidate_id:  candId,
-          scheduled_at:  new Date(`${date}T${time.split(' ')[0].replace(':','').length === 3 ? '0' : ''}${time.split(' ')[0]}:00`).toISOString(),
-          mode:          mode.includes('Phone') ? 'phone' : mode.includes('Video') ? 'video' : 'in-person',
+          candidate_id:  cp.id,
+          scheduled_at:  scheduledAt.toISOString(),
+          mode:          mode.toLowerCase().includes('phone') ? 'phone' : mode.toLowerCase().includes('video') ? 'video' : 'in-person',
           status:        'confirmed',
-          notes,
-        }).select();
+          notes:         notes || null,
+        });
+        if (insErr) console.error('Interview insert error:', insErr);
       }
     }
 
@@ -5383,7 +5428,7 @@ async function submitApp() {
   try {
     if (AUTH.id) {
       // Get candidate profile
-      const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
+      const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
 
       if (cp) {
         // Find matching role in DB by title (best effort — roles loaded from Supabase)
@@ -5412,7 +5457,7 @@ async function submitApp() {
           document.getElementById('cd-app-cnt').textContent = CD_APPS.length;
 
           // Notify employer by email
-          const { data: ep } = await supa.from('employer_profiles').select('company_name').eq('id', role.employer_id).single();
+          const { data: ep } = await supa.from('employer_profiles').select('company_name').eq('id', role.employer_id).maybeSingle();
           const { data: eu } = await supa.from('users').select('email').eq('id',
             (await supa.from('employer_profiles').select('user_id').eq('id', role.employer_id).single()).data?.user_id
           ).single();
@@ -5651,7 +5696,7 @@ async function uploadResume() {
     const resumeUrl = urlData?.signedUrl || path;
 
     // Ensure candidate_profiles row exists, then save resume URL
-    const { data: cpCheck } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
+    const { data: cpCheck } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
     if (cpCheck) {
       await supa.from('candidate_profiles').update({ resume_url: path }).eq('user_id', AUTH.id);
     } else {
@@ -5688,7 +5733,7 @@ function handlePhotoSelect(input) {
   reader.onload = e => {
     const prev = document.getElementById('photo-preview');
     if (prev) {
-      prev.innerHTML = `<img src="${e.target.result}" style="width:64px;height:64px;border-radius:50%;object-fit:cover">`;
+      prev.innerHTML = `<img src="${e.target.result}" style="width:70px;height:70px;border-radius:50%;object-fit:cover">`;
     }
     document.getElementById('photo-status').textContent = '✓ ' + file.name + ' ready to upload';
     document.getElementById('photo-status').style.color = 'var(--green)';
@@ -5927,7 +5972,7 @@ async function finishProfile() {
       }).eq('id', AUTH.id);
 
       // Upsert candidate_profiles
-      const { data: existingCp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
+      const { data: existingCp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
       const profileData = {
         user_id:        AUTH.id,
         role_title:     roleVal,
@@ -5948,7 +5993,7 @@ async function finishProfile() {
       }
 
       // Save references to DB
-      const { data: cpForRef } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
+      const { data: cpForRef } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
       if (cpForRef?.id) {
         const refsToSave = [];
         const r1name = document.getElementById('ref1-name')?.value?.trim();
@@ -6518,7 +6563,7 @@ function previewMarqueeItem(id) {
 // Also render marquee items in employer candidate modal (in the refs section)
 async function renderEmployerMarquee(candUserId) {
   try {
-    const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', candUserId).single();
+    const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', candUserId).maybeSingle();
     if (!cp) { console.warn('renderEmployerMarquee: no candidate_profile for', candUserId); return ''; }
 
     // Fetch all marquee items (not filtering by is_visible so employer sees everything pinned)
@@ -6564,29 +6609,41 @@ async function renderEmployerMarquee(candUserId) {
 
 async function getVideoInterviewStrip(candUserId) {
   try {
-    const { data: cp } = await supa.from('candidate_profiles').select('video_id').eq('user_id', candUserId).single();
+    const { data: cp } = await supa.from('candidate_profiles').select('video_id').eq('user_id', candUserId).maybeSingle();
     if (!cp?.video_id) return '';
-    const { data: vid } = await supa.from('candidate_videos').select('*').eq('id', cp.video_id).single();
+    const { data: vid } = await supa.from('candidate_videos').select('*').eq('id', cp.video_id).maybeSingle();
     if (!vid) return '';
 
     // Get playable URL - prefer external link, then try public URL from storage
     let playUrl = vid.external_link || null;
     if (!playUrl && vid.storage_path) {
-      // Try public URL first (no auth needed)
       const { data: pub } = supa.storage.from('candidate-videos').getPublicUrl(vid.storage_path);
       if (pub?.publicUrl) playUrl = pub.publicUrl;
     }
     if (!playUrl) return '';
 
-    const isExternal = vid.external_link && (playUrl.includes('youtube') || playUrl.includes('youtu.be') || playUrl.includes('loom') || playUrl.includes('drive.google'));
+    const isYT = playUrl.includes('youtube') || playUrl.includes('youtu.be');
+    const isLoom = playUrl.includes('loom');
+    const isDrive = playUrl.includes('drive.google');
+    const isExternal = vid.external_link && (isYT || isLoom || isDrive);
+
+    // Convert YouTube watch URL to embed
+    let embedUrl = playUrl;
+    if (isYT) {
+      const ytId = playUrl.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/)?.[1];
+      if (ytId) embedUrl = `https://www.youtube.com/embed/${ytId}`;
+    }
+
     return `
       <div style="background:linear-gradient(135deg,#1a0a2e,#3b0764);border-radius:var(--r12);padding:16px;margin-bottom:14px;border:1px solid rgba(190,24,93,.2)">
         <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(244,114,182,.5);margin-bottom:10px">🎬 Video Interview</div>
         <div style="font-weight:700;font-size:13.5px;color:#fff;margin-bottom:4px">${vid.title || 'Video Interview'}</div>
         <div style="font-size:12px;color:rgba(244,114,182,.6);margin-bottom:12px">${vid.description || ''}</div>
-        ${isExternal
-          ? `<button class="btn bsm" style="background:rgba(190,24,93,.8);color:#fff;border:none;font-weight:700" onclick="window.open('${playUrl}','_blank')">▶ Watch Interview</button>`
-          : `<video controls style="width:100%;border-radius:8px;max-height:200px" src="${playUrl}"></video>`}
+        ${isYT
+          ? `<div style="position:relative;padding-bottom:56.25%;height:0;border-radius:8px;overflow:hidden"><iframe src="${embedUrl}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allowfullscreen allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"></iframe></div>`
+          : isExternal
+          ? `<a href="${playUrl}" target="_blank" rel="noopener" style="display:inline-block;background:rgba(190,24,93,.8);color:#fff;padding:10px 18px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">▶ Watch Interview</a>`
+          : `<video controls style="width:100%;border-radius:8px;max-height:220px" src="${playUrl}" preload="metadata"></video>`}
       </div>`;
   } catch(e) { console.warn('getVideoInterviewStrip error:', e); return ''; }
 }
@@ -7472,15 +7529,30 @@ async function submitVideoUpload() {
     if (!cp) throw new Error('Please complete your profile setup before uploading a video.');
 
     // ── Upsert into candidate_videos (one video per candidate) ────────────
-    const { data: vid, error: dbErr } = await supa.from('candidate_videos').upsert({
-      candidate_id:  cp.id,
-      title,
-      description:   desc,
-      storage_path:  storagePath,
-      external_link: link || null,
-      is_visible:    visible,
-      uploaded_at:   new Date().toISOString(),
-    }, { onConflict: 'candidate_id' }).select().single();
+    // First check if a record already exists for this candidate
+    const { data: existingVid } = await supa.from('candidate_videos')
+      .select('id').eq('candidate_id', cp.id).maybeSingle();
+    let vid, dbErr;
+    if (existingVid?.id) {
+      ({ data: vid, error: dbErr } = await supa.from('candidate_videos').update({
+        title,
+        description:   desc,
+        storage_path:  storagePath || existingVid.storage_path || null,
+        external_link: link || null,
+        is_visible:    visible,
+        uploaded_at:   new Date().toISOString(),
+      }).eq('id', existingVid.id).select().single());
+    } else {
+      ({ data: vid, error: dbErr } = await supa.from('candidate_videos').insert({
+        candidate_id:  cp.id,
+        title,
+        description:   desc,
+        storage_path:  storagePath,
+        external_link: link || null,
+        is_visible:    visible,
+        uploaded_at:   new Date().toISOString(),
+      }).select().single());
+    }
     if (dbErr) throw dbErr;
 
     // ── Link video id to candidate_profiles ───────────────────────────────
@@ -7546,7 +7618,7 @@ function handleVideoFileDrop(event) {
 async function loadMarqueeFromDB() {
   if (!AUTH.id) return;
   try {
-    const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
+    const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
     if (!cp) return;
     const { data: items } = await supa.from('marquee_items').select('*').eq('candidate_id', cp.id).order('created_at', { ascending: true });
     if (!items || items.length === 0) { marqueeItems = []; if (typeof renderMarquee === 'function') renderMarquee(); return; }
@@ -7566,7 +7638,7 @@ async function loadMarqueeFromDB() {
 async function loadCandidateDataFromDB() {
   if (!AUTH.id || AUTH.role !== 'candidate') return;
   try {
-    const { data: cp } = await supa.from('candidate_profiles').select('*').eq('user_id', AUTH.id).single();
+    const { data: cp } = await supa.from('candidate_profiles').select('*').eq('user_id', AUTH.id).maybeSingle();
     if (cp) {
       AUTH.candidateProfile = cp;
       // Run init with fresh data first
@@ -7613,7 +7685,7 @@ async function loadCandidateDataFromDB() {
       // Avatar — check both candidate_profiles and users table
       let avatarUrl = cp.avatar_url || AUTH.avatarUrl;
       if (!avatarUrl) {
-        const { data: u } = await supa.from('users').select('avatar_url').eq('id', AUTH.id).single();
+        const { data: u } = await supa.from('users').select('avatar_url').eq('id', AUTH.id).maybeSingle();
         if (u?.avatar_url) avatarUrl = u.avatar_url;
       }
       if (avatarUrl) {
@@ -7643,7 +7715,7 @@ async function loadCandidateDataFromDB() {
 async function loadReferencesFromDB() {
   if (!AUTH.id || AUTH.role !== 'candidate') return;
   try {
-    const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).single();
+    const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
     if (!cp) return;
     const { data: refs } = await supa.from('references').select('*').eq('candidate_id', cp.id);
     if (!refs?.length) return;
@@ -7680,9 +7752,9 @@ async function loadReferencesFromDB() {
 async function loadVideoFromDB() {
   if (!AUTH.id) return;
   try {
-    const { data: cp } = await supa.from('candidate_profiles').select('id,video_id').eq('user_id', AUTH.id).single();
+    const { data: cp } = await supa.from('candidate_profiles').select('id,video_id').eq('user_id', AUTH.id).maybeSingle();
     if (!cp?.video_id) return;
-    const { data: vid } = await supa.from('candidate_videos').select('*').eq('id', cp.video_id).single();
+    const { data: vid } = await supa.from('candidate_videos').select('*').eq('id', cp.video_id).maybeSingle();
     if (!vid) return;
 
     // Get storage URL if we have a storage path
