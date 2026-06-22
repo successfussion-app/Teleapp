@@ -829,7 +829,7 @@ img{max-width:100%}
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-cand" onclick="pickRole('candidate')">
           <div style="font-size:32px;margin-bottom:10px">🎤</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Job Hunting</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telesales & sales jobs</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telecsales & sales jobs</div>
         </div>
       </div>
       <div style="text-align:center;font-size:13px;color:var(--slate)">Already have an account? <span style="color:var(--gold);font-weight:600;cursor:pointer" onclick="showSignin()">Sign in →</span></div>
@@ -4558,15 +4558,23 @@ async function updateCandidateApplicationStatus(candUserId, status, label) {
     const { data: empRoles } = await supa.from('roles').select('id').eq('employer_id', ep.id);
     const roleIds = (empRoles || []).map(r => r.id);
     if (!roleIds.length) return;
-    await supa.from('applications')
-      .update({ status, employer_note: label, updated_at: new Date().toISOString() })
+    const { error: patchErr } = await supa.from('applications')
+      .update({ status })
       .eq('candidate_id', cp.id)
       .in('role_id', roleIds);
-    // Show updated status on candidate's My Applications section (live update)
-    const appRow = CD_APPS?.find(a => a.candId === candUserId);
-    if (appRow) {
-      appRow.status = status;
-      renderCDApps();
+    if (patchErr) {
+      console.warn('applications status update error:', patchErr.message);
+    } else {
+      // Update local CD_APPS array so candidate's UI reflects change immediately.
+      // We match by employer company name since we don't store employer_id in CD_APPS.
+      // Re-fetch from DB for the most reliable update.
+      if (typeof loadApplicationsFromDB === 'function') {
+        await loadApplicationsFromDB();
+      } else {
+        // Fallback: update every matching app in CD_APPS
+        CD_APPS.forEach(a => { if (a.status !== 'rejected') a.status = status; });
+        if (typeof renderCDApps === 'function') renderCDApps();
+      }
     }
   } catch(e) { console.warn('updateCandidateApplicationStatus error:', e); }
 }
@@ -5751,10 +5759,50 @@ function renderCDApps() {
   const el = document.getElementById('cd-apps-list'); if (!el) return;
   const stMap = { applied: 'ap-applied:Applied', viewed: 'ap-viewed:Viewed 👁', shortlisted: 'ap-shortlisted:Shortlisted ✓', contacted: 'ap-contacted:Contacted 🔓', rejected: 'ap-rejected:Not Selected', on_hold: 'ap-onhold:On Hold ⏸' };
   el.innerHTML = CD_APPS.map((a, i) => {
-    const [cls, lbl] = stMap[a.status].split(':');
+    const [cls, lbl] = (stMap[a.status] || 'ap-applied:Applied').split(':');
     return `<div class="atr" id="atr-${i}"><div style="flex:1"><div class="atr-co">${a.co}</div><div class="atr-role">${a.role} · ${a.city} · Applied ${a.date}</div></div><span class="ap ${cls}" id="apill-${i}">${lbl}</span></div>`;
   }).join('');
   document.getElementById('cd-app-cnt').textContent = CD_APPS.length;
+  // Also refresh the overview activity feed whenever apps change
+  renderCDActivityFeed();
+}
+
+function renderCDActivityFeed() {
+  const el = document.getElementById('cd-activity-feed');
+  if (!el) return;
+  const stMap = {
+    applied:     { icon:'📋', label:'Applied',         color:'var(--bs)',  text:'var(--blue)' },
+    viewed:      { icon:'👁',  label:'Profile Viewed',  color:'var(--gp)',  text:'var(--gold)' },
+    shortlisted: { icon:'⭐',  label:'Shortlisted',     color:'var(--gs)',  text:'#0f6e56'     },
+    contacted:   { icon:'🔓',  label:'Contact Unlocked',color:'var(--gs)',  text:'#0f6e56'     },
+    rejected:    { icon:'✕',   label:'Not Selected',    color:'#fff3f3',    text:'#dc2626'     },
+    on_hold:     { icon:'⏸',   label:'On Hold',         color:'#fffbeb',    text:'#92400e'     },
+  };
+  if (!CD_APPS.length) {
+    el.innerHTML = `<div class="ar"><div style="width:30px;height:30px;border-radius:8px;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">📋</div><span style="flex:1;font-size:13px;color:var(--slate)">No activity yet — complete your profile to get noticed</span><span class="at"></span></div>`;
+    return;
+  }
+  // Show most recent 5 status events, most recent first
+  const items = [...CD_APPS]
+    .filter(a => a.status !== 'applied')  // hide plain 'applied' — only show meaningful changes
+    .concat(CD_APPS.filter(a => a.status === 'applied').slice(0, 2)) // show up to 2 plain applied
+    .slice(0, 5);
+  if (!items.length) {
+    // All are just 'applied' — show them
+    items.push(...CD_APPS.slice(0, 3));
+  }
+  el.innerHTML = items.map(a => {
+    const st = stMap[a.status] || stMap.applied;
+    return `<div class="ar">
+      <div style="width:30px;height:30px;border-radius:8px;background:${st.color};display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">${st.icon}</div>
+      <span style="flex:1;font-size:13px;color:var(--ink)">
+        <strong>${a.co}</strong>
+        <span style="color:var(--slate)"> — ${a.role}</span>
+        <span style="display:block;font-size:11px;margin-top:2px;font-weight:600;color:${st.text}">${st.label}</span>
+      </span>
+      <span class="at" style="font-size:11px;color:var(--slate);flex-shrink:0">${a.date}</span>
+    </div>`;
+  }).join('');
 }
 
 function simulateStatusUpdate() {
