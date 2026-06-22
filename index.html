@@ -3231,7 +3231,7 @@ async function supaSaveSubscription(userId, paymentId, planId, planName, amount)
 //  RESEND EMAIL CONFIG
 // ══════════════════════════════════════════
 const RESEND_API = 'https://api.resend.com/emails';
-const RESEND_KEY = 're_YNSP9H3E_BwfTyF5CmqUs7w7UDuuroVUj';
+const RESEND_KEY = 're_SUWCLDjb_39dQTVbp2R9VmRgycryCUvWQ';
 const FROM_EMAIL = 'PitchFirst <support@pitchfirst.app>';
 const SUPPORT_EMAIL = 'support@pitchfirst.app';
 
@@ -5160,27 +5160,52 @@ async function submitSchedule() {
         if (period === 'PM' && hours < 12) hours += 12;
         if (period === 'AM' && hours === 12) hours = 0;
         const scheduledAt = new Date(`${date}T${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}:00`);
-        // Lookup the application_id for this candidate+employer (required NOT NULL FK)
-        const { data: ep2 } = await supa.from('roles').select('id').eq('employer_id', ep.id).limit(10);
-        const roleIds = (ep2 || []).map(r => r.id);
+        // Find existing application for this candidate under any of employer's roles
+        const { data: empRoles } = await supa.from('roles')
+          .select('id').eq('employer_id', ep.id).eq('is_active', true).limit(20);
+        const roleIds = (empRoles || []).map(r => r.id);
         let applicationId = null;
+
         if (roleIds.length) {
-          const { data: app } = await supa.from('applications')
+          const { data: existingApp } = await supa.from('applications')
             .select('id').eq('candidate_id', cp.id).in('role_id', roleIds)
             .order('created_at', { ascending: false }).limit(1).maybeSingle();
-          applicationId = app?.id || null;
+          applicationId = existingApp?.id || null;
         }
-        const interviewRow = {
+
+        // If no application exists (employer shortlisted directly), create one so
+        // the interviews.application_id NOT NULL constraint is satisfied
+        if (!applicationId) {
+          const firstRoleId = roleIds[0] || null;
+          if (firstRoleId) {
+            const { data: newApp } = await supa.from('applications').insert({
+              role_id:      firstRoleId,
+              candidate_id: cp.id,
+              employer_id:  ep.id,
+              status:       'direct_invite',
+              cover_note:   'Direct interview invite by employer',
+            }).select('id').maybeSingle();
+            applicationId = newApp?.id || null;
+          }
+        }
+
+        if (!applicationId) {
+          // Cannot insert without application_id — show error and bail
+          console.error('Interview insert skipped: no application_id could be resolved');
+          toast('Could not schedule: candidate has no active application. Ask them to apply first.', 'te', 6000);
+          btn.disabled = false; btn.textContent = 'Send Invite';
+          return;
+        }
+
+        const { error: insErr } = await supa.from('interviews').insert({
           employer_id:   ep.id,
           candidate_id:  cp.id,
+          application_id: applicationId,
           scheduled_at:  scheduledAt.toISOString(),
           mode:          mode.toLowerCase().includes('phone') ? 'phone' : mode.toLowerCase().includes('video') ? 'video' : 'in-person',
           status:        'confirmed',
           notes:         notes || null,
-        };
-        // Only include application_id if we found one (avoids NOT NULL violation)
-        if (applicationId) interviewRow.application_id = applicationId;
-        const { error: insErr } = await supa.from('interviews').insert(interviewRow);
+        });
         if (insErr) console.error('Interview insert error:', insErr.message);
       }
     }
@@ -6702,14 +6727,17 @@ async function getVideoInterviewStrip(candUserId) {
 
     let playUrl = vid.external_link || null;
     if (!playUrl && vid.storage_path) {
-      // Try public URL first (works if bucket is public)
-      const { data: pub } = supa.storage.from('candidate-videos').getPublicUrl(vid.storage_path);
-      if (pub?.publicUrl) playUrl = pub.publicUrl;
-      // If bucket is private, fall back to signed URL (60 min expiry)
-      if (!playUrl || playUrl.endsWith('/undefined')) {
-        const { data: signed } = await supa.storage.from('candidate-videos')
-          .createSignedUrl(vid.storage_path, 3600);
-        if (signed?.signedUrl) playUrl = signed.signedUrl;
+      // Always use a signed URL for storage videos — public URL silently 403s
+      // on private buckets and shows a broken video icon with no error message.
+      const { data: signed, error: signErr } = await supa.storage
+        .from('candidate-videos')
+        .createSignedUrl(vid.storage_path, 3600);
+      if (signed?.signedUrl) {
+        playUrl = signed.signedUrl;
+      } else {
+        // Bucket may be public — fall back to public URL
+        const { data: pub } = supa.storage.from('candidate-videos').getPublicUrl(vid.storage_path);
+        if (pub?.publicUrl && !pub.publicUrl.endsWith('/undefined')) playUrl = pub.publicUrl;
       }
     }
     if (!playUrl) return '';
@@ -6719,24 +6747,30 @@ async function getVideoInterviewStrip(candUserId) {
     const isDrive   = /drive\.google\.com/.test(playUrl);
     const isStorage = !vid.external_link;
 
-    // Convert YouTube watch/shorts URLs to nocookie embed (avoids X-Frame-Options block)
-    let embedUrl = playUrl;
+    // Convert URLs to embeddable versions
+    let embedUrl = null;
     if (isYouTube) {
-      const ytMatch = playUrl.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-      if (ytMatch) embedUrl = 'https://www.youtube-nocookie.com/embed/' + ytMatch[1] + '?rel=0';
+      // Extract video ID — supports watch?v=, youtu.be/, shorts/, embed/
+      const ytMatch = playUrl.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([A-Za-z0-9_-]{11})/);
+      if (ytMatch) embedUrl = 'https://www.youtube-nocookie.com/embed/' + ytMatch[1] + '?rel=0&modestbranding=1';
+      // If no valid video ID, fall through to link button (avoids blank iframe)
     }
-    if (isLoom) embedUrl = playUrl.replace('loom.com/share/', 'loom.com/embed/');
+    if (isLoom) {
+      embedUrl = playUrl
+        .replace('loom.com/share/', 'loom.com/embed/')
+        .replace('loom.com/v/', 'loom.com/embed/');
+    }
     if (isDrive) {
       const driveMatch = playUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (driveMatch) embedUrl = 'https://drive.google.com/file/d/' + driveMatch[1] + '/preview';
     }
 
-    const useIframe = isYouTube || isLoom || isDrive;
+    const useIframe = !!(embedUrl);  // Only use iframe when we have a valid embed URL
     const videoInner = useIframe
       ? '<div style="position:relative;padding-bottom:56.25%;height:0;border-radius:8px;overflow:hidden;background:#000"><iframe src="' + embedUrl + '" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div>'
       : isStorage
-        ? '<video controls style="width:100%;border-radius:8px;max-height:240px;background:#000" preload="metadata"><source src="' + playUrl + '">Your browser does not support video.</video>'
-        : '<a href="' + playUrl + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;background:rgba(190,24,93,.85);color:#fff;padding:10px 18px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">&#9654; Watch Interview</a>';
+        ? '<video controls style="width:100%;border-radius:8px;max-height:240px;background:#000" preload="metadata"><source src="' + playUrl + '" type="video/mp4"><source src="' + playUrl + '" type="video/webm">Your browser does not support video.</video>'
+        : '<a href="' + playUrl + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;background:rgba(190,24,93,.85);color:#fff;padding:10px 18px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">&#9654; Watch Video Interview</a>';
 
     return `
       <div style="background:linear-gradient(135deg,#1a0a2e,#3b0764);border-radius:var(--r12);padding:16px;margin-bottom:14px;border:1px solid rgba(190,24,93,.2)">
