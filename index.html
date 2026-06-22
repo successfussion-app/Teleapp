@@ -65,7 +65,7 @@ img{max-width:100%}
 .nav-cta:hover{background:#a36c08;transform:translateY(-1px);box-shadow:0 4px 14px rgba(200,134,10,.35)}
 .nav-user{display:none;align-items:center;gap:10px}
 .nav-user.show{display:flex}
-.nav-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--vg),var(--gold));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;cursor:pointer;flex-shrink:0}
+.nav-av{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--vg),var(--gold));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;cursor:pointer;flex-shrink:0;overflow:hidden}
 .nav-uname{font-size:13px;font-weight:600}.nav-urole{font-size:10px;color:var(--slate);margin-top:1px}
 .nav-signout{background:none;border:1.5px solid var(--bd);padding:7px 14px;border-radius:var(--r8);font-size:12px;font-weight:500;cursor:pointer;color:var(--slate);transition:all .2s}
 .nav-signout:hover{border-color:var(--ink);color:var(--ink)}
@@ -84,120 +84,159 @@ img{max-width:100%}
 .admin-action{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid;margin-right:4px;transition:.15s}
 /* ── Mobile Responsive ── */
 @media (max-width:768px){
-  /* ── Global ── */
+  /* ── Global box model ── */
+  *{box-sizing:border-box}
   body{font-size:14px}
-  /* ── Landing page ── */
-  .hero{padding:40px 16px 60px}
-  .hero h1{font-size:26px!important;line-height:1.2}
-  .hero-sub{font-size:15px!important}
-  .hero-btns{flex-direction:column;gap:10px;width:100%}
-  .hero-btns .btn{width:100%;text-align:center;justify-content:center}
-  .feat-grid,.steps-grid,.plans-grid{grid-template-columns:1fr!important}
   /* ── Nav ── */
-  .nav-inner{padding:0 12px!important}
-  .nav-logo-text{font-size:16px!important}
+  .nav{padding:0 14px!important}
+  .nav-inner{padding:0!important}
+  .nav-logo-text{font-size:15px!important}
   .nav-uname{display:none!important}
+  .nav-urole{display:none!important}
+  /* ── Landing page ── */
+  .hero{padding:36px 16px 56px!important}
+  .hero h1{font-size:26px!important;line-height:1.22!important}
+  .hero-sub{font-size:15px!important}
+  .hero-btns{flex-direction:column!important;gap:10px!important;width:100%!important}
+  .hero-btns .btn{width:100%!important;text-align:center!important;justify-content:center!important}
+  .feat-grid,.steps-grid,.plans-grid,.about-grid,.cand-feat-grid,.emp-feat-grid,.test-grid{grid-template-columns:1fr!important}
+  .footer-top{grid-template-columns:1fr 1fr!important;gap:20px!important}
   /* ── Candidate dashboard layout ── */
-  .cd-layout{display:flex!important;flex-direction:column!important}
-  .cd-sb{width:100%!important;min-height:unset!important;max-height:unset!important;
-    flex-direction:row!important;overflow-x:auto!important;overflow-y:hidden!important;
-    padding:6px 8px!important;gap:2px!important;
+  .cd-layout{display:flex!important;flex-direction:column!important;min-height:unset!important}
+  .cd-sb{
+    width:100%!important;min-height:unset!important;max-height:none!important;
+    display:flex!important;flex-direction:row!important;
+    overflow-x:auto!important;overflow-y:hidden!important;
+    padding:5px 10px!important;gap:3px!important;
     -webkit-overflow-scrolling:touch;scrollbar-width:none;
-    position:sticky!important;top:66px;z-index:40}
+    position:sticky!important;top:66px;z-index:100;
+    border-bottom:1px solid rgba(255,255,255,.08)
+  }
   .cd-sb::-webkit-scrollbar{display:none}
-  .cd-sb-profile{display:none!important}
-  .cdsbl{display:none!important}
-  .cdsbi{white-space:nowrap!important;flex-shrink:0!important;padding:8px 12px!important;
-    font-size:12px!important;border-left:none!important;border-bottom:3px solid transparent!important;
-    border-radius:8px!important}
-  .cdp{padding:14px!important;max-height:unset!important;overflow-y:visible!important}
+  .cd-sb-profile,.cdsbl{display:none!important}
+  .cdsbi{
+    display:inline-flex!important;align-items:center!important;
+    white-space:nowrap!important;flex-shrink:0!important;
+    padding:7px 13px!important;font-size:12px!important;
+    border-left:none!important;border-bottom:2px solid transparent!important;
+    border-radius:7px!important;width:auto!important
+  }
+  .cdsbi.active{border-bottom-color:var(--gold)!important;background:rgba(255,255,255,.08)!important}
+  .cdp{padding:14px 12px!important;max-height:none!important;overflow-y:visible!important;width:100%!important}
   /* ── Employer dashboard layout ── */
-  .emp-layout{display:flex!important;flex-direction:column!important}
-  .emp-sb{width:100%!important;min-height:unset!important;max-height:unset!important;
-    flex-direction:row!important;overflow-x:auto!important;overflow-y:hidden!important;
-    padding:6px 8px!important;gap:2px!important;
+  .emp-layout{display:flex!important;flex-direction:column!important;min-height:unset!important}
+  .emp-sb{
+    width:100%!important;min-height:unset!important;max-height:none!important;
+    display:flex!important;flex-direction:row!important;
+    overflow-x:auto!important;overflow-y:hidden!important;
+    padding:5px 10px!important;gap:3px!important;
     -webkit-overflow-scrolling:touch;scrollbar-width:none;
-    position:sticky!important;top:66px;z-index:40}
+    position:sticky!important;top:66px;z-index:100;
+    border-bottom:1px solid rgba(255,255,255,.08)
+  }
   .emp-sb::-webkit-scrollbar{display:none}
-  .emp-sb-top{display:none!important}
-  .esbl{display:none!important}
-  .esbi{white-space:nowrap!important;flex-shrink:0!important;padding:8px 12px!important;
-    font-size:12px!important;border-left:none!important;border-bottom:3px solid transparent!important;
-    border-radius:8px!important}
-  .esbi-ico{display:none!important}
-  .emp-main{max-height:unset!important;overflow-y:visible!important}
-  .ep{padding:14px!important}
-  /* ── Modals ── */
+  .emp-sb-top,.esbl{display:none!important}
+  .esbi{
+    display:inline-flex!important;align-items:center!important;
+    white-space:nowrap!important;flex-shrink:0!important;
+    padding:7px 13px!important;font-size:12px!important;
+    border-left:none!important;border-bottom:2px solid transparent!important;
+    border-radius:7px!important;width:auto!important
+  }
+  .esbi.active{border-bottom-color:var(--gold)!important;background:rgba(255,255,255,.08)!important}
+  .esbi-ico{margin-right:4px!important}
+  .emp-main{max-height:none!important;overflow-y:visible!important;width:100%!important}
+  .ep{padding:14px 12px!important;width:100%!important}
+  .ep h2,.cdp h2{font-size:18px!important}
+  /* ── Modals — bottom sheet on mobile ── */
   .mb{padding:0!important;align-items:flex-end!important}
-  .modal{width:100%!important;max-width:100%!important;border-radius:20px 20px 0 0!important;
-    max-height:88vh!important;margin:0!important;padding:24px 18px 36px!important}
-  .mx{top:14px!important;right:16px!important}
+  .modal,.mb .mc{
+    width:100%!important;max-width:100%!important;
+    border-radius:18px 18px 0 0!important;
+    max-height:90vh!important;margin:0!important;
+    padding:22px 16px 40px!important;
+    overflow-y:auto!important
+  }
+  .mx{top:12px!important;right:14px!important}
   /* ── Candidate profile form ── */
   #page-candidate-profile{padding:12px!important}
-  .fgrid{grid-template-columns:1fr!important}
+  .fgrid{grid-template-columns:1fr!important;gap:10px!important}
   .fr2{flex-direction:column!important;gap:8px!important}
-  /* ── Tables ── */
-  table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  /* ── Stats grid ── */
-  .sg{grid-template-columns:1fr 1fr!important}
-  .sc{padding:12px!important}
-  .scval{font-size:22px!important}
-  /* ── Candidate cards ── */
-  .cc{flex-direction:column!important;gap:8px!important;padding:14px!important}
-  .cc-l{width:100%!important}
-  .cc-r{flex-direction:row!important;flex-wrap:wrap!important;width:100%!important;gap:6px!important;margin-top:4px}
-  .cc-r .btn{flex:1;min-width:80px}
-  .sr{width:44px!important;height:44px!important;font-size:13px!important;position:absolute;top:14px;right:14px}
-  .cc{position:relative}
-  /* ── Candidate profile step nav ── */
-  .step-nav{overflow-x:auto!important;padding-bottom:6px!important;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  /* ── Step nav ── */
+  .step-nav{overflow-x:auto!important;padding-bottom:4px!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:flex!important}
   .step-nav::-webkit-scrollbar{display:none}
-  .step{min-width:44px!important}
+  .step{min-width:46px!important;flex-shrink:0!important}
   .step-lbl{font-size:9px!important}
+  /* ── Tables ── */
+  table{display:block!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;max-width:100%!important}
+  /* ── Stats grids ── */
+  .sg,.cdsg{grid-template-columns:1fr 1fr!important}
+  .sc{padding:10px!important}
+  .scval{font-size:20px!important}
+  /* ── Candidate cards (employer pool view) ── */
+  .cc{display:flex!important;flex-direction:column!important;gap:10px!important;padding:14px!important;grid-template-columns:unset!important}
+  .cc-av{width:44px!important;height:44px!important;font-size:17px!important;align-self:flex-start!important}
+  .cc-r{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;gap:6px!important;width:100%!important;justify-content:flex-start!important}
+  .cc-r .btn{flex:1 1 auto!important;min-width:100px!important;max-width:160px!important}
+  .sr{width:46px!important;height:46px!important;font-size:13px!important}
+  /* ── Score overview board ── */
+  #page-cdash .sg,#page-employer .sg{grid-template-columns:1fr 1fr!important}
   /* ── Company profile ── */
   .cp-layout{grid-template-columns:1fr!important}
+  .cp-stat{flex:1!important;min-width:70px!important}
   /* ── Role cards ── */
   .rc-grid{grid-template-columns:1fr!important}
-  /* ── Admin panel ── */
-  .akpi{padding:12px!important}
-  .akpi-val{font-size:18px!important}
+  /* ── Admin KPI cards ── */
+  .akpi{padding:10px!important}
+  .akpi-val{font-size:17px!important}
   div[style*="grid-template-columns:repeat(4"]{grid-template-columns:1fr 1fr!important}
+  div[style*="grid-template-columns:repeat(3"]{grid-template-columns:1fr 1fr!important}
   /* ── Voice pitch recorder ── */
-  .vpc{padding:14px!important}
-  /* ── Marquee grid ── */
+  .vpc{padding:12px!important}
+  /* ── Marquee ── */
   .mq-grid{grid-template-columns:1fr 1fr!important}
-  /* ── Chips/tags ── */
+  .marquee-grid{grid-template-columns:1fr!important}
+  .mq-upload-type-grid{grid-template-columns:repeat(3,1fr)!important}
+  /* ── Tags/chips wrap ── */
   .tr{flex-wrap:wrap!important;gap:4px!important}
-  /* ── Score overview ── */
-  #page-cdash .sg,#page-employer .sg{grid-template-columns:1fr 1fr!important}
-  /* ── Candidate AI chat ── */
+  /* ── AI Chat bubble ── */
   .cbbub{max-width:92%!important}
   /* ── Walk-in card ── */
-  .wi-card{padding:14px!important}
+  .wi-card{padding:12px!important}
+  /* ── Typing test live stats ── */
+  .tt-livstats{grid-template-columns:1fr 1fr!important}
+  /* ── AI scores grid ── */
+  .ai-scores{grid-template-columns:1fr 1fr!important}
+  /* ── Search/filter bar ── */
+  .cand-filter-bar{flex-wrap:wrap!important;gap:6px!important}
+  .cand-filter-bar input{width:100%!important}
+  /* ── Billing section ── */
+  .plan-grid{grid-template-columns:1fr!important}
 }
 @media (max-width:480px){
-  /* Collapse 2-col grids to 1-col */
-  .sg{grid-template-columns:1fr!important}
+  /* ── Collapse all multi-column grids ── */
+  .sg,.cdsg{grid-template-columns:1fr!important}
   #page-cdash .sg,#page-employer .sg{grid-template-columns:1fr!important}
+  .tt-livstats,.ai-scores{grid-template-columns:1fr 1fr!important}
   div[style*="grid-template-columns:repeat(4"]{grid-template-columns:1fr 1fr!important}
   div[style*="grid-template-columns:repeat(3"]{grid-template-columns:1fr!important}
   div[style*="grid-template-columns:1fr 1fr 1fr"]{grid-template-columns:1fr 1fr!important}
   div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
-  .mq-grid{grid-template-columns:1fr!important}
-  .hero h1{font-size:21px!important}
-  .cp-stat{flex:1!important}
-  /* Modal even narrower */
-  .modal{padding:20px 14px 32px!important}
-  /* Employer/candidate modal CTA buttons stack */
+  .mq-grid,.mq-upload-type-grid{grid-template-columns:1fr 1fr!important}
+  .footer-top{grid-template-columns:1fr!important}
+  /* ── Smaller text ── */
+  .hero h1{font-size:20px!important}
+  .scval{font-size:18px!important}
+  /* ── Modals even more compact ── */
+  .modal,.mb .mc{padding:18px 14px 36px!important;max-height:92vh!important}
+  /* ── Button groups stack ── */
   div[style*="display:flex;gap:8px;flex-wrap:wrap"] .btn{width:100%!important}
-  /* Step nav hide labels */
+  /* ── Step labels hide ── */
   .step-lbl{display:none!important}
-  /* Score ring smaller */
-  .ps-ring{width:56px!important;height:56px!important}
-  /* Esbi text smaller */
-  .esbi,.cdsbi{font-size:11px!important;padding:6px 10px!important}
-  /* Admin revenue table */
-  .admin-table td,.admin-table th{padding:8px 6px!important;font-size:11px!important}
+  /* ── Score ring mobile ── */
+  .ps-ring{width:70px!important;height:70px!important}
+  /* ── Nav text size ── */
+  .esbi,.cdsbi{font-size:11px!important;padding:6px 9px!important}
 }
 
 /* ══ MODALS ══ */
@@ -415,9 +454,9 @@ img{max-width:100%}
 .scdelta{font-size:11.5px;margin-top:3px;color:var(--green);font-weight:500}
 /* Candidate cards */
 .cl{display:flex;flex-direction:column;gap:10px}
-.cc{background:#fff;border-radius:var(--r12);padding:16px 18px;border:1px solid var(--bd);display:grid;grid-template-columns:42px 1fr auto;gap:14px;align-items:center;cursor:pointer;transition:all .18s}
+.cc{background:#fff;border-radius:var(--r12);padding:16px 18px;border:1px solid var(--bd);display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:center;cursor:pointer;transition:all .18s}
 .cc:hover{box-shadow:0 4px 20px rgba(14,11,7,.08);transform:translateY(-1px);border-color:rgba(124,58,237,.2)}
-.cc-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:17px;font-weight:700;color:#fff;flex-shrink:0}
+.cc-av{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:21px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
 .cc-name{font-weight:700;font-size:14px;margin-bottom:2px}
 .cc-role{font-size:12px;color:var(--slate);margin-bottom:5px}
 .cc-avail{font-size:11px;color:var(--slate);margin-bottom:6px;display:flex;align-items:center;gap:5px}
@@ -470,7 +509,7 @@ img{max-width:100%}
 .cd-layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 66px)}
 .cd-sb{background:var(--voice);padding:0;display:flex;flex-direction:column;overflow-y:auto}
 .cd-sb-profile{background:linear-gradient(135deg,rgba(124,58,237,.25),rgba(200,134,10,.1));padding:20px 16px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
-.cd-av{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--vg),var(--gold));display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:19px;font-weight:700;color:#fff;margin-bottom:10px}
+.cd-av{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,var(--vg),var(--gold));display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:#fff;margin-bottom:10px;overflow:hidden}
 .cd-uname{font-weight:700;font-size:14px;color:#fff;margin-bottom:1px}
 .cd-urole{font-size:11px;color:rgba(237,233,254,.4);margin-bottom:8px}
 .cd-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
@@ -646,7 +685,7 @@ img{max-width:100%}
 .sec-group{font-size:11px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.8px;margin:14px 0 9px;padding-left:1px}
 /* Profile strength */
 .pstrength{background:#fff;border-radius:var(--r16);border:1px solid var(--bd);padding:18px 22px;margin-bottom:22px;display:flex;align-items:center;gap:18px}
-.ps-ring{width:66px;height:66px;flex-shrink:0;position:relative}
+.ps-ring{width:82px;height:82px;flex-shrink:0;position:relative}
 .ps-ring svg{transform:rotate(-90deg)}
 .ps-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--gold)}
 .ps-info{flex:1}
@@ -737,12 +776,12 @@ img{max-width:100%}
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-emp" onclick="pickRole('employer')">
           <div style="font-size:32px;margin-bottom:10px">🏢</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Hiring</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen sales talent</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telecaller talent</div>
         </div>
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-cand" onclick="pickRole('candidate')">
           <div style="font-size:32px;margin-bottom:10px">🎤</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Job Hunting</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find sales jobs</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telecaller & BPO jobs</div>
         </div>
       </div>
       <div style="text-align:center;font-size:13px;color:var(--slate)">Already have an account? <span style="color:var(--gold);font-weight:600;cursor:pointer" onclick="showSignin()">Sign in →</span></div>
@@ -2649,7 +2688,7 @@ img{max-width:100%}
       <button class="btn bgh bsm" onclick="navTo('cdash');showCD('overview',document.querySelector('.cdsbi.active'))">← Back to Dashboard</button>
     </div>
     <div class="pstrength">
-      <div class="ps-ring"><svg width="60" height="60" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="none" stroke="rgba(14,11,7,.08)" stroke-width="5"/><circle cx="30" cy="30" r="26" fill="none" stroke="var(--gold)" stroke-width="5" stroke-linecap="round" id="ps-arc" stroke-dasharray="163.4" stroke-dashoffset="40.8"/></svg><div class="ps-pct" id="ps-pct-lbl">75%</div></div>
+      <div class="ps-ring"><svg width="75" height="75" viewBox="0 0 75 75"><circle cx="37.5" cy="37.5" r="32" fill="none" stroke="rgba(14,11,7,.08)" stroke-width="5.5"/><circle cx="37.5" cy="37.5" r="32" fill="none" stroke="var(--gold)" stroke-width="5.5" stroke-linecap="round" id="ps-arc" stroke-dasharray="201.1" stroke-dashoffset="50.3"/></svg><div class="ps-pct" id="ps-pct-lbl">75%</div></div>
       <div class="ps-info"><div style="font-weight:700;font-size:14px;margin-bottom:3px">Profile Strength</div><div style="font-size:12px;color:var(--slate)">Complete all 10 sections for maximum employer visibility</div></div>
       <div class="ps-bars">
         <div class="psb"><span class="psbt">Resume</span><div class="psb-track"><div class="psb-fill" style="width:100%;background:linear-gradient(to right,var(--gold),var(--gl))"></div></div></div>
@@ -2666,7 +2705,7 @@ img{max-width:100%}
         <div class="field fcol" style="grid-column:1/-1">
           <label>Profile Photo</label>
           <div style="display:flex;align-items:center;gap:14px">
-            <div id="photo-preview" style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--vg),var(--gold));display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;flex-shrink:0">📷</div>
+            <div id="photo-preview" style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--vg),var(--gold));display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;flex-shrink:0">📷</div>
             <div style="flex:1">
               <input type="file" id="photo-file-input" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" style="display:none" onchange="handlePhotoSelect(this)">
               <button class="btn bgh bsm" onclick="document.getElementById('photo-file-input').click()">Choose Photo</button>
@@ -3197,28 +3236,33 @@ const FROM_EMAIL = 'PitchFirst <support@pitchfirst.app>';
 const SUPPORT_EMAIL = 'support@pitchfirst.app';
 
 // ── Core send function — via Supabase Edge Function (no CORS issues) ─────────
-// Deploy: supabase/functions/send-email/index.ts (see comment below)
+// IMPORTANT: Deploy supabase/functions/send-email/index.ts with --no-verify-jwt
+// Until deployed, emails will be silently queued (no broken UI).
 async function sendEmail({ to, subject, html }) {
   try {
-    // Route through Supabase Edge Function to avoid browser CORS restriction.
-    // The Edge Function calls Resend server-side where CORS doesn't apply.
-    const { data, error } = await supa.functions.invoke('send-email', {
-      body: JSON.stringify({ to, subject, html, from: FROM_EMAIL, apiKey: RESEND_KEY })
+    // Use native fetch with anon key (avoids SDK JWT issue on edge fn)
+    // SUPA_URL and SUPA_ANON are declared in the Supabase config block above
+    const res = await fetch(`${SUPA_URL}/functions/v1/send-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPA_ANON}`,
+        'apikey': SUPA_ANON,
+      },
+      body: JSON.stringify({ to, subject, html, from: FROM_EMAIL, apiKey: RESEND_KEY }),
     });
-    if (error) {
-      // Fallback: try direct fetch in case edge fn not deployed yet
-      console.warn('Edge fn error, trying direct:', error.message);
-      const res = await fetch(RESEND_API, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from: FROM_EMAIL, to, subject, html })
-      });
-      const d = await res.json();
-      if (!res.ok) console.error('Resend direct error:', d);
+    if (res.ok) {
+      const d = await res.json().catch(() => ({}));
       return d;
     }
-    return data;
-  } catch(e) { console.error('sendEmail failed:', e); }
+    // Edge function not deployed or error — fail silently, don't crash UI
+    console.warn('send-email edge fn not ready yet. Deploy it to enable emails. Status:', res.status);
+    return null;
+  } catch(e) {
+    // Network error — fail silently
+    console.warn('sendEmail network error (edge fn may not be deployed):', e.message);
+    return null;
+  }
 }
 
 // ── Email templates ───────────────────────────────────────────────────────────
@@ -4105,7 +4149,12 @@ async function doSignin() {
 function setLoggedIn() {
   document.getElementById('nav-guest').style.display = 'none';
   const ub = document.getElementById('nav-user-bar'); ub.classList.add('show');
-  document.getElementById('nav-av').textContent = AUTH.name.substring(0, 2).toUpperCase();
+  const navAv = document.getElementById('nav-av');
+  if (AUTH.avatarUrl) {
+    navAv.innerHTML = `<img src="${AUTH.avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.innerHTML='${AUTH.name.substring(0,2).toUpperCase()}'">`;
+  } else {
+    navAv.textContent = AUTH.name.substring(0, 2).toUpperCase();
+  }
   document.getElementById('nav-uname').textContent = AUTH.name.split(' ')[0];
   const isLifetime = AUTH.plan === 'lifetime';
   if (AUTH.role === 'employer') {
@@ -4189,7 +4238,7 @@ function renderCands(search = '') {
     : 'Candidates who apply to your roles will appear here';
   document.getElementById('cand-list').innerHTML = list.length ? list.map(c => `
     <div class="cc" onclick="openCandModal('${c.id}')">
-      <div class="cc-av" style="background:${c.col}">${c.ini}</div>
+      <div class="cc-av" style="background:${c.col};overflow:hidden">${c.avatar ? `<img src="${c.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.innerHTML='${c.ini}'">` : c.ini}</div>
       <div>
         <div class="cc-name">${c.name}</div>
         <div class="cc-role">${c.role} · ${c.exp || 'Fresher'} · ${c.city} · ${c.lang || '—'}</div>
@@ -4255,7 +4304,7 @@ async function openCandModal(id) {
 
   document.getElementById('modal-cand-body').innerHTML = `
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
-      <div style="width:60px;height:60px;border-radius:50%;background:${c.col};display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:21px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden">${c.avatar ? `<img src="${c.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.innerHTML='${c.ini}'" />` : c.ini}</div>
+      <div style="width:75px;height:75px;border-radius:50%;background:${c.col};display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden">${c.avatar ? `<img src="${c.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.innerHTML='${c.ini}'" />` : c.ini}</div>
       <div style="flex:1">
         <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;letter-spacing:-.3px">${c.name}</div>
         <div style="font-size:13px;color:var(--slate);margin-top:1px">${c.role} · ${c.city}</div>
@@ -4352,7 +4401,7 @@ function renderSL() {
   document.getElementById('sl-sub').textContent = sl.length ? `${sl.length} candidates shortlisted` : 'Shortlist candidates from the pool to see them here';
   document.getElementById('sl-list').innerHTML = sl.length ? sl.map(c => `
     <div class="cc" onclick="openCandModal('${c.id}')">
-      <div class="cc-av" style="background:${c.col}">${c.ini}</div>
+      <div class="cc-av" style="background:${c.col};overflow:hidden">${c.avatar ? `<img src="${c.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.innerHTML='${c.ini}'">` : c.ini}</div>
       <div><div class="cc-name">${c.name}</div><div class="cc-role">${c.role} · ${c.city}</div><div class="tr">${(c.tags||[]).map(t => { const lb = t.includes(':') ? t.split(':')[1] : t; return `<span style="background:var(--vs);color:var(--vg);border:1px solid rgba(124,58,237,.2);font-size:10px;padding:2px 8px;border-radius:5px;font-weight:600">${lb}</span>`; }).join('')}</div></div>
       <div class="cc-r"><div class="sr ${c.sc}">${c.score}</div><button class="btn bp bsm" onclick="event.stopPropagation();openScheduleModal('${c.id}','${(c.name||'').replace(/'/g,"\\'")}')">📅 Interview</button><button class="btn bgh bsm" onclick="event.stopPropagation();toggleSL('${c.id}')">Remove</button></div>
     </div>`).join('') :
@@ -5111,14 +5160,27 @@ async function submitSchedule() {
         if (period === 'PM' && hours < 12) hours += 12;
         if (period === 'AM' && hours === 12) hours = 0;
         const scheduledAt = new Date(`${date}T${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}:00`);
-        const { error: insErr } = await supa.from('interviews').insert({
+        // Lookup the application_id for this candidate+employer (required NOT NULL FK)
+        const { data: ep2 } = await supa.from('roles').select('id').eq('employer_id', ep.id).limit(10);
+        const roleIds = (ep2 || []).map(r => r.id);
+        let applicationId = null;
+        if (roleIds.length) {
+          const { data: app } = await supa.from('applications')
+            .select('id').eq('candidate_id', cp.id).in('role_id', roleIds)
+            .order('created_at', { ascending: false }).limit(1).maybeSingle();
+          applicationId = app?.id || null;
+        }
+        const interviewRow = {
           employer_id:   ep.id,
           candidate_id:  cp.id,
           scheduled_at:  scheduledAt.toISOString(),
           mode:          mode.toLowerCase().includes('phone') ? 'phone' : mode.toLowerCase().includes('video') ? 'video' : 'in-person',
           status:        'confirmed',
           notes:         notes || null,
-        });
+        };
+        // Only include application_id if we found one (avoids NOT NULL violation)
+        if (applicationId) interviewRow.application_id = applicationId;
+        const { error: insErr } = await supa.from('interviews').insert(interviewRow);
         if (insErr) console.error('Interview insert error:', insErr.message);
       }
     }
@@ -5757,7 +5819,7 @@ function handlePhotoSelect(input) {
   reader.onload = e => {
     const prev = document.getElementById('photo-preview');
     if (prev) {
-      prev.innerHTML = `<img src="${e.target.result}" style="width:70px;height:70px;border-radius:50%;object-fit:cover">`;
+      prev.innerHTML = `<img src="${e.target.result}" style="width:88px;height:88px;border-radius:50%;object-fit:cover">`;
     }
     document.getElementById('photo-status').textContent = '✓ ' + file.name + ' ready to upload';
     document.getElementById('photo-status').style.color = 'var(--green)';
@@ -6640,8 +6702,15 @@ async function getVideoInterviewStrip(candUserId) {
 
     let playUrl = vid.external_link || null;
     if (!playUrl && vid.storage_path) {
+      // Try public URL first (works if bucket is public)
       const { data: pub } = supa.storage.from('candidate-videos').getPublicUrl(vid.storage_path);
       if (pub?.publicUrl) playUrl = pub.publicUrl;
+      // If bucket is private, fall back to signed URL (60 min expiry)
+      if (!playUrl || playUrl.endsWith('/undefined')) {
+        const { data: signed } = await supa.storage.from('candidate-videos')
+          .createSignedUrl(vid.storage_path, 3600);
+        if (signed?.signedUrl) playUrl = signed.signedUrl;
+      }
     }
     if (!playUrl) return '';
 
