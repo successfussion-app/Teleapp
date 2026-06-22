@@ -606,6 +606,8 @@ img{max-width:100%}
 .ap-viewed{background:var(--gp);color:var(--gold)}
 .ap-shortlisted{background:var(--gs);color:#0f6e56}
 .ap-contacted{background:var(--gp);color:var(--gold)}
+.ap-rejected{background:#fff3f3;color:#dc2626}
+.ap-onhold{background:#fffbeb;color:#92400e}
 /* Voice pitch card */
 .vpc{background:var(--voice);border-radius:var(--r12);padding:20px;margin-bottom:14px;position:relative;overflow:hidden}
 .vpc::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;background:radial-gradient(circle,rgba(124,58,237,.25) 0%,transparent 65%)}
@@ -822,12 +824,12 @@ img{max-width:100%}
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-emp" onclick="pickRole('employer')">
           <div style="font-size:32px;margin-bottom:10px">🏢</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Hiring</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telecaller talent</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telesales & sales talent</div>
         </div>
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-cand" onclick="pickRole('candidate')">
           <div style="font-size:32px;margin-bottom:10px">🎤</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Job Hunting</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telecaller & BPO jobs</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telesales & sales jobs</div>
         </div>
       </div>
       <div style="text-align:center;font-size:13px;color:var(--slate)">Already have an account? <span style="color:var(--gold);font-weight:600;cursor:pointer" onclick="showSignin()">Sign in →</span></div>
@@ -4036,7 +4038,18 @@ async function prefillCandidateProfileForm() {
 }
 
 function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModal(id) {
+  // Warn if closing candidate modal with pending decision (but allow it — don't block close)
+  if (id === 'modal-cand') {
+    const pendingId = Object.keys(_resumeViewedFor).find(pid => {
+      const c = CANDS.find(x => String(x.id) === String(pid));
+      return c && !c._decision;
+    });
+    if (pendingId) {
+      const c = CANDS.find(x => String(x.id) === String(pendingId));
+      toast(`Reminder: please give feedback on ${c?.name || 'this candidate'} — Shortlist, Reject or On Hold`, 'tw2', 4000);
+    }
+  } document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('.mb').forEach(mb => mb.addEventListener('click', e => { if (e.target === mb) mb.classList.remove('open'); }));
 
 // ══════════════════════════════════════════
@@ -4235,6 +4248,17 @@ buildWave('hero-wave', 16);
 //  EMPLOYER PANELS
 // ══════════════════════════════════════════
 function showEP(id, el) {
+  // Block navigation if a resume was viewed but no decision given yet
+  const pendingId = Object.keys(_resumeViewedFor).find(pid => {
+    const c = CANDS.find(x => String(x.id) === String(pid));
+    return c && !c._decision;
+  });
+  if (pendingId) {
+    const c = CANDS.find(x => String(x.id) === String(pendingId));
+    toast(`Please give feedback on ${c?.name || 'this candidate'} (Shortlist / Reject / On Hold) before navigating away`, 'tw2', 5000);
+    openCandModal(pendingId);
+    return;
+  }
   document.querySelectorAll('.ep').forEach(p => p.classList.remove('active'));
   document.getElementById('ep-' + id).classList.add('active');
   document.querySelectorAll('.esbi').forEach(s => s.classList.remove('active'));
@@ -4317,9 +4341,11 @@ function toggleSL(id) {
   renderCands(); toast(c.sl ? `${c.name} shortlisted! ⭐` : `${c.name} removed from shortlist`, 'ts');
 }
 
+// Track which candidate the employer has viewed resume for (requires decision)
+const _resumeViewedFor = {};
+
 async function openCandModal(id) {
   const c = CANDS.find(x => String(x.id) === String(id)); if (!c) return;
-  const safeName = (c.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
   // Fetch fresh references from DB for this candidate
   let refsHTML = '<div style="font-size:13px;color:var(--slate);padding:10px">No references added by this candidate.</div>';
@@ -4344,9 +4370,11 @@ async function openCandModal(id) {
       <div style="font-size:12px;color:rgba(237,233,254,.5)">AI Score: ${c.score || '—'}/100</div>
     </div>` : `<div style="background:rgba(14,11,7,.04);border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;font-size:13px;color:var(--slate)">No voice pitch submitted</div>`;
 
-  const resumeSection = `<div id="cand-modal-resume-btn" style="flex:1">
-    <button class="btn bg bsm" style="width:100%" onclick="openCandResume('${id}','${c.resume || ''}')">📄 View Resume</button>
-  </div>`;
+  // Check if contact already unlocked for this candidate
+  const alreadyUnlocked = c._contactUnlocked || false;
+
+  // Check if resume already viewed (needs decision)
+  const needsDecision = _resumeViewedFor[id] && !c._decision;
 
   document.getElementById('modal-cand-body').innerHTML = `
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
@@ -4370,12 +4398,43 @@ async function openCandModal(id) {
       <div style="font-family:'Fraunces',serif;font-size:14px;font-weight:700;margin-bottom:10px">Professional References</div>
       <div>${refsHTML}</div>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      ${resumeSection}
-      <button class="btn ${c.sl ? 'bgn' : 'bp'} bsm" style="flex:1" onclick="toggleSL('${id}');closeModal('modal-cand')">${c.sl ? '✓ Shortlisted' : '⭐ Shortlist'}</button>
-      <button class="btn bgh bsm" style="flex:1" onclick="closeModal('modal-cand');toast('Interview invite sent to ${safeName}! 📅','ts')">📅 Interview</button>
-      <button class="btn bd2 bsm" style="flex:1" id="unlock-btn-${id}" onclick="unlockContact('${id}')">🔓 Unlock Contact</button>
+
+    ${needsDecision ? `
+    <!-- Decision required banner -->
+    <div id="cand-decision-banner" style="background:#fffbf0;border:1.5px solid var(--gold);border-radius:12px;padding:14px 16px;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px">⚠️ Please give your feedback on this candidate before leaving</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn bgn bsm" style="flex:1;min-width:110px" onclick="setCandDecision('${id}','shortlisted')">⭐ Shortlist</button>
+        <button class="btn bsm" style="flex:1;min-width:110px;background:#fff3f3;color:#dc2626;border:1.5px solid #fca5a5" onclick="setCandDecision('${id}','rejected')">✕ Reject</button>
+        <button class="btn bsm" style="flex:1;min-width:110px;background:#fffbeb;color:#92400e;border:1.5px solid #fcd34d" onclick="setCandDecision('${id}','on_hold')">⏸ On Hold</button>
+      </div>
+      <div id="cand-decision-reason-wrap-${id}" style="display:none;margin-top:10px"></div>
+    </div>` : c._decision ? `
+    <!-- Already decided -->
+    <div style="background:${c._decision==='shortlisted'?'#f0fdf4':c._decision==='rejected'?'#fff3f3':'#fffbeb'};border:1px solid ${c._decision==='shortlisted'?'#86efac':c._decision==='rejected'?'#fca5a5':'#fcd34d'};border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;font-weight:600;color:${c._decision==='shortlisted'?'#15803d':c._decision==='rejected'?'#dc2626':'#92400e'}">
+      ${c._decision==='shortlisted'?'✓ Shortlisted':c._decision==='rejected'?'✕ Rejected — '+c._decisionReason:'⏸ On Hold — '+c._decisionReason}
+    </div>` : ''}
+
+    <!-- Unlocked contact details -->
+    <div id="cand-contact-section-${id}">
+      ${alreadyUnlocked ? `
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px 14px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#15803d;margin-bottom:8px">🔓 Contact Unlocked</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px">📧 ${c.email || '—'}</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">📱 ${c.phone || '—'}</div>
+        <button class="btn bg bsm" style="width:100%" onclick="openCandResume('${id}','${c.resume || ''}');_resumeViewedFor['${id}']=true;renderCandModalActions('${id}')">📄 View Resume</button>
+      </div>` : ''}
+    </div>
+
+    <!-- Bottom action buttons -->
+    <div id="cand-modal-actions-${id}">
+      ${alreadyUnlocked ? '' : `
+      <div style="display:flex;gap:8px">
+        <button class="btn ${c.sl ? 'bgn' : 'bp'} bsm" style="flex:1" id="sl-btn-${id}" onclick="setCandDecision('${id}','shortlisted')">${c.sl ? '✓ Shortlisted' : '⭐ Shortlist'}</button>
+        <button class="btn bd2 bsm" style="flex:1" onclick="unlockContact('${id}')">🔓 Unlock Contact</button>
+      </div>`}
     </div>`;
+
   openModal('modal-cand');
 
   // Async load marquee and video for this specific candidate
@@ -4387,6 +4446,129 @@ async function openCandModal(id) {
   if (mqEl) mqEl.innerHTML = mqHTML || '';
   const vidEl = document.getElementById('cand-modal-video');
   if (vidEl) vidEl.innerHTML = vidHTML || '';
+}
+
+// Render just the action area (called after unlock or resume view)
+function renderCandModalActions(id) {
+  const c = CANDS.find(x => String(x.id) === String(id)); if (!c) return;
+  const needsDecision = _resumeViewedFor[id] && !c._decision;
+  const banner = document.getElementById('cand-decision-banner');
+
+  if (needsDecision && !banner) {
+    // Insert decision banner above the actions div
+    const actDiv = document.getElementById(`cand-modal-actions-${id}`);
+    if (actDiv) {
+      const bannerDiv = document.createElement('div');
+      bannerDiv.id = 'cand-decision-banner';
+      bannerDiv.style.cssText = 'background:#fffbf0;border:1.5px solid var(--gold);border-radius:12px;padding:14px 16px;margin-bottom:12px';
+      bannerDiv.innerHTML = `
+        <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px">⚠️ Please give your feedback on this candidate before leaving</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn bgn bsm" style="flex:1;min-width:110px" onclick="setCandDecision('${id}','shortlisted')">⭐ Shortlist</button>
+          <button class="btn bsm" style="flex:1;min-width:110px;background:#fff3f3;color:#dc2626;border:1.5px solid #fca5a5" onclick="setCandDecision('${id}','rejected')">✕ Reject</button>
+          <button class="btn bsm" style="flex:1;min-width:110px;background:#fffbeb;color:#92400e;border:1.5px solid #fcd34d" onclick="setCandDecision('${id}','on_hold')">⏸ On Hold</button>
+        </div>
+        <div id="cand-decision-reason-wrap-${id}" style="display:none;margin-top:10px"></div>`;
+      actDiv.parentNode.insertBefore(bannerDiv, actDiv);
+    }
+  }
+}
+
+const REJECTION_REASONS = [
+  'Experience level not matching', 'Communication skills below threshold',
+  'Voice pitch score too low', 'Typing speed insufficient',
+  'Location/work mode mismatch', 'Salary expectation mismatch',
+  'Role already filled', 'Duplicate application', 'Other',
+];
+const HOLD_REASONS = [
+  'Evaluating other candidates first', 'Role on pause temporarily',
+  'Awaiting internal approval', 'Need second opinion',
+  'Candidate to be considered for future role', 'Follow up next week', 'Other',
+];
+
+async function setCandDecision(id, decision) {
+  const c = CANDS.find(x => String(x.id) === String(id)); if (!c) return;
+
+  if (decision === 'shortlisted') {
+    // Shortlist directly — no reason needed
+    c._decision = 'shortlisted';
+    c.sl = true;
+    delete _resumeViewedFor[id];
+    // Update DB
+    toggleSL(id);
+    // Update candidate application status
+    await updateCandidateApplicationStatus(id, 'shortlisted', 'Shortlisted ✓');
+    // Refresh modal to show confirmed state
+    openCandModal(id);
+    return;
+  }
+
+  // For rejected / on_hold — show reason dropdown
+  const reasons = decision === 'rejected' ? REJECTION_REASONS : HOLD_REASONS;
+  const wrap = document.getElementById(`cand-decision-reason-wrap-${id}`);
+  if (!wrap) return;
+
+  const label = decision === 'rejected' ? 'Reason for rejection' : 'Reason for hold';
+  wrap.style.display = 'block';
+  wrap.innerHTML = `
+    <label style="font-size:12px;font-weight:600;color:var(--slate);display:block;margin-bottom:6px">${label}</label>
+    <select id="cand-reason-sel-${id}" style="width:100%;padding:9px 12px;border-radius:8px;border:1.5px solid var(--bd);font-size:13px;background:#fff;font-family:'DM Sans',sans-serif">
+      <option value="">— Select a reason —</option>
+      ${reasons.map(r => `<option value="${r}">${r}</option>`).join('')}
+    </select>
+    <button class="btn bsm" style="margin-top:8px;width:100%;background:${decision==='rejected'?'#dc2626':'#d97706'};color:#fff;border:none;font-weight:700"
+      onclick="confirmCandDecision('${id}','${decision}')">
+      Confirm ${decision === 'rejected' ? 'Rejection' : 'Hold'}
+    </button>`;
+
+  // Highlight the selected button
+  const btns = wrap.parentElement.querySelectorAll('button');
+  btns.forEach(b => b.style.opacity = '0.5');
+  event.target.style.opacity = '1';
+}
+
+async function confirmCandDecision(id, decision) {
+  const c = CANDS.find(x => String(x.id) === String(id)); if (!c) return;
+  const sel = document.getElementById(`cand-reason-sel-${id}`);
+  const reason = sel?.value;
+  if (!reason) { toast('Please select a reason before confirming', 'tw2'); return; }
+
+  c._decision = decision;
+  c._decisionReason = reason;
+  delete _resumeViewedFor[id];
+
+  // Update candidate's application status in DB + notify them
+  const statusLabel = decision === 'rejected' ? `Rejected — ${reason}` : `On Hold — ${reason}`;
+  const notifStatus = decision === 'rejected' ? 'rejected' : 'on_hold';
+  await updateCandidateApplicationStatus(id, notifStatus, statusLabel);
+
+  toast(`${c.name} marked as ${decision === 'rejected' ? 'Rejected' : 'On Hold'}: ${reason}`, decision === 'rejected' ? 'te' : 'tw2', 5000);
+
+  // Refresh modal to show confirmed state
+  openCandModal(id);
+}
+
+async function updateCandidateApplicationStatus(candUserId, status, label) {
+  try {
+    const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', candUserId).maybeSingle();
+    if (!cp?.id) return;
+    // Update all applications from this candidate to this employer
+    const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
+    if (!ep?.id) return;
+    const { data: empRoles } = await supa.from('roles').select('id').eq('employer_id', ep.id);
+    const roleIds = (empRoles || []).map(r => r.id);
+    if (!roleIds.length) return;
+    await supa.from('applications')
+      .update({ status, employer_note: label, updated_at: new Date().toISOString() })
+      .eq('candidate_id', cp.id)
+      .in('role_id', roleIds);
+    // Show updated status on candidate's My Applications section (live update)
+    const appRow = CD_APPS?.find(a => a.candId === candUserId);
+    if (appRow) {
+      appRow.status = status;
+      renderCDApps();
+    }
+  } catch(e) { console.warn('updateCandidateApplicationStatus error:', e); }
 }
 
 async function openCandResume(candId, resumeUrl) {
@@ -4413,9 +4595,47 @@ async function openCandResume(candId, resumeUrl) {
 
 function unlockContact(id) {
   const c = CANDS.find(x => String(x.id) === String(id)); if (!c) return;
-  const btn = document.getElementById(`unlock-btn-${id}`);
-  if (btn) { btn.textContent = '✓ Contact Unlocked'; btn.className = 'btn bgn bsm'; btn.style.flex = '1'; btn.disabled = true; }
-  toast(`Contact unlocked for ${c.name}! Email: ${c.email}`, 'ts', 6000);
+  c._contactUnlocked = true;
+
+  // Update contact section inline — show email, phone, resume button
+  const contactSection = document.getElementById(`cand-contact-section-${id}`);
+  if (contactSection) {
+    contactSection.innerHTML = `
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px 14px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#15803d;margin-bottom:8px">🔓 Contact Unlocked</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px">📧 ${c.email || '—'}</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">📱 ${c.phone || '—'}</div>
+        <button class="btn bg bsm" style="width:100%" onclick="openCandResume('${id}','${c.resume || ''}');_resumeViewedFor['${id}']=true;renderCandModalActions('${id}')">📄 View Resume</button>
+      </div>`;
+  }
+
+  // Replace bottom buttons — remove Unlock Contact, keep Shortlist only
+  const actDiv = document.getElementById(`cand-modal-actions-${id}`);
+  if (actDiv) {
+    actDiv.innerHTML = `
+      <div style="display:flex;gap:8px">
+        <button class="btn ${c.sl ? 'bgn' : 'bp'} bsm" style="flex:1" id="sl-btn-${id}" onclick="setCandDecision('${id}','shortlisted')">${c.sl ? '✓ Shortlisted' : '⭐ Shortlist'}</button>
+      </div>`;
+  }
+
+  // Log unlock to DB
+  supa.from('applications').select('id').then(async () => {
+    try {
+      const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', id).maybeSingle();
+      const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
+      if (cp?.id && ep?.id) {
+        const { data: empRoles } = await supa.from('roles').select('id').eq('employer_id', ep.id);
+        const roleIds = (empRoles || []).map(r => r.id);
+        if (roleIds.length) {
+          await supa.from('applications')
+            .update({ status: 'contacted', updated_at: new Date().toISOString() })
+            .eq('candidate_id', cp.id).in('role_id', roleIds);
+        }
+      }
+    } catch(e) {}
+  });
+
+  toast(`Contact unlocked for ${c.name}`, 'ts', 3000);
 }
 
 function renderRoles() {
@@ -5529,7 +5749,7 @@ function cdSearchJobs(q) { const curF = document.querySelector('#cd-jobs-fbar .f
 
 function renderCDApps() {
   const el = document.getElementById('cd-apps-list'); if (!el) return;
-  const stMap = { applied: 'ap-applied:Applied', viewed: 'ap-viewed:Viewed 👁', shortlisted: 'ap-shortlisted:Shortlisted ✓', contacted: 'ap-contacted:Contacted 🔓' };
+  const stMap = { applied: 'ap-applied:Applied', viewed: 'ap-viewed:Viewed 👁', shortlisted: 'ap-shortlisted:Shortlisted ✓', contacted: 'ap-contacted:Contacted 🔓', rejected: 'ap-rejected:Not Selected', on_hold: 'ap-onhold:On Hold ⏸' };
   el.innerHTML = CD_APPS.map((a, i) => {
     const [cls, lbl] = stMap[a.status].split(':');
     return `<div class="atr" id="atr-${i}"><div style="flex:1"><div class="atr-co">${a.co}</div><div class="atr-role">${a.role} · ${a.city} · Applied ${a.date}</div></div><span class="ap ${cls}" id="apill-${i}">${lbl}</span></div>`;
