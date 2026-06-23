@@ -4684,27 +4684,23 @@ async function updateCandidateApplicationStatus(candUserId, status, label) {
     if (!cp?.id) return;
     const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
     if (!ep?.id) return;
-    const { data: empRoles } = await supa.from('roles').select('id').eq('employer_id', ep.id);
-    const roleIds = (empRoles || []).map(r => r.id);
-    if (!roleIds.length) return;
 
-    // Try RPC first — runs with SECURITY DEFINER bypassing RLS
-    // (requires the SQL function below to be created in Supabase)
+    // Try RPC first (SECURITY DEFINER bypasses RLS)
     const { error: rpcErr } = await supa.rpc('employer_update_application_status', {
-      p_candidate_id: cp.id,
-      p_role_ids: roleIds,
-      p_status: status,
+      p_candidate_id:  cp.id,
+      p_employer_id:   ep.id,
+      p_status:        status,
     });
 
     if (rpcErr) {
-      // RPC not deployed yet — try direct update (works if RLS allows, or after SQL is run)
-      // updated_at column confirmed to exist in applications table
+      // RPC not deployed — fall back to direct update using employer_id filter
+      // (employer owns rows where employer_id matches their profile)
       await supa.from('applications')
         .update({ status, updated_at: new Date().toISOString() })
         .eq('candidate_id', cp.id)
-        .in('role_id', roleIds)
+        .eq('employer_id', ep.id)
         .then(({ error: e }) => {
-          if (e) console.info('Application status update pending RPC deployment:', e.code);
+          if (e) console.info('Status update needs RPC deployment. Run pitchfirst_db_fixes.sql.', e.code);
         });
     }
 
@@ -4769,21 +4765,20 @@ function unlockContact(id) {
       if (cp?.id && ep?.id) {
         const { data: empRoles } = await supa.from('roles').select('id').eq('employer_id', ep.id);
         const roleIds = (empRoles || []).map(r => r.id);
-        if (roleIds.length) {
-          // Try RPC first (bypasses RLS), fall back to direct update
-          const { error: rpcErr2 } = await supa.rpc('employer_update_application_status', {
-            p_candidate_id: cp.id,
-            p_role_ids: roleIds,
-            p_status: 'contacted',
-          });
-          if (rpcErr2) {
-            await supa.from('applications')
-              .update({ status: 'contacted', updated_at: new Date().toISOString() })
-              .eq('candidate_id', cp.id).in('role_id', roleIds)
-              .then(({ error: e }) => {
-                if (e) console.info('Contacted status pending RPC deployment:', e.code);
-              });
-          }
+        // Try RPC first, fall back to employer_id direct update
+        const { error: rpcErr2 } = await supa.rpc('employer_update_application_status', {
+          p_candidate_id: cp.id,
+          p_employer_id:  ep.id,
+          p_status:       'contacted',
+        });
+        if (rpcErr2) {
+          await supa.from('applications')
+            .update({ status: 'contacted', updated_at: new Date().toISOString() })
+            .eq('candidate_id', cp.id)
+            .eq('employer_id', ep.id)
+            .then(({ error: e }) => {
+              if (e) console.info('Contacted update needs RPC. Run pitchfirst_db_fixes.sql.', e.code);
+            });
         }
       }
     } catch(e) {}
@@ -5580,26 +5575,25 @@ async function submitSchedule() {
         if (period === 'PM' && hours < 12) hours += 12;
         if (period === 'AM' && hours === 12) hours = 0;
         const scheduledAt = new Date(`${date}T${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}:00`);
-        // Find existing application for this candidate under any of employer's roles
-        const { data: empRoles } = await supa.from('roles')
-          .select('id').eq('employer_id', ep.id).eq('is_active', true).limit(20);
-        const roleIds = (empRoles || []).map(r => r.id);
+        // Look up application_id via employer_id (employer can read their own applications)
+        // Remove is_active filter — the role may have been deactivated after candidate applied
         let applicationId = null;
+        const { data: appLookup } = await supa.from('applications')
+          .select('id, role_id')
+          .eq('candidate_id', cp.id)
+          .eq('employer_id', ep.id)
+          .order('applied_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        applicationId = appLookup?.id || null;
 
-        if (roleIds.length) {
-          const { data: existingApp } = await supa.from('applications')
-            .select('id').eq('candidate_id', cp.id).in('role_id', roleIds)
-            .order('created_at', { ascending: false }).limit(1).maybeSingle();
-          applicationId = existingApp?.id || null;
-        }
-
-        // If no application exists (employer shortlisted directly), create one so
-        // the interviews.application_id NOT NULL constraint is satisfied
+        // If still no application, create a direct_invite application using any role
         if (!applicationId) {
-          const firstRoleId = roleIds[0] || null;
-          if (firstRoleId) {
+          const { data: anyRole } = await supa.from('roles')
+            .select('id').eq('employer_id', ep.id).limit(1).maybeSingle();
+          if (anyRole?.id) {
             const { data: newApp } = await supa.from('applications').insert({
-              role_id:      firstRoleId,
+              role_id:      anyRole.id,
               candidate_id: cp.id,
               employer_id:  ep.id,
               status:       'direct_invite',
@@ -5609,23 +5603,18 @@ async function submitSchedule() {
           }
         }
 
-        if (!applicationId) {
-          // Cannot insert without application_id — show error and bail
-          console.error('Interview insert skipped: no application_id could be resolved');
-          toast('Could not schedule: candidate has no active application. Ask them to apply first.', 'te', 6000);
-          btn.disabled = false; btn.textContent = 'Send Invite';
-          return;
-        }
-
-        const { error: insErr } = await supa.from('interviews').insert({
+        // Build interview row — only include application_id if resolved
+        const interviewRow = {
           employer_id:   ep.id,
           candidate_id:  cp.id,
-          application_id: applicationId,
           scheduled_at:  scheduledAt.toISOString(),
           mode:          mode.toLowerCase().includes('phone') ? 'phone' : mode.toLowerCase().includes('video') ? 'video' : 'in-person',
           status:        'confirmed',
           notes:         notes || null,
-        });
+        };
+        if (applicationId) interviewRow.application_id = applicationId;
+
+        const { error: insErr } = await supa.from('interviews').insert(interviewRow);
         if (insErr) console.error('Interview insert error:', insErr.message);
       }
     }
