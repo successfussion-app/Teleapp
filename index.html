@@ -4697,9 +4697,15 @@ async function updateCandidateApplicationStatus(candUserId, status, label) {
     });
 
     if (rpcErr) {
-      // RPC not yet created — skip DB update silently.
-      // Run employer_update_application_status.sql in Supabase SQL Editor to enable.
-      // UI is already updated locally below.
+      // RPC not deployed yet — try direct update (works if RLS allows, or after SQL is run)
+      // updated_at column confirmed to exist in applications table
+      await supa.from('applications')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('candidate_id', cp.id)
+        .in('role_id', roleIds)
+        .then(({ error: e }) => {
+          if (e) console.info('Application status update pending RPC deployment:', e.code);
+        });
     }
 
     // Always update local CD_APPS so candidate's UI reflects change in this session
@@ -4764,9 +4770,20 @@ function unlockContact(id) {
         const { data: empRoles } = await supa.from('roles').select('id').eq('employer_id', ep.id);
         const roleIds = (empRoles || []).map(r => r.id);
         if (roleIds.length) {
-          await supa.from('applications')
-            .update({ status: 'contacted' })
-            .eq('candidate_id', cp.id).in('role_id', roleIds);
+          // Try RPC first (bypasses RLS), fall back to direct update
+          const { error: rpcErr2 } = await supa.rpc('employer_update_application_status', {
+            p_candidate_id: cp.id,
+            p_role_ids: roleIds,
+            p_status: 'contacted',
+          });
+          if (rpcErr2) {
+            await supa.from('applications')
+              .update({ status: 'contacted', updated_at: new Date().toISOString() })
+              .eq('candidate_id', cp.id).in('role_id', roleIds)
+              .then(({ error: e }) => {
+                if (e) console.info('Contacted status pending RPC deployment:', e.code);
+              });
+          }
         }
       }
     } catch(e) {}
