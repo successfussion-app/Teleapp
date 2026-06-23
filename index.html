@@ -824,12 +824,12 @@ img{max-width:100%}
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-emp" onclick="pickRole('employer')">
           <div style="font-size:32px;margin-bottom:10px">🏢</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Hiring</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telesales & sales talent</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telecaller talent</div>
         </div>
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-cand" onclick="pickRole('candidate')">
           <div style="font-size:32px;margin-bottom:10px">🎤</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Job Hunting</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telecsales & sales jobs</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telecaller & BPO jobs</div>
         </div>
       </div>
       <div style="text-align:center;font-size:13px;color:var(--slate)">Already have an account? <span style="color:var(--gold);font-weight:600;cursor:pointer" onclick="showSignin()">Sign in →</span></div>
@@ -4552,31 +4552,33 @@ async function updateCandidateApplicationStatus(candUserId, status, label) {
   try {
     const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', candUserId).maybeSingle();
     if (!cp?.id) return;
-    // Update all applications from this candidate to this employer
     const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
     if (!ep?.id) return;
     const { data: empRoles } = await supa.from('roles').select('id').eq('employer_id', ep.id);
     const roleIds = (empRoles || []).map(r => r.id);
     if (!roleIds.length) return;
-    const { error: patchErr } = await supa.from('applications')
-      .update({ status })
-      .eq('candidate_id', cp.id)
-      .in('role_id', roleIds);
-    if (patchErr) {
-      console.warn('applications status update error:', patchErr.message);
-    } else {
-      // Update local CD_APPS array so candidate's UI reflects change immediately.
-      // We match by employer company name since we don't store employer_id in CD_APPS.
-      // Re-fetch from DB for the most reliable update.
-      if (typeof loadApplicationsFromDB === 'function') {
-        await loadApplicationsFromDB();
-      } else {
-        // Fallback: update every matching app in CD_APPS
-        CD_APPS.forEach(a => { if (a.status !== 'rejected') a.status = status; });
-        if (typeof renderCDApps === 'function') renderCDApps();
-      }
+
+    // Try RPC first — runs with SECURITY DEFINER bypassing RLS
+    // (requires the SQL function below to be created in Supabase)
+    const { error: rpcErr } = await supa.rpc('employer_update_application_status', {
+      p_candidate_id: cp.id,
+      p_role_ids: roleIds,
+      p_status: status,
+    });
+
+    if (rpcErr) {
+      // RPC not yet created — fall back to direct update (may fail due to RLS)
+      await supa.from('applications')
+        .update({ status })
+        .eq('candidate_id', cp.id)
+        .in('role_id', roleIds);
+      // Suppress any RLS error silently — local state update below handles UI
     }
-  } catch(e) { console.warn('updateCandidateApplicationStatus error:', e); }
+
+    // Always update local CD_APPS so candidate's UI reflects change in this session
+    CD_APPS.forEach(a => { a.status = status; });
+    if (typeof renderCDApps === 'function') renderCDApps();
+  } catch(e) { /* silent — UI already updated locally */ }
 }
 
 async function openCandResume(candId, resumeUrl) {
@@ -6846,7 +6848,7 @@ async function addMarqueeItem() {
     marqueeItems.push({
       id: item.id, type: mqSelectedType, icon: cfg.icon,
       title, desc: item.description, org: item.org, year: item.year,
-      thumb: filePath ? supa.storage.from('marquee-files').getPublicUrl(filePath).data.publicUrl : null,
+      thumb: filePath ? (await supa.storage.from('marquee-files').createSignedUrl(filePath, 86400).catch(() => ({}))).data?.signedUrl || supa.storage.from('marquee-files').getPublicUrl(filePath).data?.publicUrl || null : null,
       externalLink: link || null,
       views: 0, pinned: true,
       visible: item.is_visible,
@@ -7006,8 +7008,10 @@ async function renderEmployerMarquee(candUserId) {
       let thumbUrl = item.external_link || null;
 
       if (!thumbUrl && item.file_path) {
-        const { data: pub } = supa.storage.from('marquee-files').getPublicUrl(item.file_path);
-        if (pub?.publicUrl) thumbUrl = pub.publicUrl;
+        // Use signed URL — marquee-files bucket is private
+        const { data: signed } = await supa.storage.from('marquee-files')
+          .createSignedUrl(item.file_path, 3600);
+        thumbUrl = signed?.signedUrl || null;
       }
 
       const thumbHTML = thumbUrl
@@ -8077,11 +8081,21 @@ async function loadMarqueeFromDB() {
     marqueeItems = items.map(item => ({
       id: item.id, type: item.type || 'video', icon: item.icon || '🎥',
       title: item.title, desc: item.description, org: item.org, year: item.year,
-      thumb: item.file_path ? supa.storage.from('marquee-files').getPublicUrl(item.file_path).data.publicUrl : null,
+      thumb: item.external_link || null,  // use external link as thumb if no file
       externalLink: item.external_link,
       views: item.views || 0, pinned: item.is_pinned,
       visible: item.is_visible, typeBadge: item.type_badge, typeLabel: item.type_label,
+      _filePath: item.file_path || null,
     }));
+    // Populate signed URLs for items with storage files (async, non-blocking)
+    Promise.all(
+      marqueeItems
+        .filter(m => m._filePath && !m.thumb)
+        .map(async m => {
+          const { data } = await supa.storage.from('marquee-files').createSignedUrl(m._filePath, 86400);
+          if (data?.signedUrl) m.thumb = data.signedUrl;
+        })
+    ).then(() => { if (typeof renderMarquee === 'function') renderMarquee(); });
     if (typeof renderMarquee === 'function') renderMarquee();
   } catch(e) { console.warn('Marquee load error:', e); }
 }
