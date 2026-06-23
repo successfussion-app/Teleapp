@@ -824,12 +824,12 @@ img{max-width:100%}
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-emp" onclick="pickRole('employer')">
           <div style="font-size:32px;margin-bottom:10px">🏢</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Hiring</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telesales & sales talent</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telecaller talent</div>
         </div>
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-cand" onclick="pickRole('candidate')">
           <div style="font-size:32px;margin-bottom:10px">🎤</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Job Hunting</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telesales & sales jobs</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telecaller & BPO jobs</div>
         </div>
       </div>
       <div style="text-align:center;font-size:13px;color:var(--slate)">Already have an account? <span style="color:var(--gold);font-weight:600;cursor:pointer" onclick="showSignin()">Sign in →</span></div>
@@ -2988,7 +2988,95 @@ img{max-width:100%}
           <div class="chip" onclick="toggleChip(this)">Dehradun</div>
           <div class="chip" onclick="toggleChip(this)">Goa</div>
           <div class="chip" onclick="toggleChip(this)">Raipur</div>
-        </div></div><div class="field"><label>Preferred Industries</label><div class="chips"><div class="chip on" onclick="toggleChip(this)">Banking & Finance</div><div class="chip on" onclick="toggleChip(this)">Insurance</div><div class="chip" onclick="toggleChip(this)">EdTech</div><div class="chip" onclick="toggleChip(this)">BPO</div></div></div></div>
+        </div></div><div class="field" id="pref-industries-field"><label>Preferred Industries <span style="font-size:11px;color:var(--slate);font-weight:400">(select all that apply)</span></label>
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--slate);margin:8px 0 4px">BFSI</div>
+<div class="chips" style="margin-bottom:8px">
+  <div class="chip" onclick="toggleChip(this)">Banking &amp; Finance</div>
+  <div class="chip" onclick="toggleChip(this)">Insurance</div>
+  <div class="chip" onclick="toggleChip(this)">NBFCs &amp; Microfinance</div>
+  <div class="chip" onclick="toggleChip(this)">Mutual Funds &amp; Investments</div>
+  <div class="chip" onclick="toggleChip(this)">Fintech</div>
+  <div class="chip" onclick="toggleChip(this)">Stock Broking</div>
+  <div class="chip" onclick="toggleChip(this)">Loans &amp; Mortgages</div>
+</div>
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--slate);margin:8px 0 4px">BPO / IT</div>
+<div class="chips" style="margin-bottom:8px">
+  <div class="chip" onclick="toggleChip(this)">BPO / Call Centre</div>
+  <div class="chip" onclick="toggleChip(this)">KPO / LPO</div>
+  <div class="chip" onclick="toggleChip(this)">IT Services &amp; Software</div>
+  <div class="chip" onclick="toggleChip(this)">ITES</div>
+  <div class="chip" onclick="toggleChip(this)">Tech Support</div>
+</div>
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--slate);margin:8px 0 4px">Education</div>
+<div class="chips" style="margin-bottom:8px">
+  <div class="chip" onclick="toggleChip(this)">EdTech &amp; Online Education</div>
+  <div class="chip" onclick="toggleChip(this)">K-12 Education</div>
+  <div class="chip" onclick="toggleChip(this)">Coaching &amp; Test Prep</div>
+  <div class="chip" onclick="toggleChip(this)">Higher Education</div>
+  <div class="chip" onclick="toggleChip(this)">Skill Development</div>
+</div>
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--slate);margin:8px 0 4px">Healthcare</div>
+<div class="chips" style="margin-bottom:8px">
+  <div class="chip" onclick="toggleChip(this)">Hospitals &amp; Clinics</div>
+  <div class="chip" onclick="toggleChip(this)">Pharma &amp; Life Sciences</div>
+  <div class="chip" onclick="toggleChip(this)">Health Insurance</div>
+  <div class="chip" onclick="toggleChip(this)">Diagnostics &amp; Labs</div>
+  <div class="chip" onclick="toggleChip(this)">Health Tech</div>
+</div>
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--slate);margin:8px 0 4px">E-Commerce &amp; Retail</div>
+<div class="chips" style="margin-bottom:8px">
+  <div class="chip" onclick="toggleChip(this)">E-Commerce</div>
+  <div class="chip" onclick="toggleChip(this)">Retail &amp; FMCG</div>
+  <div class="chip" onclick="toggleChip(this)">D2C &amp; Brands</div>
+  <div class="chip" onclick="toggleChip(this)">Logistics &amp; Supply Chain</div>
+</div>
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--slate);margin:8px 0 4px">Real Estate &amp; Construction</div>
+<div class="chips" style="margin-bottom:8px">
+  <div class="chip" onclick="toggleChip(this)">Real Estate</div>
+  <div class="chip" onclick="toggleChip(this)">Construction</div>
+  <div class="chip" onclick="toggleChip(this)">Property Management</div>
+</div>
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--slate);margin:8px 0 4px">Telecom &amp; Media</div>
+<div class="chips" style="margin-bottom:8px">
+  <div class="chip" onclick="toggleChip(this)">Telecom</div>
+  <div class="chip" onclick="toggleChip(this)">Media &amp; Entertainment</div>
+  <div class="chip" onclick="toggleChip(this)">Digital Marketing Agency</div>
+  <div class="chip" onclick="toggleChip(this)">OTT &amp; Streaming</div>
+</div>
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--slate);margin:8px 0 4px">Travel &amp; Hospitality</div>
+<div class="chips" style="margin-bottom:8px">
+  <div class="chip" onclick="toggleChip(this)">Travel &amp; Tourism</div>
+  <div class="chip" onclick="toggleChip(this)">Hotels &amp; Hospitality</div>
+  <div class="chip" onclick="toggleChip(this)">Aviation</div>
+  <div class="chip" onclick="toggleChip(this)">Food &amp; Beverage</div>
+</div>
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--slate);margin:8px 0 4px">Auto &amp; Manufacturing</div>
+<div class="chips" style="margin-bottom:8px">
+  <div class="chip" onclick="toggleChip(this)">Automobile</div>
+  <div class="chip" onclick="toggleChip(this)">Manufacturing</div>
+  <div class="chip" onclick="toggleChip(this)">Engineering &amp; Industrial</div>
+</div>
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--slate);margin:8px 0 4px">HR &amp; Staffing</div>
+<div class="chips" style="margin-bottom:8px">
+  <div class="chip" onclick="toggleChip(this)">HR &amp; Recruitment</div>
+  <div class="chip" onclick="toggleChip(this)">Staffing &amp; Outsourcing</div>
+  <div class="chip" onclick="toggleChip(this)">Payroll Services</div>
+</div>
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--slate);margin:8px 0 4px">Government &amp; Non-Profit</div>
+<div class="chips" style="margin-bottom:8px">
+  <div class="chip" onclick="toggleChip(this)">Government / PSU</div>
+  <div class="chip" onclick="toggleChip(this)">NGO &amp; Non-Profit</div>
+  <div class="chip" onclick="toggleChip(this)">Social Enterprise</div>
+</div>
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--slate);margin:8px 0 4px">Other</div>
+<div class="chips" style="margin-bottom:4px">
+  <div class="chip" onclick="toggleChip(this)">Legal Services</div>
+  <div class="chip" onclick="toggleChip(this)">Accounting &amp; CA Firms</div>
+  <div class="chip" onclick="toggleChip(this)">Agriculture &amp; Agri-Tech</div>
+  <div class="chip" onclick="toggleChip(this)">Energy &amp; Utilities</div>
+  <div class="chip" onclick="toggleChip(this)">Other</div>
+</div>
+</div></div>
       <div class="step-nav"><button class="btn bgh bsm" onclick="goSec(5)">← Back</button><div class="step-prog">7 of 10</div><button class="btn bg bsm" onclick="goSec(7)">Next →</button></div>
     </div>
     <div class="sec" id="sec-7">
@@ -3990,6 +4078,15 @@ async function prefillCandidateProfileForm() {
       const skillArr = cp.skills.split(',').map(s => s.trim().toLowerCase());
       document.querySelectorAll('#cand-skills-chips .chip').forEach(chip => {
         if (skillArr.includes(chip.textContent.trim().toLowerCase())) chip.classList.add('on');
+        else chip.classList.remove('on');
+      });
+    }
+
+    // Preferred industries chips — restore all selected from saved comma-separated string
+    if (cp.preferred_industries) {
+      const indArr = cp.preferred_industries.split(',').map(i => i.trim().toLowerCase());
+      document.querySelectorAll('#pref-industries-field .chip').forEach(chip => {
+        if (indArr.includes(chip.textContent.trim().toLowerCase())) chip.classList.add('on');
         else chip.classList.remove('on');
       });
     }
@@ -6420,6 +6517,10 @@ async function finishProfile() {
       const availChips = document.querySelectorAll('#avail-c .chip.on, #wp-c .chip.on');
       const availability = Array.from(availChips).map(c => c.textContent.trim()).join(', ');
 
+      // Collect preferred industries from all chip groups in sec-6
+      const indChips = document.querySelectorAll('#pref-industries-field .chip.on');
+      const prefIndustries = Array.from(indChips).map(c => c.textContent.trim()).filter(Boolean).join(', ');
+
       // Update users table
       await supa.from('users').update({
         full_name: nameVal,
@@ -6439,9 +6540,10 @@ async function finishProfile() {
         experience_yrs: expYrs || null,
         salary_min:     salMin || null,
         salary_max:     salMax || null,
-        industry:       industry || null,
-        skills:         skills || null,
-        availability:   availability || null,
+        industry:           industry || null,
+        skills:             skills || null,
+        availability:       availability || null,
+        preferred_industries: prefIndustries || null,
       };
       if (existingCp) {
         await supa.from('candidate_profiles').update(profileData).eq('user_id', AUTH.id);
