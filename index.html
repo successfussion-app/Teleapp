@@ -824,12 +824,12 @@ img{max-width:100%}
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-emp" onclick="pickRole('employer')">
           <div style="font-size:32px;margin-bottom:10px">🏢</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Hiring</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telecaller talent</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telesales & sales talent</div>
         </div>
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-cand" onclick="pickRole('candidate')">
           <div style="font-size:32px;margin-bottom:10px">🎤</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Job Hunting</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telecaller & BPO jobs</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telesales & sales jobs</div>
         </div>
       </div>
       <div style="text-align:center;font-size:13px;color:var(--slate)">Already have an account? <span style="color:var(--gold);font-weight:600;cursor:pointer" onclick="showSignin()">Sign in →</span></div>
@@ -5272,14 +5272,22 @@ async function loadApplicationsFromDB() {
 
     if (!apps?.length) return;
     CD_APPS.length = 0;
-    apps.forEach(a => CD_APPS.push({
-      co:     a.employer_profiles?.company_name || '—',
-      role:   a.roles?.title || '—',
-      city:   a.roles?.city || '—',
-      sal:    a.roles?.salary_range || '',
-      date:   new Date(a.applied_at).toLocaleDateString('en-IN', { day:'numeric', month:'short' }),
-      status: a.status,
-    }));
+    apps.forEach(a => {
+      // company_name from join; fall back to cover_note hint or role title
+      const coName = a.employer_profiles?.company_name
+        || (a.cover_note && a.cover_note !== 'Direct interview invite by employer' ? a.cover_note : null)
+        || a.roles?.title
+        || '—';
+      CD_APPS.push({
+        co:     coName,
+        role:   a.roles?.title || a.cover_note || '—',
+        city:   a.roles?.city || '—',
+        sal:    a.roles?.salary_range || '',
+        date:   a.applied_at ? new Date(a.applied_at).toLocaleDateString('en-IN', { day:'numeric', month:'short' }) : '—',
+        status: a.status,
+        appId:  a.id,
+      });
+    });
     if (typeof renderCDApps === 'function') renderCDApps();
   } catch(e) { console.warn('loadApplicationsFromDB error:', e); }
 }
@@ -5675,6 +5683,11 @@ async function submitSchedule() {
     closeModal('modal-schedule');
     toast(`Interview scheduled with ${c?.name || 'candidate'} for ${dateStr} at ${time} ✓`, 'ts', 5000);
 
+    // Update candidate's application status to 'viewed' so their dashboard shows activity
+    if (c?.id) {
+      updateCandidateApplicationStatus(c.id, 'viewed', 'Profile Viewed').catch(() => {});
+    }
+
   } catch(err) {
     errEl.style.display='';
     errEl.textContent = 'Failed to schedule: ' + (err.message || 'Please try again.');
@@ -5906,36 +5919,37 @@ function renderCDActivityFeed() {
   const el = document.getElementById('cd-activity-feed');
   if (!el) return;
   const stMap = {
-    applied:     { icon:'📋', label:'Applied',         color:'var(--bs)',  text:'var(--blue)' },
-    viewed:      { icon:'👁',  label:'Profile Viewed',  color:'var(--gp)',  text:'var(--gold)' },
-    shortlisted: { icon:'⭐',  label:'Shortlisted',     color:'var(--gs)',  text:'#0f6e56'     },
-    contacted:   { icon:'🔓',  label:'Contact Unlocked',color:'var(--gs)',  text:'#0f6e56'     },
-    rejected:    { icon:'✕',   label:'Not Selected',    color:'#fff3f3',    text:'#dc2626'     },
-    on_hold:     { icon:'⏸',   label:'On Hold',         color:'#fffbeb',    text:'#92400e'     },
+    applied:              { icon:'📋', label:'Applied',            color:'var(--bs)',  text:'var(--blue)' },
+    viewed:               { icon:'👁',  label:'Profile Viewed',     color:'var(--gp)',  text:'var(--gold)' },
+    shortlisted:          { icon:'⭐',  label:'Shortlisted',        color:'var(--gs)',  text:'#0f6e56'     },
+    contacted:            { icon:'🔓',  label:'Contact Unlocked',   color:'var(--gs)',  text:'#0f6e56'     },
+    rejected:             { icon:'✕',   label:'Not Selected',       color:'#fff3f3',    text:'#dc2626'     },
+    on_hold:              { icon:'⏸',   label:'On Hold',            color:'#fffbeb',    text:'#92400e'     },
+    direct_invite:        { icon:'📅',  label:'Interview Invited',  color:'#ede9fe',    text:'#7c3aed'     },
+    interview_scheduled:  { icon:'📅',  label:'Interview Scheduled',color:'#ede9fe',    text:'#7c3aed'     },
   };
   if (!CD_APPS.length) {
     el.innerHTML = `<div class="ar"><div style="width:30px;height:30px;border-radius:8px;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">📋</div><span style="flex:1;font-size:13px;color:var(--slate)">No activity yet — complete your profile to get noticed</span><span class="at"></span></div>`;
     return;
   }
-  // Show most recent 5 status events, most recent first
-  const items = [...CD_APPS]
-    .filter(a => a.status !== 'applied')  // hide plain 'applied' — only show meaningful changes
-    .concat(CD_APPS.filter(a => a.status === 'applied').slice(0, 2)) // show up to 2 plain applied
-    .slice(0, 5);
-  if (!items.length) {
-    // All are just 'applied' — show them
-    items.push(...CD_APPS.slice(0, 3));
-  }
+  // Prioritise meaningful status changes; always show at least 1 applied entry
+  const meaningful = CD_APPS.filter(a => a.status !== 'applied');
+  const applied    = CD_APPS.filter(a => a.status === 'applied').slice(0, 2);
+  const items      = [...meaningful, ...applied].slice(0, 6);
+  if (!items.length) items.push(...CD_APPS.slice(0, 3));
+
   el.innerHTML = items.map(a => {
     const st = stMap[a.status] || stMap.applied;
+    // Show company name if available; fall back to role title
+    const displayCo   = (a.co && a.co !== '—') ? a.co : a.role;
+    const displayRole = (a.co && a.co !== '—' && a.role !== a.co) ? a.role : '';
     return `<div class="ar">
       <div style="width:30px;height:30px;border-radius:8px;background:${st.color};display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">${st.icon}</div>
-      <span style="flex:1;font-size:13px;color:var(--ink)">
-        <strong>${a.co}</strong>
-        <span style="color:var(--slate)"> — ${a.role}</span>
+      <span style="flex:1;font-size:13px;color:var(--ink);min-width:0">
+        <strong>${displayCo}</strong>${displayRole ? `<span style="color:var(--slate)"> — ${displayRole}</span>` : ''}
         <span style="display:block;font-size:11px;margin-top:2px;font-weight:600;color:${st.text}">${st.label}</span>
       </span>
-      <span class="at" style="font-size:11px;color:var(--slate);flex-shrink:0">${a.date}</span>
+      <span class="at" style="font-size:11px;color:var(--slate);flex-shrink:0;white-space:nowrap">${a.date}</span>
     </div>`;
   }).join('');
 }
