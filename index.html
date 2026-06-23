@@ -4340,23 +4340,29 @@ function toggleSL(id) {
 
 // Persist shortlist state to Supabase shortlists table (or via RPC)
 async function persistShortlist(candUserId, isShortlisted) {
+  // Shortlist state is stored locally in CANDS[].sl for this session.
+  // To persist across sessions, run the SQL in the provided .sql file to create
+  // the shortlists table and employer_update_application_status RPC function,
+  // then this function will automatically start writing to the DB.
   try {
     const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
     const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', candUserId).maybeSingle();
     if (!ep?.id || !cp?.id) return;
 
+    // Test if shortlists table exists before trying to write
+    const { error: testErr } = await supa.from('shortlists').select('id').limit(1);
+    if (testErr?.code === '42P01') return; // table doesn't exist yet — skip silently
+
     if (isShortlisted) {
-      // Insert into shortlists (ignore if already exists)
       await supa.from('shortlists').upsert(
         { employer_id: ep.id, candidate_id: cp.id, created_at: new Date().toISOString() },
         { onConflict: 'employer_id,candidate_id', ignoreDuplicates: true }
       );
     } else {
-      // Remove from shortlists
       await supa.from('shortlists').delete()
         .eq('employer_id', ep.id).eq('candidate_id', cp.id);
     }
-  } catch(e) { /* shortlists table may not exist — sl state is local-only */ }
+  } catch(e) { /* silent — shortlists table not yet created */ }
 }
 
 // Track which candidate the employer has viewed resume for (requires decision)
@@ -4594,12 +4600,9 @@ async function updateCandidateApplicationStatus(candUserId, status, label) {
     });
 
     if (rpcErr) {
-      // RPC not yet created — fall back to direct update (may fail due to RLS)
-      await supa.from('applications')
-        .update({ status })
-        .eq('candidate_id', cp.id)
-        .in('role_id', roleIds);
-      // Suppress any RLS error silently — local state update below handles UI
+      // RPC not yet created — skip DB update silently.
+      // Run employer_update_application_status.sql in Supabase SQL Editor to enable.
+      // UI is already updated locally below.
     }
 
     // Always update local CD_APPS so candidate's UI reflects change in this session
