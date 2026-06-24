@@ -1735,7 +1735,7 @@ img{max-width:100%}
       </div>
       <div>
         <div class="ft-col-title">Resources</div>
-        <span class="ft-link" onclick="toast('Blog coming soon','i')">Blog & Career Tips</span>
+        <span class="ft-link" onclick="toast('Blog coming soon','ti')">Blog & Career Tips</span>
         <span class="ft-link" onclick="navTo('contact')">Help Centre</span>
         <span class="ft-link" onclick="navTo('employer-guide')">Employer Guide</span>
         <span class="ft-link" onclick="navTo('fresher-guide')">Fresher Guide</span>
@@ -1866,7 +1866,7 @@ img{max-width:100%}
       <div class="ep" id="ep-interviews">
         <div class="eph">
           <div><div class="eph-title">Interviews</div><div class="eph-sub">Scheduled & upcoming</div></div>
-          <button class="btn bgh bsm" onclick="toast('Calendar sync - coming soon','i')">📅 Calendar View</button>
+          <button class="btn bgh bsm" onclick="toast('Calendar sync - coming soon','ti')">📅 Calendar View</button>
         </div>
         <div id="interviews-list"></div>
       </div>
@@ -2228,6 +2228,7 @@ img{max-width:100%}
             <div class="pcc-item"><div class="pcc-chk pcc-todo" id="pcc-refs-chk">○</div><span class="pcc-lbl">Professional References</span><span class="pcc-act" onclick="navTo('candidate-profile')">Add now →</span></div>
             <div class="pcc-item"><div class="pcc-chk pcc-todo" id="pcc-voice-chk">○</div><span class="pcc-lbl" id="pcc-voice-lbl" style="color:var(--slate)">Voice Pitch</span><span class="pcc-act" onclick="showCD('voice',document.querySelectorAll('.cdsbi')[4])">Record now →</span></div>
             <div class="pcc-item"><div class="pcc-chk pcc-todo" id="pcc-type-chk">○</div><span class="pcc-lbl" id="pcc-type-lbl" style="color:var(--slate)">Typing Test</span><span class="pcc-act" onclick="showCD('typing',document.querySelectorAll('.cdsbi')[5])">Take test →</span></div>
+            <div class="pcc-item" id="pcc-video-item"><div class="pcc-chk pcc-todo" id="pcc-video-chk">○</div><span class="pcc-lbl" style="color:var(--slate)">Video Interview</span><span class="pcc-act" onclick="showCD('video',document.querySelectorAll('.cdsbi')[6])">Upload →</span></div>
             <div class="pcc-item"><div class="pcc-chk pcc-todo">○</div><span class="pcc-lbl" style="color:var(--slate)">Infrastructure Details</span><span class="pcc-act" onclick="navTo('candidate-profile')">Add now →</span></div>
           </div>
         </div>
@@ -2404,7 +2405,7 @@ img{max-width:100%}
                 <div style="font-size:12px;color:rgba(237,233,254,.4);margin-top:2px" id="video-card-meta">Uploaded today · Visible to employers</div>
               </div>
               <div style="display:flex;gap:8px">
-                <button class="btn bsm" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15)" onclick="toast('▶ Playing your video interview...','i');setTimeout(()=>toast('Playback complete ✓','ts'),4000)">▶ Preview</button>
+                <button class="btn bsm" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15)" onclick="toast('▶ Playing your video interview...','ti');setTimeout(()=>toast('Playback complete ✓','ts'),4000)">▶ Preview</button>
                 <button class="btn bsm" style="background:rgba(239,68,68,.2);color:#fca5a5;border:1px solid rgba(239,68,68,.3)" onclick="removeVideo()">✕ Remove</button>
               </div>
             </div>
@@ -2413,7 +2414,7 @@ img{max-width:100%}
               <div style="font-size:48px;margin-bottom:8px">🎬</div>
               <div style="font-size:13px;color:rgba(237,233,254,.5);font-weight:600" id="video-thumb-name">video_interview.mp4</div>
               <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(26,10,46,.4)">
-                <div style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer" onclick="toast('▶ Playing video...','i')">▶</div>
+                <div style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer" onclick="toast('▶ Playing video...','ti')">▶</div>
               </div>
             </div>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
@@ -4417,7 +4418,7 @@ function showEP(id, el) {
   document.getElementById('ep-' + id).classList.add('active');
   document.querySelectorAll('.esbi').forEach(s => s.classList.remove('active'));
   if (el) el.classList.add('active');
-  const renders = { candidates: renderCands, roles: renderRoles, interviews: renderInterviews, shortlisted: renderSL, company: renderHiring };
+  const renders = { candidates: renderCands, roles: renderRoles, interviews: renderInterviews, shortlisted: renderSL, company: renderHiring, walkin: renderWalkin, analytics: loadEmployerAnalytics, billing: rzpUpdateBillingUI };
   if (renders[id]) renders[id]();
 }
 
@@ -4791,19 +4792,18 @@ async function updateCandidateApplicationStatus(candUserId, status, label, reaso
 async function openCandResume(candId, resumeUrl) {
   if (!resumeUrl) { toast('No resume uploaded by this candidate', 'tw2'); return; }
   try {
-    // Extract just the storage path
+    // If it's already a full URL, open directly
+    if (resumeUrl.startsWith('https://')) { window.open(resumeUrl, '_blank'); return; }
+    // Extract storage path
     let path = resumeUrl;
     if (path.includes('/resumes/')) path = path.split('/resumes/').pop().split('?')[0];
-    path = path.replace(/^\/+/, '');
-
-    // Since resumes bucket is now public, use public URL directly
+    if (path.includes('/object/')) path = path.split('/object/').pop().split('?')[0].replace(/^(public|sign)\/resumes\//, '');
+    path = decodeURIComponent(path.replace(/^\/+/, ''));
+    // Try signed URL first (works for private buckets), then public URL
+    const { data: signed } = await supa.storage.from('resumes').createSignedUrl(path, 3600);
+    if (signed?.signedUrl) { window.open(signed.signedUrl, '_blank'); return; }
     const { data: pub } = supa.storage.from('resumes').getPublicUrl(path);
-    if (pub?.publicUrl) {
-      window.open(pub.publicUrl, '_blank');
-      return;
-    }
-    // Fallback: if full URL was passed, open it directly
-    if (resumeUrl.startsWith('https://')) { window.open(resumeUrl, '_blank'); return; }
+    if (pub?.publicUrl) { window.open(pub.publicUrl, '_blank'); return; }
     toast('Resume not accessible. The candidate may need to re-upload it.', 'te', 5000);
   } catch(e) {
     toast('Error loading resume: ' + (e.message || 'Please try again'), 'te');
@@ -4901,6 +4901,33 @@ function renderSL() {
     `<div style="text-align:center;padding:40px;color:var(--slate);font-size:14px">No candidates shortlisted yet.<br><br><button class="btn bg bsm" onclick="showEP('candidates',document.querySelectorAll('.esbi')[1])">Browse Candidates →</button></div>`;
 }
 
+
+function renderWalkin() {
+  const el = document.getElementById('walkin-list');
+  const empty = document.getElementById('walkin-empty');
+  if (!el) return;
+  // Load walk-in interviews from DB
+  supa.from('walk_in_interviews')
+    .select('*').eq('employer_id', (AUTH.employerProfile?.id || ''))
+    .order('event_date', { ascending: true })
+    .then(({ data }) => {
+      if (!data?.length) {
+        el.innerHTML = ''; if (empty) empty.style.display = '';
+        return;
+      }
+      if (empty) empty.style.display = 'none';
+      el.innerHTML = data.map(w => `
+        <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:16px 18px">
+          <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700">${w.title || 'Walk-In Drive'}</div>
+          <div style="font-size:13px;color:var(--slate);margin-top:4px">
+            📅 ${w.event_date ? new Date(w.event_date).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}) : '—'} · 
+            📍 ${w.location || '—'} · 
+            ⏰ ${w.time_slot || '—'}
+          </div>
+          <div style="font-size:12px;color:var(--slate);margin-top:4px">${w.description || ''}</div>
+        </div>`).join('');
+    }).catch(() => { if (empty) empty.style.display = ''; });
+}
 function renderHiring() {
   document.getElementById('currently-hiring').innerHTML = ROLES_DATA.slice(0, 3).map(r => `<div style="background:var(--cream);border-radius:8px;padding:8px 12px;border:1px solid var(--bd);font-size:12.5px;font-weight:500">${r.title}</div>`).join('');
 }
@@ -5026,7 +5053,7 @@ async function saveCpEdit() {
   }
 }
 
-function renderAll() { renderCands(); renderRoles(); renderInterviews(); renderSL(); renderHiring(); }
+function renderAll() { renderCands(); renderRoles(); renderInterviews(); renderSL(); renderHiring(); renderWalkin(); }
 
 // ── Load company profile from Supabase and populate all elements ──────────────
 async function loadCompanyProfile() {
@@ -5196,7 +5223,7 @@ async function loadCandidatesFromDB() {
       return !HIDDEN_USER_IDS.has(cp.user_id);
     });
     const userIds = filteredProfiles.map(p => p.user_id).filter(Boolean);
-    const { data: users } = await supa.from('users').select('id, full_name, email, city').in('id', userIds);
+    const { data: users } = await supa.from('users').select('id, full_name, email, phone, city').in('id', userIds);
     const userMap = {};
     users?.forEach(u => { userMap[u.id] = u; });
 
@@ -5235,6 +5262,7 @@ async function loadCandidatesFromDB() {
         voice:    cp.voice_url,
         resume:   cp.resume_url,
         wpm:      cp.wpm || 0,
+        phone:    u.phone || '',
         refs:     [],
         avatar:   cp.avatar_url || null,
       });
@@ -5247,6 +5275,21 @@ async function loadCandidatesFromDB() {
     // Update overview count
     const ovApps = document.getElementById('ov-total-apps');
     if (ovApps && ovApps.textContent === '0') ovApps.textContent = CANDS.length;
+
+    // Restore shortlist state from DB
+    try {
+      const { data: ep2 } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
+      if (ep2?.id) {
+        const { data: slRows } = await supa.from('shortlists').select('candidate_id').eq('employer_id', ep2.id);
+        if (slRows?.length) {
+          const slSet = new Set(slRows.map(r => r.candidate_id));
+          CANDS.forEach(c => { if (slSet.has(c.candId)) c.sl = true; });
+          const slCount = CANDS.filter(c => c.sl).length;
+          const slCnt = document.getElementById('sl-cnt'); if (slCnt) slCnt.textContent = slCount;
+          renderCands(); renderSL();
+        }
+      }
+    } catch(e) { /* shortlists table not yet created */ }
   } catch(e) { console.warn('loadCandidatesFromDB error:', e); }
 }
 
@@ -5332,7 +5375,7 @@ async function loadApplicationsFromDB() {
     const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
     if (!cp) return;
     const { data: apps } = await supa.from('applications')
-      .select('*, roles(title, city, salary_range), employer_profiles(company_name)')
+      .select('id, role_id, employer_id, status, cover_note, applied_at, updated_at, roles(title, city, salary_range), employer_profiles(company_name, id)')
       .eq('candidate_id', cp.id)
       .order('applied_at', { ascending: false });
     const totalApps = apps?.length || 0;
@@ -5433,9 +5476,13 @@ async function loadVideoInterviewsFromDB() {
 // ══════════════════════════════════════════
 function showCD(id, el) {
   document.querySelectorAll('.cdp').forEach(p => p.classList.remove('active'));
-  document.getElementById('cdp-' + id).classList.add('active');
+  const sec = document.getElementById('cdp-' + id);
+  if (!sec) return;
+  sec.classList.add('active');
   document.querySelectorAll('.cdsbi').forEach(s => s.classList.remove('active'));
   if (el) el.classList.add('active');
+  // Refresh activity feed when switching to overview
+  if (id === 'overview' && typeof renderCDActivityFeed === 'function') renderCDActivityFeed();
   window.scrollTo(0, 0);
 }
 
@@ -5606,6 +5653,13 @@ function openScheduleModal(candId, candName) {
   document.getElementById('schedule-cand-name').textContent = `Scheduling interview with ${candName}`;
   document.getElementById('schedule-error').style.display = 'none';
   document.getElementById('schedule-notes').value = '';
+
+  // Populate role dropdown from employer's active roles
+  const roleEl = document.getElementById('schedule-role');
+  if (roleEl && ROLES_DATA?.length) {
+    roleEl.innerHTML = '<option value="">Select role (optional)</option>' +
+      ROLES_DATA.map(r => `<option value="${r.id || r.title}">${r.title}${r.city ? ' · ' + r.city : ''}</option>`).join('');
+  }
 
   // Set min date to today
   const today = new Date().toISOString().split('T')[0];
@@ -5985,7 +6039,7 @@ function cdSearchJobs(q) { const curF = document.querySelector('#cd-jobs-fbar .f
 
 function renderCDApps() {
   const el = document.getElementById('cd-apps-list'); if (!el) return;
-  const stMap = { applied: 'ap-applied:Applied', viewed: 'ap-viewed:Viewed 👁', shortlisted: 'ap-shortlisted:Shortlisted ✓', contacted: 'ap-contacted:Contacted 🔓', rejected: 'ap-rejected:Not Selected', on_hold: 'ap-onhold:On Hold ⏸' };
+  const stMap = { applied: 'ap-applied:Applied', viewed: 'ap-viewed:Viewed 👁', shortlisted: 'ap-shortlisted:Shortlisted ✓', contacted: 'ap-contacted:Contacted 🔓', rejected: 'ap-rejected:Not Selected', on_hold: 'ap-onhold:On Hold ⏸', direct_invite: 'ap-contacted:Interview Invited 📅', interview_scheduled: 'ap-shortlisted:Interview Scheduled 📅' };
   el.innerHTML = CD_APPS.map((a, i) => {
     const [cls, lbl] = (stMap[a.status] || 'ap-applied:Applied').split(':');
     const showReason = a.reason && (a.status === 'rejected' || a.status === 'on_hold');
@@ -6583,7 +6637,8 @@ async function finishProfile() {
   // Check mandatory fields - resume and voice pitch required
   const cp = AUTH.candidateProfile;
   const hasResume = pendingResumeFile || cp?.resume_url;
-  const hasVoice  = cp?.voice_url;
+  const hasVoice   = cp?.voice_url;
+  const hasVideo   = cp?.video_id;
 
   if (!hasResume) {
     toast('Please upload your resume before submitting your profile ★', 'te', 5000);
@@ -8716,9 +8771,23 @@ function showForgotPassword() {
   openModal('modal-forgot-pw');
 }
 
-function sendResetLink() {
+async function sendResetLink() {
   const email = document.getElementById('fp-email').value.trim();
-  if (!email) { toast('Please enter your email or mobile number', 'tw2'); return; }
+  if (!email) { toast('Please enter your email address', 'tw2'); return; }
+
+  const btn = document.querySelector('#fp-step1 button[onclick*="sendResetLink"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+
+  const { error } = await supa.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://pitchfirst.app'
+  });
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Send Reset Link'; }
+
+  if (error) {
+    toast('Could not send reset email: ' + error.message, 'te', 5000);
+    return;
+  }
 
   const display = email.length > 20 ? email.substring(0, 8) + '***' + email.slice(-6) : email;
   document.getElementById('fp-sent-to').textContent = display;
