@@ -3511,6 +3511,69 @@ async function emailInterviewScheduled(to, firstName, roleTitle, companyName, da
   return sendEmail({ to, subject: `Interview confirmed: ${roleTitle} at ${companyName} — ${dateStr}`, html });
 }
 
+async function emailCandidateRejected(to, firstName, companyName, reason) {
+  const subject = `Your application at ${companyName} — Update`;
+  const html = emailBase(`
+    <h2 style="font-family:'Georgia',serif;font-size:22px;font-weight:700;color:#1a1a1a;margin:0 0 6px">
+      Hi ${firstName},
+    </h2>
+    <p style="font-size:15px;color:#444;margin:0 0 20px;line-height:1.6">
+      Thank you for your interest in the role at <strong>${companyName}</strong> on PitchFirst.
+      After careful review of your profile and voice pitch, the employer has decided not to move
+      forward with your application at this time.
+    </p>
+    <div style="background:#fff5f5;border-left:4px solid #dc2626;border-radius:8px;padding:14px 18px;margin:0 0 20px">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#dc2626;margin-bottom:4px">Feedback from employer</div>
+      <div style="font-size:14px;color:#7f1d1d;font-weight:600">${reason}</div>
+    </div>
+    <p style="font-size:14px;color:#555;line-height:1.6;margin:0 0 20px">
+      This is valuable feedback — use it to strengthen your profile. Update your voice pitch, add
+      more skills, or improve your typing score. Employers on PitchFirst search by these signals.
+    </p>
+    <div style="text-align:center;margin:24px 0">
+      <a href="https://pitchfirst.app" style="background:#7c3aed;color:#fff;padding:12px 28px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;display:inline-block">
+        Improve My Profile →
+      </a>
+    </div>
+    <p style="font-size:13px;color:#888;margin:0">
+      Don't be discouraged — there are many more roles waiting for you on PitchFirst. Keep going! 💪
+    </p>
+  `);
+  return sendEmail({ to, subject, html });
+}
+
+async function emailCandidateOnHold(to, firstName, companyName, reason) {
+  const subject = `Your application at ${companyName} — On Hold`;
+  const html = emailBase(`
+    <h2 style="font-family:'Georgia',serif;font-size:22px;font-weight:700;color:#1a1a1a;margin:0 0 6px">
+      Hi ${firstName},
+    </h2>
+    <p style="font-size:15px;color:#444;margin:0 0 20px;line-height:1.6">
+      Thank you for applying through PitchFirst. We wanted to let you know that
+      <strong>${companyName}</strong> has placed your application <strong>on hold</strong> for now.
+      This is not a rejection — they are still considering you.
+    </p>
+    <div style="background:#fffbeb;border-left:4px solid #d97706;border-radius:8px;padding:14px 18px;margin:0 0 20px">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#d97706;margin-bottom:4px">Reason</div>
+      <div style="font-size:14px;color:#78350f;font-weight:600">${reason}</div>
+    </div>
+    <p style="font-size:14px;color:#555;line-height:1.6;margin:0 0 20px">
+      We recommend keeping your profile up to date and continuing to apply to other roles.
+      If the employer decides to move forward, you will receive another update.
+    </p>
+    <div style="text-align:center;margin:24px 0">
+      <a href="https://pitchfirst.app" style="background:#d97706;color:#fff;padding:12px 28px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;display:inline-block">
+        Browse More Roles →
+      </a>
+    </div>
+    <p style="font-size:13px;color:#888;margin:0">
+      You can view the status of all your applications in your PitchFirst dashboard under <em>My Applications</em>.
+    </p>
+  `);
+  return sendEmail({ to, subject, html });
+}
+
+
 // ══════════════════════════════════════════
 //  ASSEMBLYAI — Voice Pitch Scoring
 // ══════════════════════════════════════════
@@ -4667,45 +4730,60 @@ async function confirmCandDecision(id, decision) {
   c._decisionReason = reason;
   delete _resumeViewedFor[id];
 
-  // Update candidate's application status in DB + notify them
-  const statusLabel = decision === 'rejected' ? `Rejected — ${reason}` : `On Hold — ${reason}`;
-  const notifStatus = decision === 'rejected' ? 'rejected' : 'on_hold';
-  await updateCandidateApplicationStatus(id, notifStatus, statusLabel);
+  const notifStatus  = decision === 'rejected' ? 'rejected' : 'on_hold';
+  const statusLabel  = decision === 'rejected' ? `Rejected — ${reason}` : `On Hold — ${reason}`;
+  const companyName  = AUTH.name || 'The Employer';
 
-  toast(`${c.name} marked as ${decision === 'rejected' ? 'Rejected' : 'On Hold'}: ${reason}`, decision === 'rejected' ? 'te' : 'tw2', 5000);
+  // 1. Update application status in DB (via RPC) + store reason in cover_note
+  await updateCandidateApplicationStatus(id, notifStatus, statusLabel, reason);
 
-  // Refresh modal to show confirmed state
+  // 2. Send email to candidate
+  if (c.email) {
+    const emailFn = decision === 'rejected'
+      ? emailCandidateRejected(c.email, c.name?.split(' ')[0] || 'there', companyName, reason)
+      : emailCandidateOnHold(c.email,  c.name?.split(' ')[0] || 'there', companyName, reason);
+    emailFn.catch(e => console.warn('Decision email failed:', e));
+  }
+
+  toast(
+    `${c.name} marked as ${decision === 'rejected' ? 'Rejected' : 'On Hold'}: ${reason}`,
+    decision === 'rejected' ? 'te' : 'tw2', 5000
+  );
   openCandModal(id);
 }
 
-async function updateCandidateApplicationStatus(candUserId, status, label) {
+async function updateCandidateApplicationStatus(candUserId, status, label, reason) {
   try {
     const { data: cp } = await supa.from('candidate_profiles').select('id').eq('user_id', candUserId).maybeSingle();
     if (!cp?.id) return;
     const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
     if (!ep?.id) return;
 
+    // Build update payload — store reason in cover_note so candidate can see it
+    const updatePayload = { status, updated_at: new Date().toISOString() };
+    if (reason) updatePayload.cover_note = reason;
+
     // Try RPC first (SECURITY DEFINER bypasses RLS)
     const { error: rpcErr } = await supa.rpc('employer_update_application_status', {
       p_candidate_id:  cp.id,
       p_employer_id:   ep.id,
       p_status:        status,
+      p_reason:        reason || null,
     });
 
     if (rpcErr) {
-      // RPC not deployed — fall back to direct update using employer_id filter
-      // (employer owns rows where employer_id matches their profile)
+      // Fall back to direct update (works with new RLS policies)
       await supa.from('applications')
-        .update({ status, updated_at: new Date().toISOString() })
+        .update(updatePayload)
         .eq('candidate_id', cp.id)
         .eq('employer_id', ep.id)
         .then(({ error: e }) => {
-          if (e) console.info('Status update needs RPC deployment. Run pitchfirst_db_fixes.sql.', e.code);
+          if (e) console.info('Status update error:', e.code, e.message);
         });
     }
 
-    // Always update local CD_APPS so candidate's UI reflects change in this session
-    CD_APPS.forEach(a => { a.status = status; });
+    // Update local CD_APPS so candidate UI reflects change immediately
+    CD_APPS.forEach(a => { a.status = status; if (reason) a.reason = reason; });
     if (typeof renderCDApps === 'function') renderCDApps();
   } catch(e) { /* silent — UI already updated locally */ }
 }
@@ -5280,12 +5358,14 @@ async function loadApplicationsFromDB() {
         || '—';
       CD_APPS.push({
         co:     coName,
-        role:   a.roles?.title || a.cover_note || '—',
+        role:   a.roles?.title || '—',
         city:   a.roles?.city || '—',
         sal:    a.roles?.salary_range || '',
         date:   a.applied_at ? new Date(a.applied_at).toLocaleDateString('en-IN', { day:'numeric', month:'short' }) : '—',
         status: a.status,
         appId:  a.id,
+        // cover_note stores employer's rejection/hold reason
+        reason: (a.status === 'rejected' || a.status === 'on_hold') ? (a.cover_note || null) : null,
       });
     });
     if (typeof renderCDApps === 'function') renderCDApps();
@@ -5908,7 +5988,17 @@ function renderCDApps() {
   const stMap = { applied: 'ap-applied:Applied', viewed: 'ap-viewed:Viewed 👁', shortlisted: 'ap-shortlisted:Shortlisted ✓', contacted: 'ap-contacted:Contacted 🔓', rejected: 'ap-rejected:Not Selected', on_hold: 'ap-onhold:On Hold ⏸' };
   el.innerHTML = CD_APPS.map((a, i) => {
     const [cls, lbl] = (stMap[a.status] || 'ap-applied:Applied').split(':');
-    return `<div class="atr" id="atr-${i}"><div style="flex:1"><div class="atr-co">${a.co}</div><div class="atr-role">${a.role} · ${a.city} · Applied ${a.date}</div></div><span class="ap ${cls}" id="apill-${i}">${lbl}</span></div>`;
+    const showReason = a.reason && (a.status === 'rejected' || a.status === 'on_hold');
+    return `<div class="atr" id="atr-${i}">
+      <div style="flex:1;min-width:0">
+        <div class="atr-co">${a.co}</div>
+        <div class="atr-role">${a.role} · ${a.city} · Applied ${a.date}</div>
+        ${showReason ? `<div style="font-size:11px;color:${a.status==='rejected'?'#dc2626':'#92400e'};margin-top:3px;font-weight:500">
+          ${a.status==='rejected'?'Reason:':'On hold:'} ${a.reason}
+        </div>` : ''}
+      </div>
+      <span class="ap ${cls}" id="apill-${i}" style="flex-shrink:0">${lbl}</span>
+    </div>`;
   }).join('');
   document.getElementById('cd-app-cnt').textContent = CD_APPS.length;
   // Also refresh the overview activity feed whenever apps change
