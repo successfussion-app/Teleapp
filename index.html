@@ -824,12 +824,12 @@ img{max-width:100%}
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-emp" onclick="pickRole('employer')">
           <div style="font-size:32px;margin-bottom:10px">🏢</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Hiring</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telecaller talent</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telesales & sales talent</div>
         </div>
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-cand" onclick="pickRole('candidate')">
           <div style="font-size:32px;margin-bottom:10px">🎤</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Job Hunting</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telecaller & BPO jobs</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telesales & sales jobs</div>
         </div>
       </div>
       <div style="text-align:center;font-size:13px;color:var(--slate)">Already have an account? <span style="color:var(--gold);font-weight:600;cursor:pointer" onclick="showSignin()">Sign in →</span></div>
@@ -4918,12 +4918,38 @@ function renderSL() {
 }
 
 
-function renderWalkin() {
-  // walk_in_interviews table not yet created in DB — show existing UI without DB query
+async function renderWalkin() {
   const el = document.getElementById('walkin-list');
   const empty = document.getElementById('walkin-empty');
-  if (empty) empty.style.display = '';
-  if (el) el.innerHTML = '';
+  if (!el) return;
+  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--slate);font-size:13px">Loading...</div>';
+  try {
+    const { data: ep } = await supa.from('employer_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
+    if (!ep?.id) { if (empty) empty.style.display = ''; el.innerHTML = ''; return; }
+    const { data: rows, error } = await supa.from('walk_in_interviews')
+      .select('*').eq('employer_id', ep.id).eq('is_active', true)
+      .order('event_date', { ascending: true });
+    if (error) throw error;
+    if (!rows?.length) { el.innerHTML = ''; if (empty) empty.style.display = ''; return; }
+    if (empty) empty.style.display = 'none';
+    // Rebuild local walkinDrives from DB
+    walkinDrives = rows.map(r => ({
+      id: r.id, dbId: r.id,
+      title: r.title, role: r.role_title,
+      date: r.event_date,
+      dateStr: new Date(r.event_date).toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' }),
+      timeStr: r.time_slot,
+      venue: r.location, landmark: r.landmark, maps: r.maps_link,
+      vacancies: r.vacancies, exp: r.experience,
+      bring: r.bring_docs, notes: r.description,
+      companyName: r.company_name,
+    }));
+    renderWalkinList();
+  } catch(e) {
+    el.innerHTML = '';
+    if (empty) empty.style.display = '';
+    console.warn('renderWalkin error:', e.message);
+  }
 }
 function renderHiring() {
   document.getElementById('currently-hiring').innerHTML = ROLES_DATA.slice(0, 3).map(r => `<div style="background:var(--cream);border-radius:8px;padding:8px 12px;border:1px solid var(--bd);font-size:12.5px;font-weight:500">${r.title}</div>`).join('');
@@ -5437,10 +5463,43 @@ async function loadJobsFromDB() {
           id:    r.id,
         }));
     }
+    // Load walk-in interviews from DB and add to walkinDrives array
+    try {
+      const { data: wiRows } = await supa.from('walk_in_interviews')
+        .select('*, employer_profiles(company_name)')
+        .eq('is_active', true)
+        .gte('event_date', new Date().toISOString().split('T')[0]) // only future/today
+        .order('event_date', { ascending: true });
+      if (wiRows?.length) {
+        walkinDrives = wiRows.map(r => ({
+          id:          r.id,
+          dbId:        r.id,
+          title:       r.title,
+          role:        r.role_title,
+          date:        r.event_date,
+          dateStr:     new Date(r.event_date).toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' }),
+          timeStr:     r.time_slot || '—',
+          venue:       r.location || '—',
+          landmark:    r.landmark || '',
+          maps:        r.maps_link || '',
+          vacancies:   r.vacancies || 1,
+          exp:         r.experience || 'Any experience',
+          bring:       r.bring_docs || '',
+          notes:       r.description || '',
+          companyName: r.employer_profiles?.company_name || r.company_name || 'Employer',
+        }));
+      } else {
+        walkinDrives = [];
+      }
+    } catch(wiErr) {
+      walkinDrives = []; // table may not exist yet — silently ignore
+    }
+
     // Always update the sub text with live count
+    const total = CD_JOBS.length + walkinDrives.length;
     const subEl = document.getElementById('cd-jobs-sub');
-    if (subEl) subEl.textContent = CD_JOBS.length > 0
-      ? `${CD_JOBS.length} opportunit${CD_JOBS.length !== 1 ? 'ies' : 'y'} available now`
+    if (subEl) subEl.textContent = total > 0
+      ? `${total} opportunit${total !== 1 ? 'ies' : 'y'} available now${walkinDrives.length ? ' · ' + walkinDrives.length + ' walk-in drive' + (walkinDrives.length > 1 ? 's' : '') : ''}`
       : 'No open roles yet — check back soon';
     if (typeof renderCDJobs === 'function') renderCDJobs();
   } catch(e) { console.warn('loadJobsFromDB error:', e); }
@@ -5870,37 +5929,71 @@ function closeWalkinForm() {
   if (walkinDrives.length === 0) document.getElementById('walkin-empty').style.display = '';
 }
 
-function submitWalkin() {
-  const title = document.getElementById('wi-title').value.trim();
-  const role = document.getElementById('wi-role').value.trim();
-  const date = document.getElementById('wi-date').value;
+async function submitWalkin() {
+  const title     = document.getElementById('wi-title').value.trim();
+  const role      = document.getElementById('wi-role').value.trim();
+  const date      = document.getElementById('wi-date').value;
   const timeStart = document.getElementById('wi-time-start').value;
-  const timeEnd = document.getElementById('wi-time-end').value;
-  const venue = document.getElementById('wi-venue').value.trim();
+  const timeEnd   = document.getElementById('wi-time-end').value;
+  const venue     = document.getElementById('wi-venue').value.trim();
   const vacancies = document.getElementById('wi-vacancies').value;
 
   if (!title || !role || !date || !timeStart || !venue || !vacancies) {
     toast('Please fill all required fields', 'tw2'); return;
   }
 
-  const expEl = document.querySelector('#wi-exp-chips .chip.on');
-  const exp = expEl ? expEl.textContent.trim() : 'Any experience';
+  const expEl    = document.querySelector('#wi-exp-chips .chip.on');
+  const exp      = expEl ? expEl.textContent.trim() : 'Any experience';
   const landmark = document.getElementById('wi-landmark').value.trim();
-  const maps = document.getElementById('wi-maps').value.trim();
-  const bring = document.getElementById('wi-bring').value.trim();
-  const notes = document.getElementById('wi-notes').value.trim();
+  const maps     = document.getElementById('wi-maps').value.trim();
+  const bring    = document.getElementById('wi-bring').value.trim();
+  const notes    = document.getElementById('wi-notes').value.trim();
 
   const dateObj = new Date(date);
-  const dateStr = dateObj.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const dateStr = dateObj.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
   const timeStr = formatTime(timeStart) + (timeEnd ? ' – ' + formatTime(timeEnd) : '');
 
-  const drive = { id: Date.now(), title, role, date, dateStr, timeStr, venue, landmark, maps, vacancies: parseInt(vacancies), exp, bring, notes };
-  walkinDrives.push(drive);
-  renderWalkinList();
-  closeWalkinForm();
-  clearWalkinForm();
-  toast(`Walk-in drive published! Candidates can now see it in Browse Jobs ✓`, 'ts');
-  setTimeout(() => toast('Matching candidates have been notified', 'ti'), 2000);
+  const btn = document.querySelector('#walkin-form .btn.bp');
+  if (btn) { btn.disabled = true; btn.textContent = 'Publishing...'; }
+
+  try {
+    const { data: ep } = await supa.from('employer_profiles').select('id, company_name').eq('user_id', AUTH.id).maybeSingle();
+    if (!ep?.id) { toast('Employer profile not found. Please complete your company profile first.', 'te'); return; }
+
+    const row = {
+      employer_id:  ep.id,
+      title,
+      role_title:   role,
+      event_date:   date,
+      time_slot:    timeStr,
+      location:     venue,
+      landmark:     landmark || null,
+      maps_link:    maps || null,
+      vacancies:    parseInt(vacancies) || 1,
+      experience:   exp,
+      bring_docs:   bring || null,
+      description:  notes || null,
+      is_active:    true,
+      company_name: ep.company_name || AUTH.name,
+    };
+
+    const { data: inserted, error } = await supa.from('walk_in_interviews').insert(row).select().maybeSingle();
+    if (error) throw error;
+
+    // Add to local array
+    const drive = { id: inserted?.id || Date.now(), dbId: inserted?.id, title, role, date, dateStr, timeStr, venue, landmark, maps, vacancies: parseInt(vacancies), exp, bring, notes, companyName: ep.company_name };
+    walkinDrives.push(drive);
+    renderWalkinList();
+    closeWalkinForm();
+    clearWalkinForm();
+    toast('Walk-in drive published! Candidates can now see it in Browse Jobs ✓', 'ts');
+    setTimeout(() => toast('Matching candidates have been notified 📍', 'ti'), 2000);
+  } catch(e) {
+    console.error('submitWalkin error:', e);
+    toast('Could not publish walk-in. Please try again.', 'te');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Publish Walk-In →'; }
+  }
 }
 
 function formatTime(t) {
@@ -5916,9 +6009,17 @@ function clearWalkinForm() {
   });
 }
 
-function cancelWalkin(id) {
+async function cancelWalkin(id) {
   if (!confirm('Cancel this walk-in drive? Candidates will no longer see it.')) return;
-  walkinDrives = walkinDrives.filter(w => w.id !== id);
+  const drive = walkinDrives.find(w => String(w.id) === String(id));
+  // Remove from DB if we have a DB ID
+  if (drive?.dbId) {
+    await supa.from('walk_in_interviews').update({ is_active: false }).eq('id', drive.dbId).catch(e => console.warn(e));
+  } else {
+    // Try using id directly as UUID
+    await supa.from('walk_in_interviews').update({ is_active: false }).eq('id', id).catch(e => console.warn(e));
+  }
+  walkinDrives = walkinDrives.filter(w => String(w.id) !== String(id));
   renderWalkinList();
   toast('Walk-in drive cancelled', 'ti');
 }
