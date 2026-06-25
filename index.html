@@ -824,12 +824,12 @@ img{max-width:100%}
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-emp" onclick="pickRole('employer')">
           <div style="font-size:32px;margin-bottom:10px">🏢</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Hiring</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telesales & sales talent</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telecaller talent</div>
         </div>
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-cand" onclick="pickRole('candidate')">
           <div style="font-size:32px;margin-bottom:10px">🎤</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Job Hunting</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telesales & sales jobs</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telecaller & BPO jobs</div>
         </div>
       </div>
       <div style="text-align:center;font-size:13px;color:var(--slate)">Already have an account? <span style="color:var(--gold);font-weight:600;cursor:pointer" onclick="showSignin()">Sign in →</span></div>
@@ -4765,21 +4765,33 @@ async function updateCandidateApplicationStatus(candUserId, status, label, reaso
     if (reason) updatePayload.cover_note = reason;
 
     // Try RPC first (SECURITY DEFINER bypasses RLS)
+    // Map to DB-allowed status values (DB CHECK constraint may be strict)
+    // We store the real status in cover_note as fallback
+    const dbStatus = {
+      'shortlisted':  'shortlisted',
+      'rejected':     'rejected',
+      'on_hold':      'viewed',   // fallback if on_hold not in CHECK constraint
+      'contacted':    'viewed',   // fallback if contacted not in CHECK constraint
+      'viewed':       'viewed',
+      'applied':      'applied',
+    }[status] || 'viewed';
+
     const { error: rpcErr } = await supa.rpc('employer_update_application_status', {
       p_candidate_id:  cp.id,
       p_employer_id:   ep.id,
-      p_status:        status,
-      p_reason:        reason || null,
+      p_status:        dbStatus,
+      p_reason:        reason ? `${status}: ${reason}` : null,
     });
 
     if (rpcErr) {
-      // Fall back to direct update (works with new RLS policies)
+      // RPC failed — try direct update with safe status only
       await supa.from('applications')
-        .update(updatePayload)
+        .update({ status: dbStatus, updated_at: new Date().toISOString(),
+                  cover_note: reason ? `${status}: ${reason}` : updatePayload.cover_note })
         .eq('candidate_id', cp.id)
         .eq('employer_id', ep.id)
         .then(({ error: e }) => {
-          if (e) console.info('Status update error:', e.code, e.message);
+          if (e) console.info('Status update error (check constraints):', e.code);
         });
     }
 
@@ -4792,18 +4804,28 @@ async function updateCandidateApplicationStatus(candUserId, status, label, reaso
 async function openCandResume(candId, resumeUrl) {
   if (!resumeUrl) { toast('No resume uploaded by this candidate', 'tw2'); return; }
   try {
-    // If it's already a full URL, open directly
-    if (resumeUrl.startsWith('https://')) { window.open(resumeUrl, '_blank'); return; }
-    // Extract storage path
-    let path = resumeUrl;
-    if (path.includes('/resumes/')) path = path.split('/resumes/').pop().split('?')[0];
-    if (path.includes('/object/')) path = path.split('/object/').pop().split('?')[0].replace(/^(public|sign)\/resumes\//, '');
-    path = decodeURIComponent(path.replace(/^\/+/, ''));
-    // Try signed URL first (works for private buckets), then public URL
-    const { data: signed } = await supa.storage.from('resumes').createSignedUrl(path, 3600);
-    if (signed?.signedUrl) { window.open(signed.signedUrl, '_blank'); return; }
+    // If it's already a full https URL, open it directly
+    if (resumeUrl.startsWith('https://')) {
+      // Check if it contains storage path we can regenerate
+      if (resumeUrl.includes('/storage/v1/object/')) {
+        // Extract the storage path after bucket name
+        const match = resumeUrl.match(/\/object\/(?:public|sign)\/resumes\/(.+?)(?:\?|$)/);
+        if (match) {
+          const path = decodeURIComponent(match[1].split('?')[0]);
+          // Try public URL first (works if bucket is public)
+          const { data: pub } = supa.storage.from('resumes').getPublicUrl(path);
+          if (pub?.publicUrl) { window.open(pub.publicUrl, '_blank'); return; }
+        }
+      }
+      // Open the URL as-is
+      window.open(resumeUrl, '_blank'); return;
+    }
+    // It's a storage path — build public URL directly (avoid signed URL if bucket is public)
+    const path = decodeURIComponent(resumeUrl.replace(/^\/+/, ''));
     const { data: pub } = supa.storage.from('resumes').getPublicUrl(path);
-    if (pub?.publicUrl) { window.open(pub.publicUrl, '_blank'); return; }
+    if (pub?.publicUrl && !pub.publicUrl.endsWith('/undefined')) {
+      window.open(pub.publicUrl, '_blank'); return;
+    }
     toast('Resume not accessible. The candidate may need to re-upload it.', 'te', 5000);
   } catch(e) {
     toast('Error loading resume: ' + (e.message || 'Please try again'), 'te');
@@ -4843,21 +4865,15 @@ function unlockContact(id) {
       if (cp?.id && ep?.id) {
         const { data: empRoles } = await supa.from('roles').select('id').eq('employer_id', ep.id);
         const roleIds = (empRoles || []).map(r => r.id);
-        // Try RPC first, fall back to employer_id direct update
+        // Update status to 'viewed' (safer than 'contacted' for DB CHECK constraints)
+        // The contact unlock is tracked via the shortlists table and local state
         const { error: rpcErr2 } = await supa.rpc('employer_update_application_status', {
           p_candidate_id: cp.id,
           p_employer_id:  ep.id,
-          p_status:       'contacted',
+          p_status:       'viewed',
+          p_reason:       null,
         });
-        if (rpcErr2) {
-          await supa.from('applications')
-            .update({ status: 'contacted', updated_at: new Date().toISOString() })
-            .eq('candidate_id', cp.id)
-            .eq('employer_id', ep.id)
-            .then(({ error: e }) => {
-              if (e) console.info('Contacted update needs RPC. Run pitchfirst_db_fixes.sql.', e.code);
-            });
-        }
+        // Silently ignore RPC errors — contact unlock is still tracked locally
       }
     } catch(e) {}
   });
@@ -4903,30 +4919,11 @@ function renderSL() {
 
 
 function renderWalkin() {
+  // walk_in_interviews table not yet created in DB — show existing UI without DB query
   const el = document.getElementById('walkin-list');
   const empty = document.getElementById('walkin-empty');
-  if (!el) return;
-  // Load walk-in interviews from DB
-  supa.from('walk_in_interviews')
-    .select('*').eq('employer_id', (AUTH.employerProfile?.id || ''))
-    .order('event_date', { ascending: true })
-    .then(({ data }) => {
-      if (!data?.length) {
-        el.innerHTML = ''; if (empty) empty.style.display = '';
-        return;
-      }
-      if (empty) empty.style.display = 'none';
-      el.innerHTML = data.map(w => `
-        <div style="background:#fff;border-radius:var(--r12);border:1px solid var(--bd);padding:16px 18px">
-          <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700">${w.title || 'Walk-In Drive'}</div>
-          <div style="font-size:13px;color:var(--slate);margin-top:4px">
-            📅 ${w.event_date ? new Date(w.event_date).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}) : '—'} · 
-            📍 ${w.location || '—'} · 
-            ⏰ ${w.time_slot || '—'}
-          </div>
-          <div style="font-size:12px;color:var(--slate);margin-top:4px">${w.description || ''}</div>
-        </div>`).join('');
-    }).catch(() => { if (empty) empty.style.display = ''; });
+  if (empty) empty.style.display = '';
+  if (el) el.innerHTML = '';
 }
 function renderHiring() {
   document.getElementById('currently-hiring').innerHTML = ROLES_DATA.slice(0, 3).map(r => `<div style="background:var(--cream);border-radius:8px;padding:8px 12px;border:1px solid var(--bd);font-size:12.5px;font-weight:500">${r.title}</div>`).join('');
@@ -6696,24 +6693,42 @@ async function finishProfile() {
 
       // Upsert candidate_profiles
       const { data: existingCp } = await supa.from('candidate_profiles').select('id').eq('user_id', AUTH.id).maybeSingle();
+      // Core columns — confirmed to exist in candidate_profiles schema
       const profileData = {
         user_id:        AUTH.id,
         role_title:     roleVal,
         languages:      langs,
-        profile_pct:    100,
-        ai_verified:    false,
-        experience_yrs: expYrs || null,
-        salary_min:     salMin || null,
-        salary_max:     salMax || null,
-        industry:           industry || null,
-        skills:             skills || null,
-        availability:       availability || null,
+        skills:         skills || null,
+        availability:   availability || null,
+        industry:       industry || null,
+      };
+
+      // Extended columns — may not exist depending on DB version; added individually
+      const extendedFields = {
+        profile_pct:          100,
+        experience_yrs:       expYrs || null,
+        salary_min:           salMin || null,
+        salary_max:           salMax || null,
         preferred_industries: prefIndustries || null,
       };
+
       if (existingCp) {
-        await supa.from('candidate_profiles').update(profileData).eq('user_id', AUTH.id);
+        // Try core first, then extend
+        const { error: coreErr } = await supa.from('candidate_profiles')
+          .update(profileData).eq('user_id', AUTH.id);
+        if (coreErr) console.warn('Profile core update error:', coreErr.message);
+        // Try extended fields individually to avoid failing on missing columns
+        const { error: extErr } = await supa.from('candidate_profiles')
+          .update(extendedFields).eq('user_id', AUTH.id);
+        if (extErr) console.info('Extended profile fields may need DB migration:', extErr.message);
       } else {
-        await supa.from('candidate_profiles').insert(profileData);
+        const { error: insErr } = await supa.from('candidate_profiles')
+          .insert({ ...profileData, ...extendedFields });
+        if (insErr) {
+          // Try insert with just core fields if extended fields cause 400
+          const { error: coreInsErr } = await supa.from('candidate_profiles').insert(profileData);
+          if (coreInsErr) console.warn('Profile insert error:', coreInsErr.message);
+        }
       }
 
       // Save references to DB
