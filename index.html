@@ -4717,7 +4717,7 @@ function renderCands(search = '') {
       </div>
       <div class="cc-r">
         <div class="sr ${c.sc}">${c.score}</div>
-        <button class="btn bgh bsm" onclick="event.stopPropagation();${c.hasVoice && c.voice ? `document.getElementById('tmp-audio-player')?.remove();const a=document.createElement('audio');a.id='tmp-audio-player';a.src='${c.voice}';document.body.appendChild(a);a.play();toast('▶ Playing voice pitch...','ti')` : `toast('No voice pitch submitted','tw2')`}">${c.hasVoice ? '▶ Play Pitch' : 'No Pitch'}</button>
+        <button class="btn bgh bsm" onclick="event.stopPropagation();${c.hasVoice && c.voice ? `openVoicePitchPlayer('${c.id}','${(c.name||'').replace(/'/g,"\\'")}','${c.voice}')` : `toast('No voice pitch submitted','tw2')`}">${c.hasVoice ? '▶ Play Pitch' : 'No Pitch'}</button>
         <button class="btn ${c.sl ? 'bgn' : 'bgh'} bsm" onclick="event.stopPropagation();toggleSL('${c.id}')">${c.sl ? '✓ Shortlisted' : '⭐ Shortlist'}</button>
       </div>
     </div>`).join('') :
@@ -4730,6 +4730,32 @@ function renderCands(search = '') {
 }
 
 function playP(name) { toast(`▶ Playing ${name}'s voice pitch...`, 'ti'); setTimeout(() => toast(`✓ Pitch complete for ${name}`, 'ts'), 3500); }
+
+function openVoicePitchPlayer(candId, candName, voiceUrl) {
+  // Remove any existing player popover first
+  document.getElementById('voice-pitch-popover')?.remove();
+
+  const popover = document.createElement('div');
+  popover.id = 'voice-pitch-popover';
+  popover.style.cssText = `
+    position:fixed;inset:0;background:rgba(14,11,7,.6);z-index:10000;
+    display:flex;align-items:center;justify-content:center;padding:20px;
+  `;
+  popover.innerHTML = `
+    <div style="background:#fff;border-radius:18px;padding:24px;max-width:380px;width:100%;box-shadow:0 24px 70px rgba(0,0,0,.3)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--vg)">Voice Pitch</div>
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-top:2px">${candName}</div>
+        </div>
+        <button onclick="document.getElementById('voice-pitch-popover').remove()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--slate);line-height:1">✕</button>
+      </div>
+      <audio id="voice-pitch-audio-el" controls autoplay style="width:100%;height:42px;border-radius:8px" src="${voiceUrl}"></audio>
+    </div>`;
+  // Close when clicking the dark backdrop (but not the card itself)
+  popover.addEventListener('click', (e) => { if (e.target === popover) popover.remove(); });
+  document.body.appendChild(popover);
+}
 
 function toggleSL(id) {
   const c = CANDS.find(x => String(x.id) === String(id)); if (!c) return;
@@ -5290,27 +5316,23 @@ async function generateJDWithAI() {
   loading.style.display = '';
   result.style.display  = 'none';
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch(`${SUPA_URL}/functions/v1/generate-jd`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content:
-          `Write a professional job description for the role: "${role}" at an Indian company.
-           Include: Role Summary (2 sentences), Key Responsibilities (5-6 bullet points), 
-           Requirements (4-5 bullet points), and What We Offer (3 bullet points).
-           Keep it concise, professional, and specific to Indian telecalling/BPO/inside sales context.
-           Format in plain text with clear section headers. No markdown symbols.` }]
-      })
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPA_ANON}`,
+        'apikey': SUPA_ANON,
+      },
+      body: JSON.stringify({ mode: 'generate', role }),
     });
     const data = await res.json();
-    const jd = data.content?.[0]?.text || '';
-    if (!jd) throw new Error('No JD generated');
+    const jd = data?.text || '';
+    if (!res.ok || !jd) throw new Error(data?.error || 'No JD generated');
     document.getElementById('role-jd-ai-text').value = jd;
     result.style.display = '';
   } catch(e) {
-    toast('AI generation failed. Please write the JD manually.', 'te');
+    console.warn('generateJDWithAI error:', e.message);
+    toast('AI generation is not set up yet. Please write the JD manually, or ask your developer to deploy the generate-jd Edge Function.', 'te', 6000);
   } finally {
     loading.style.display = 'none';
     btn.disabled = false; btn.textContent = 'Generate →';
@@ -5321,6 +5343,7 @@ function useAIJD() {
   const text = document.getElementById('role-jd-ai-text').value.trim();
   if (!text) return;
   document.getElementById('role-jd-text').value = text;
+  window._jdSource = 'ai_generated';
   switchJDTab('write');
   toast('AI JD applied — review and edit before posting ✓', 'ts');
 }
@@ -5334,30 +5357,27 @@ async function handleJDPdf(input) {
   preview.style.display = 'none';
   textArea.value = 'Extracting text from PDF...';
   try {
-    // Read PDF as ArrayBuffer and extract text via FileReader
     const reader = new FileReader();
     reader.onload = async function(e) {
       try {
-        // Send to Claude API as base64 for text extraction
         const base64 = btoa(String.fromCharCode(...new Uint8Array(e.target.result)));
-        const res = await fetch('https://api.anthropic.com/v1/messages', {
+        const res = await fetch(`${SUPA_URL}/functions/v1/generate-jd`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-6',
-            max_tokens: 1000,
-            messages: [{ role: 'user', content: [
-              { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
-              { type: 'text', text: 'Extract and return the full job description text from this PDF. Return only the text content, no commentary.' }
-            ]}]
-          })
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPA_ANON}`,
+            'apikey': SUPA_ANON,
+          },
+          body: JSON.stringify({ mode: 'extract_pdf', pdfBase64: base64 }),
         });
         const data = await res.json();
-        const extracted = data.content?.[0]?.text || '';
-        textArea.value = extracted || 'Could not extract text. Please paste the JD manually.';
+        const extracted = data?.text || '';
+        if (!res.ok || !extracted) throw new Error(data?.error || 'No text extracted');
+        textArea.value = extracted;
         preview.style.display = '';
       } catch(err) {
-        textArea.value = 'Extraction failed. Please paste the JD manually below.';
+        console.warn('PDF extraction error:', err.message);
+        textArea.value = 'PDF extraction is not set up yet. Please paste the JD manually below.';
         preview.style.display = '';
       }
     };
@@ -5372,6 +5392,7 @@ function useJDFromPDF() {
   const text = document.getElementById('role-jd-pdf-text').value.trim();
   if (!text) return;
   document.getElementById('role-jd-text').value = text;
+  window._jdSource = 'pdf_upload';
   switchJDTab('write');
   toast('JD from PDF applied — review and edit before posting ✓', 'ts');
 }
@@ -5379,6 +5400,10 @@ function useJDFromPDF() {
 function getPostRoleJD() {
   // Always read from the main JD textarea (all paths funnel there)
   return document.getElementById('role-jd-text')?.value?.trim() || '';
+}
+
+function getPostRoleJDSource() {
+  return window._jdSource || 'manual';
 }
 
 async function postRole() {
@@ -5421,6 +5446,7 @@ async function postRole() {
           experience_req: exp,
           salary_range:   sal,
           description:    desc,
+          jd_source:      getPostRoleJDSource(),
           is_walkin:      isWalkin,
           is_active:      true,
         }).select().maybeSingle();
@@ -5434,6 +5460,7 @@ async function postRole() {
     closeModal('modal-post');
     toast('Role posted! Going live now 🚀', 'ts');
     setTimeout(() => toast('Matching candidates are being notified', 'ti'), 2000);
+    window._jdSource = null; // reset for next post
     // Always reload from DB to confirm persistence
     await loadRolesFromDB();
     renderHiring();
