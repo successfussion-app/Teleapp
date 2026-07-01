@@ -824,12 +824,12 @@ img{max-width:100%}
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-emp" onclick="pickRole('employer')">
           <div style="font-size:32px;margin-bottom:10px">🏢</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Hiring</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telesales & sales talent</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Post roles & screen telecaller talent</div>
         </div>
         <div style="border:2px solid var(--bd);border-radius:var(--r16);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center" id="pick-cand" onclick="pickRole('candidate')">
           <div style="font-size:32px;margin-bottom:10px">🎤</div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">I'm Job Hunting</div>
-          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telesales & sales jobs</div>
+          <div style="font-size:12px;color:var(--slate);line-height:1.5">Find telecaller & BPO jobs</div>
         </div>
       </div>
       <div style="text-align:center;font-size:13px;color:var(--slate)">Already have an account? <span style="color:var(--gold);font-weight:600;cursor:pointer" onclick="showSignin()">Sign in →</span></div>
@@ -1187,7 +1187,7 @@ img{max-width:100%}
           </button>
           <button type="button" id="jd-tab-ai" onclick="switchJDTab('ai')"
             style="padding:7px 14px;border-radius:8px;border:1.5px solid var(--bd);background:#fff;color:var(--slate);font-size:12px;font-weight:700;cursor:pointer">
-            ✨ Generate with AI
+            ✨ Use Template
           </button>
           <button type="button" id="jd-tab-pdf" onclick="switchJDTab('pdf')"
             style="padding:7px 14px;border-radius:8px;border:1.5px solid var(--bd);background:#fff;color:var(--slate);font-size:12px;font-weight:700;cursor:pointer">
@@ -1204,8 +1204,8 @@ img{max-width:100%}
         <!-- AI Generate tab -->
         <div id="jd-panel-ai" style="display:none">
           <div style="background:var(--gp);border-radius:10px;padding:12px 14px;margin-bottom:10px;border:1px solid rgba(200,134,10,.15)">
-            <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:6px">✨ AI Job Description Generator</div>
-            <div style="font-size:11.5px;color:var(--slate);line-height:1.5">Select a role and click Generate. The output is a generic template — review and edit before posting.</div>
+            <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:6px">📋 Job Description Templates</div>
+            <div style="font-size:11.5px;color:var(--slate);line-height:1.5">Select a role to instantly load a professionally written template. Review and edit before posting — all fields are customisable.</div>
           </div>
           <div style="display:flex;gap:8px;margin-bottom:10px">
             <select class="fi" id="jd-ai-role-select" style="flex:1">
@@ -1221,26 +1221,26 @@ img{max-width:100%}
             </select>
             <button type="button" id="jd-generate-btn" onclick="generateJDWithAI()"
               style="padding:0 16px;border-radius:8px;background:var(--vg);color:#fff;border:none;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap">
-              Generate →
+              Load Template →
             </button>
           </div>
           <div id="jd-ai-loading" style="display:none;text-align:center;padding:20px;font-size:13px;color:var(--slate)">
-            ✨ Generating job description...
+            📋 Loading template...
           </div>
           <div id="jd-ai-result" style="display:none">
             <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:12px;color:#15803d;font-weight:600">
-              ✓ Generated — this is a generic template. Edit it to match your exact requirements.
+              ✓ Template loaded — review and edit to match your exact requirements before posting.
             </div>
             <textarea class="fi" id="role-jd-ai-text" rows="8"
               style="border:2px solid var(--vg)" placeholder="Generated JD will appear here..."></textarea>
             <div style="display:flex;gap:8px;margin-top:8px">
               <button type="button" onclick="useAIJD()"
                 style="flex:1;padding:9px;border-radius:8px;background:var(--vg);color:#fff;border:none;font-weight:700;font-size:13px;cursor:pointer">
-                Use This JD →
+                Use This Template →
               </button>
               <button type="button" onclick="generateJDWithAI()"
                 style="padding:9px 14px;border-radius:8px;border:1.5px solid var(--bd);background:#fff;font-size:12px;font-weight:600;cursor:pointer">
-                Regenerate
+                Load Different Template
               </button>
             </div>
           </div>
@@ -1843,7 +1843,7 @@ img{max-width:100%}
   <section class="lp-cta-band" aria-labelledby="cta-heading">
     <div class="lp-sec-tag" style="justify-content:center">Get Started Today</div>
     <h2 class="lp-sec-h" id="cta-heading" style="text-align:center">India has 5 million telecallers.<br/><em>They deserve a platform built for them.</em></h2>
-    <p class="lp-sec-p" style="text-align:center;margin:0 auto 36px">Join PitchFirst today — free for all candidates until 30 September 2026, then ₹199/month for candidates and ₹2,999/month for employers. No contracts. Cancel anytime.</p>
+    <p class="lp-sec-p" style="text-align:center;margin:0 auto 36px">Join PitchFirst today — free for all candidates and at ₹1,999 for employers until 30 June 2026, then ₹199/month for candidates until 30 September 2026 and ₹2,999/month for employers. No contracts. Cancel anytime.</p>
     <div class="cta-band-btns">
       <button class="btn bd2" style="font-size:14px;padding:13px 28px" onclick="openModal('modal-auth');pickRole('employer')">🏢 Start Hiring →</button>
       <button class="btn bg" style="font-size:14px;padding:13px 28px" onclick="openModal('modal-auth');pickRole('candidate')">🎤 Build My Profile Free →</button>
@@ -5306,37 +5306,402 @@ function switchJDTab(tab) {
   document.getElementById('jd-final-preview').style.display = 'none';
 }
 
-async function generateJDWithAI() {
+const JD_TEMPLATES = {
+  "Telecaller": `Role Summary
+We are looking for an energetic Telecaller to connect with potential and existing customers over the phone, explain our products/services clearly, and convert conversations into business outcomes. This role suits someone with a confident, friendly voice and the patience to handle high call volumes daily.
+
+Key Responsibilities
+- Make outbound calls to leads/customers from provided databases or CRM
+- Explain product/service features, pricing, and offers clearly in the customer's preferred language
+- Handle inbound queries and resolve basic customer concerns on the call
+- Update call outcomes, customer feedback, and follow-up dates in the CRM/Excel sheet
+- Meet daily/weekly call and conversion targets set by the team lead
+- Escalate unresolved or high-value queries to the senior team promptly
+
+Requirements
+- Clear, confident verbal communication in Hindi and English (regional language is a plus)
+- Basic computer literacy — comfortable using CRM tools, Excel, or call dialers
+- Freshers welcome; prior telecalling/BPO experience is an advantage
+- Patience and a polite, persistent attitude on calls
+- Willingness to work in shifts if applicable
+
+What We Offer
+- Fixed salary with performance-based incentives
+- On-the-job training on call scripts, objection handling, and CRM tools
+- Growth path into Senior Telecaller, Team Leader, or Sales roles
+`,
+  "Telesales Executive": `Role Summary
+We are hiring a results-driven Telesales Executive to sell our products/services over the phone, build customer relationships, and consistently hit sales targets. You'll be the voice of our brand to prospective customers across India.
+
+Key Responsibilities
+- Make outbound sales calls to warm/cold leads and pitch products or services
+- Understand customer needs and recommend the right plan/product
+- Negotiate pricing within approved limits and close sales over the call
+- Follow up with interested leads until conversion or disqualification
+- Maintain accurate records of calls, pitches, and outcomes in the CRM
+- Achieve and exceed monthly sales targets and quality benchmarks
+
+Requirements
+- 0-2 years of telesales/BPO/inside sales experience (freshers with strong communication can apply)
+- Persuasive communication skills in Hindi/English; regional language fluency is a plus
+- Comfortable working with sales targets and incentive-linked pay
+- Basic computer and CRM usage skills
+- Resilience to handle rejection and stay motivated
+
+What We Offer
+- Competitive fixed salary plus uncapped sales incentives
+- Sales training, product training, and call-script coaching
+- Fast-track growth to Senior Executive or Team Lead based on performance
+`,
+  "Inside Sales Representative": `Role Summary
+We are looking for an Inside Sales Representative to manage the full sales cycle remotely — from qualifying leads to closing deals — primarily over phone, email, and video calls, without traveling to meet customers in person.
+
+Key Responsibilities
+- Qualify inbound and outbound leads to identify genuine buying intent
+- Conduct product demos/pitches over call or video conferencing
+- Build and manage a sales pipeline using CRM tools (e.g., Salesforce, Zoho, HubSpot)
+- Negotiate terms and close deals within company pricing guidelines
+- Coordinate with marketing for lead quality feedback and with operations for order fulfillment
+- Report daily/weekly pipeline status and forecast to the sales manager
+
+Requirements
+- 1-3 years of inside sales, telesales, or B2B/B2C sales experience
+- Strong spoken and written English; additional regional languages are a plus
+- Familiarity with CRM software and basic sales reporting
+- Confident, consultative selling style rather than purely script-based pitching
+- Target-driven mindset with good follow-up discipline
+
+What We Offer
+- Attractive fixed pay with performance-linked incentives
+- Access to CRM, sales enablement tools, and structured sales training
+- Clear career progression into Senior Inside Sales or Account Management roles
+`,
+  "Customer Relationship Executive": `Role Summary
+We are seeking a warm, detail-oriented Customer Relationship Executive to manage ongoing customer interactions, resolve concerns, and strengthen long-term customer loyalty for our brand.
+
+Key Responsibilities
+- Handle inbound calls/emails/chats regarding orders, services, complaints, or account queries
+- Build rapport with customers and ensure a positive experience across touchpoints
+- Coordinate with internal teams (operations, billing, technical) to resolve customer issues
+- Proactively reach out to customers for renewals, feedback, or satisfaction checks
+- Maintain accurate interaction logs and escalate unresolved issues appropriately
+- Identify upsell/cross-sell opportunities during customer interactions
+
+Requirements
+- 1-5 years of experience in customer service, relationship management, or a similar role
+- Excellent verbal and written communication skills in English and Hindi
+- Patient, empathetic approach to handling complaints and difficult conversations
+- Working knowledge of CRM/ticketing systems
+- Strong problem-solving and multitasking ability
+
+What We Offer
+- Stable fixed salary with performance bonuses
+- Structured onboarding and ongoing soft-skills training
+- Opportunities to grow into Senior CRE, Team Lead, or Customer Success roles
+`,
+  "Business Development Executive": `Role Summary
+We are looking for a proactive Business Development Executive to identify new business opportunities, build a strong sales pipeline, and contribute directly to company revenue growth.
+
+Key Responsibilities
+- Identify and generate new leads through cold calling, networking, and referrals
+- Pitch company products/services to prospective clients/partners
+- Build and maintain relationships with key decision-makers
+- Negotiate and close deals to meet monthly/quarterly revenue targets
+- Track market trends and competitor activity to refine sales strategy
+- Collaborate with marketing and product teams on go-to-market plans
+
+Requirements
+- 1-4 years of experience in business development, B2B sales, or field sales
+- Strong communication, negotiation, and relationship-building skills
+- Self-motivated with the ability to work independently toward targets
+- Basic understanding of CRM tools and sales reporting
+- Willingness to travel for client meetings, where applicable
+
+What We Offer
+- Competitive fixed salary with attractive incentive structure
+- Mentorship from senior sales leadership
+- Clear path to Senior BDE, Key Account Manager, or Sales Manager roles
+`,
+  "Phone Banking Officer": `Role Summary
+We are hiring a Phone Banking Officer to assist bank customers with account queries, transactions, and product information over the phone, while maintaining strict compliance and service quality standards.
+
+Key Responsibilities
+- Handle inbound calls related to account balances, transactions, card services, and loan queries
+- Authenticate customers as per bank's security protocols before sharing information
+- Cross-sell/up-sell banking products such as credit cards, loans, and insurance
+- Resolve customer complaints within defined turnaround time (TAT)
+- Accurately log all interactions in the banking CRM as per compliance norms
+- Stay updated on RBI guidelines and internal policy changes affecting customer service
+
+Requirements
+- Graduate (any stream) with 0-3 years of experience; BFSI/banking experience preferred
+- Clear, professional communication skills in English and Hindi
+- Strong attention to detail and adherence to compliance/security protocols
+- Comfortable working in rotational shifts, including weekends if required
+- Basic computer proficiency and typing speed of 30+ WPM
+
+What We Offer
+- Fixed salary as per banking industry standards plus incentives
+- Comprehensive product and compliance training
+- Growth opportunities into Senior Phone Banking Officer or Team Lead roles
+`,
+  "Collection Executive": `Role Summary
+We are looking for a Collection Executive to manage overdue accounts, follow up with customers for payment, and help reduce delinquency while maintaining professionalism and compliance with collection regulations.
+
+Key Responsibilities
+- Contact customers with overdue payments via call, SMS, or field visits as required
+- Negotiate payment plans or settlements within approved guidelines
+- Maintain accurate records of promises-to-pay, payment dates, and follow-ups
+- Escalate high-risk or non-cooperative accounts to the recovery/legal team
+- Ensure all collection activity complies with RBI/company collection policies
+- Achieve monthly collection targets and reduce overdue bucket ageing
+
+Requirements
+- 0-3 years of experience in collections, recovery, or telecalling (BFSI background preferred)
+- Firm yet polite communication style; ability to handle difficult conversations
+- Basic computer skills and familiarity with collection/CRM software
+- Target-oriented with strong follow-up discipline
+- Knowledge of local language(s) of the assigned region is an advantage
+
+What We Offer
+- Fixed salary with collection-linked incentives
+- Training on negotiation techniques and regulatory compliance
+- Growth path to Senior Collection Executive or Team Lead
+`,
+  "Lead Generation Executive": `Role Summary
+We are looking for a Lead Generation Executive to identify and qualify potential customers for our sales team, building a steady pipeline of high-quality leads through outbound calling and research.
+
+Key Responsibilities
+- Research and identify potential leads from databases, online sources, and referrals
+- Make outbound calls/emails to introduce company offerings and gauge interest
+- Qualify leads based on defined criteria (budget, need, timeline, authority)
+- Schedule qualified leads for follow-up by the sales team
+- Maintain and update lead status accurately in the CRM
+- Report daily/weekly lead generation numbers and conversion rates
+
+Requirements
+- 0-2 years of experience in lead generation, telecalling, or inside sales
+- Good communication skills in English/Hindi; confident phone manner
+- Comfortable with high-volume outbound calling and follow-ups
+- Basic CRM and internet research skills
+- Goal-oriented with persistence to handle rejection
+
+What We Offer
+- Fixed salary with incentives based on qualified leads generated
+- Training on lead qualification frameworks and CRM tools
+- Opportunity to transition into full Inside Sales or BDE roles
+`,
+  "Customer Support Executive": `Role Summary
+We are hiring a Customer Support Executive to assist customers with queries, complaints, and product/service issues across phone, chat, or email channels, ensuring a smooth and satisfying customer experience.
+
+Key Responsibilities
+- Respond to customer queries and complaints via phone, email, or chat promptly
+- Troubleshoot basic product/service issues and guide customers to resolution
+- Escalate complex or unresolved issues to the appropriate internal team
+- Maintain detailed and accurate records of customer interactions
+- Follow up with customers to confirm issue resolution and satisfaction
+- Meet defined SLAs for response time, resolution time, and customer satisfaction score
+
+Requirements
+- 0-3 years of experience in customer support, BPO, or a similar role
+- Clear communication skills in English and Hindi (additional languages a plus)
+- Patient, empathetic, and solution-oriented approach
+- Comfortable using helpdesk/ticketing tools and basic computer applications
+- Willingness to work in shifts, including weekends if required
+
+What We Offer
+- Fixed salary with performance-based incentives
+- Structured training on products, tools, and soft skills
+- Career growth into Senior Support Executive or Team Lead roles
+`,
+  "Sales Team Leader": `Role Summary
+We are looking for an experienced Sales Team Leader to manage, coach, and motivate a team of telecallers/sales executives, ensuring the team consistently meets or exceeds sales targets.
+
+Key Responsibilities
+- Lead, mentor, and monitor a team of sales/telecalling executives
+- Set individual and team targets aligned with overall business goals
+- Conduct regular call audits, feedback sessions, and skill-building training
+- Track team performance metrics (calls, conversions, revenue) and report to management
+- Handle escalations and support the team in closing high-value or difficult deals
+- Drive a positive, target-focused team culture with regular motivation and recognition
+
+Requirements
+- 2-5 years of experience in sales/telesales, with at least 1 year in a team-handling role
+- Strong leadership, coaching, and people-management skills
+- Proven track record of meeting/exceeding personal and team sales targets
+- Good command of CRM/reporting tools and performance dashboards
+- Excellent communication skills in English and Hindi
+
+What We Offer
+- Competitive fixed salary with team-performance-linked incentives
+- Leadership training and exposure to sales strategy planning
+- Clear progression path to Sales Manager or Regional Manager roles
+`,
+  "BPO Associate": `Role Summary
+We are hiring a BPO Associate to handle voice/non-voice process work for our clients, delivering accurate, timely, and customer-friendly service across assigned processes.
+
+Key Responsibilities
+- Handle inbound/outbound calls or back-office tasks as per the assigned process
+- Follow standard operating procedures (SOPs) and quality guidelines strictly
+- Resolve customer queries or process transactions accurately within SLA
+- Document interactions/transactions clearly in the relevant systems
+- Participate in regular training and process refreshers
+- Flag process gaps or recurring issues to the team lead/quality team
+
+Requirements
+- 0-2 years of BPO/call center experience; freshers with good English are welcome
+- Clear communication skills in English and Hindi
+- Basic computer literacy and typing speed of 25+ WPM
+- Ability to work in rotational/night shifts as per process requirement
+- Adaptable and process-compliant work approach
+
+What We Offer
+- Fixed salary with shift allowances where applicable
+- Process-specific training and certification
+- Internal growth opportunities into Senior Associate or Quality Analyst roles
+`,
+  "KYC Executive": `Role Summary
+We are looking for a detail-oriented KYC Executive to verify customer documents and information, ensuring compliance with regulatory Know Your Customer (KYC) and Anti-Money Laundering (AML) norms.
+
+Key Responsibilities
+- Verify customer-submitted documents (ID proof, address proof, financial documents) for authenticity and completeness
+- Conduct KYC checks as per RBI/regulatory guidelines and internal policy
+- Flag discrepancies, incomplete submissions, or suspicious patterns for review
+- Coordinate with customers/field teams to collect missing or corrected documentation
+- Maintain accurate KYC records and audit trails in the system
+- Support internal/external audits related to KYC/AML compliance
+
+Requirements
+- Graduate with 0-3 years of experience; BFSI/compliance background preferred
+- Strong attention to detail and document-verification skills
+- Working knowledge of KYC/AML regulations (training will be provided)
+- Good written and verbal communication skills
+- Proficiency in MS Office and basic data entry
+
+What We Offer
+- Fixed salary as per industry standards
+- Structured compliance and regulatory training
+- Growth path into Senior KYC Executive or Compliance Analyst roles
+`,
+  "Loan Sales Officer": `Role Summary
+We are hiring a Loan Sales Officer to source and sell loan products (personal, business, or secured loans) to prospective customers, guiding them through eligibility checks and documentation.
+
+Key Responsibilities
+- Generate leads through calling, referrals, and field activity for loan products
+- Explain loan terms, interest rates, eligibility, and documentation requirements clearly
+- Assist customers in completing loan applications and collecting required documents
+- Coordinate with credit/underwriting teams for application processing and approval
+- Follow up with customers through disbursement and ensure a smooth experience
+- Achieve monthly disbursement targets set by the branch/regional manager
+
+Requirements
+- 0-3 years of experience in loan sales, BFSI, or direct sales (freshers with sales aptitude considered)
+- Good communication and persuasion skills in English/Hindi/regional language
+- Basic understanding of loan products and documentation (training provided)
+- Willingness to do field visits and meet customers in person, where required
+- Target-driven with strong follow-up and relationship-building skills
+
+What We Offer
+- Fixed salary plus disbursement-linked incentives
+- Comprehensive product and compliance training
+- Growth opportunities into Senior Loan Officer or Relationship Manager roles
+`,
+  "Insurance Advisor": `Role Summary
+We are looking for an Insurance Advisor to help customers understand and choose the right life/health/general insurance plans, building long-term trust-based relationships.
+
+Key Responsibilities
+- Reach out to prospective customers to explain insurance products and benefits
+- Assess customer needs and recommend suitable insurance plans
+- Assist customers with policy documentation, premium payment, and onboarding
+- Follow up on policy renewals and address claims-related queries
+- Stay updated on IRDAI guidelines and new product launches
+- Meet monthly targets for new policies sold and premium collected
+
+Requirements
+- 0-3 years of experience in insurance sales, BFSI, or direct sales (freshers welcome)
+- Strong interpersonal and consultative selling skills
+- Willingness to obtain/maintain required IRDAI certification (support provided)
+- Good communication skills in English and local language(s)
+- Self-driven with the ability to build a long-term customer base
+
+What We Offer
+- Fixed salary with attractive commission structure
+- IRDAI certification support and product training
+- Career growth into Senior Advisor, Unit Manager, or Agency Manager roles
+`,
+  "Retention Specialist": `Role Summary
+We are hiring a Retention Specialist to proactively engage customers who are at risk of leaving or canceling services, using persuasive communication to retain them and reduce churn.
+
+Key Responsibilities
+- Identify customers showing signs of dissatisfaction or cancellation intent
+- Reach out proactively to understand concerns and offer suitable solutions/retention offers
+- Negotiate within approved limits to retain customers (discounts, plan changes, etc.)
+- Document retention conversations and outcomes accurately in the CRM
+- Analyze churn reasons and share insights with the product/service teams
+- Meet monthly retention rate and churn-reduction targets
+
+Requirements
+- 1-3 years of experience in customer retention, telesales, or customer service
+- Excellent persuasion and negotiation skills with a calm, empathetic approach
+- Ability to handle objections and turn dissatisfied customers into loyal ones
+- Familiarity with CRM tools and churn-tracking dashboards
+- Resilience and patience when dealing with frustrated customers
+
+What We Offer
+- Fixed salary with retention-linked performance incentives
+- Training on objection handling and negotiation techniques
+- Growth path to Senior Retention Specialist or Customer Success Lead
+`,
+  "Outbound Sales Executive": `Role Summary
+We are looking for an Outbound Sales Executive to proactively reach out to prospective customers via cold calling and pitch our products/services, driving new customer acquisition.
+
+Key Responsibilities
+- Make high-volume outbound calls to prospects from provided lead lists
+- Deliver a clear, persuasive sales pitch tailored to customer needs
+- Handle objections confidently and guide prospects toward purchase decisions
+- Close sales within approved pricing and process guidelines
+- Update call outcomes and follow-up schedules accurately in the CRM
+- Consistently meet daily call volume and monthly sales targets
+
+Requirements
+- 0-2 years of experience in outbound sales, telesales, or cold calling (freshers with strong communication welcome)
+- Confident, persuasive communication skills in English/Hindi
+- Resilience to handle rejection and stay motivated through high call volumes
+- Basic computer literacy and CRM usage skills
+- Target-driven mindset with a positive attitude
+
+What We Offer
+- Fixed salary with strong incentive structure on sales closed
+- Sales pitch training, objection-handling workshops, and ongoing coaching
+- Fast-track growth into Senior Executive or Team Leader roles
+`,
+};
+
+function generateJDWithAI() {
   const role = document.getElementById('jd-ai-role-select').value;
   if (!role) { toast('Please select a role first', 'tw2'); return; }
-  const btn = document.getElementById('jd-generate-btn');
+  const btn     = document.getElementById('jd-generate-btn');
   const loading = document.getElementById('jd-ai-loading');
   const result  = document.getElementById('jd-ai-result');
+
   btn.disabled = true; btn.textContent = 'Generating...';
   loading.style.display = '';
   result.style.display  = 'none';
-  try {
-    const res = await fetch(`${SUPA_URL}/functions/v1/generate-jd`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPA_ANON}`,
-        'apikey': SUPA_ANON,
-      },
-      body: JSON.stringify({ mode: 'generate', role }),
-    });
-    const data = await res.json();
-    const jd = data?.text || '';
-    if (!res.ok || !jd) throw new Error(data?.error || 'No JD generated');
-    document.getElementById('role-jd-ai-text').value = jd;
-    result.style.display = '';
-  } catch(e) {
-    console.warn('generateJDWithAI error:', e.message);
-    toast('AI generation is not set up yet. Please write the JD manually, or ask your developer to deploy the generate-jd Edge Function.', 'te', 6000);
-  } finally {
+
+  // Small timeout so the "Generating..." state is visible and the UX feels responsive
+  setTimeout(() => {
+    const jd = JD_TEMPLATES[role] || null;
+    if (!jd) {
+      loading.style.display = 'none';
+      btn.disabled = false; btn.textContent = 'Generate →';
+      toast('No template available for this role. Please write the JD manually.', 'tw2');
+      return;
+    }
+    document.getElementById('role-jd-ai-text').value = jd.trim();
     loading.style.display = 'none';
+    result.style.display  = '';
     btn.disabled = false; btn.textContent = 'Generate →';
-  }
+  }, 600);
 }
 
 function useAIJD() {
@@ -5345,7 +5710,7 @@ function useAIJD() {
   document.getElementById('role-jd-text').value = text;
   window._jdSource = 'ai_generated';
   switchJDTab('write');
-  toast('AI JD applied — review and edit before posting ✓', 'ts');
+  toast('Template loaded — review and edit before posting ✓', 'ts');
 }
 
 async function handleJDPdf(input) {
@@ -5370,14 +5735,18 @@ async function handleJDPdf(input) {
           },
           body: JSON.stringify({ mode: 'extract_pdf', pdfBase64: base64 }),
         });
-        const data = await res.json();
+        const data = await res.json().catch(async () => {
+          const rawText = await res.text().catch(() => '');
+          console.error('generate-jd (pdf): non-JSON response. Status:', res.status, 'Body:', rawText);
+          return { error: `Server returned status ${res.status} (non-JSON response)` };
+        });
         const extracted = data?.text || '';
-        if (!res.ok || !extracted) throw new Error(data?.error || 'No text extracted');
+        if (!res.ok || !extracted) throw new Error(data?.error || `Status ${res.status}: no text extracted`);
         textArea.value = extracted;
         preview.style.display = '';
       } catch(err) {
-        console.warn('PDF extraction error:', err.message);
-        textArea.value = 'PDF extraction is not set up yet. Please paste the JD manually below.';
+        console.error('PDF extraction error:', err);
+        textArea.value = 'PDF extraction failed: ' + (err.message || 'Unknown error') + '. Please paste the JD manually below.';
         preview.style.display = '';
       }
     };
