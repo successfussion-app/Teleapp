@@ -4717,7 +4717,7 @@ function renderCands(search = '') {
       </div>
       <div class="cc-r">
         <div class="sr ${c.sc}">${c.score}</div>
-        <button class="btn bgh bsm" onclick="event.stopPropagation();${c.hasVoice && c.voice ? `openVoicePitchPlayer('${c.id}','${(c.name||'').replace(/'/g,"\\'")}','${c.voice}')` : `toast('No voice pitch submitted','tw2')`}">${c.hasVoice ? '▶ Play Pitch' : 'No Pitch'}</button>
+        <button class="btn bgh bsm" id="ppbtn-${c.id}" onclick="event.stopPropagation();${c.hasVoice && c.voice ? `openVoicePitchPlayer('${c.id}','${(c.name||'').replace(/'/g,"\\'")}','${c.voice}')` : `toast('No voice pitch submitted','tw2')`}">${c.hasVoice ? '▶ Play Pitch' : 'No Pitch'}</button>
         <button class="btn ${c.sl ? 'bgn' : 'bgh'} bsm" onclick="event.stopPropagation();toggleSL('${c.id}')">${c.sl ? '✓ Shortlisted' : '⭐ Shortlist'}</button>
       </div>
     </div>`).join('') :
@@ -4731,30 +4731,153 @@ function renderCands(search = '') {
 
 function playP(name) { toast(`▶ Playing ${name}'s voice pitch...`, 'ti'); setTimeout(() => toast(`✓ Pitch complete for ${name}`, 'ts'), 3500); }
 
+function _vpFmt(s) {
+  if (!isFinite(s) || s < 0) return '0:00';
+  const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+  return m + ':' + String(sec).padStart(2, '0');
+}
+
 function openVoicePitchPlayer(candId, candName, voiceUrl) {
-  // Remove any existing player popover first
-  document.getElementById('voice-pitch-popover')?.remove();
+  // Stop & remove any existing player first
+  const existing = document.getElementById('voice-pitch-popover');
+  if (existing) {
+    const ea = existing.querySelector('audio');
+    if (ea) { ea.pause(); ea.src = ''; }
+    existing.remove();
+  }
+  // Reset any previously active card button
+  document.querySelectorAll('.ppbtn-active').forEach(b => {
+    b.textContent = '▶ Play Pitch';
+    b.style.cssText = '';
+    b.classList.remove('ppbtn-active');
+  });
 
   const popover = document.createElement('div');
   popover.id = 'voice-pitch-popover';
-  popover.style.cssText = `
-    position:fixed;inset:0;background:rgba(14,11,7,.6);z-index:10000;
-    display:flex;align-items:center;justify-content:center;padding:20px;
-  `;
+  popover.style.cssText = 'position:fixed;inset:0;background:rgba(14,11,7,.65);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px';
+
   popover.innerHTML = `
-    <div style="background:#fff;border-radius:18px;padding:24px;max-width:380px;width:100%;box-shadow:0 24px 70px rgba(0,0,0,.3)">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+    <div style="background:linear-gradient(160deg,#1a0a2e,#2d1254);border-radius:20px;padding:26px 24px 22px;max-width:400px;width:100%;box-shadow:0 28px 80px rgba(0,0,0,.45);position:relative">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px">
         <div>
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--vg)">Voice Pitch</div>
-          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-top:2px">${candName}</div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(196,155,255,.5);margin-bottom:3px">🎤 Voice Pitch</div>
+          <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:#fff">${candName}</div>
         </div>
-        <button onclick="document.getElementById('voice-pitch-popover').remove()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--slate);line-height:1">✕</button>
+        <button id="vpp-close" style="background:rgba(255,255,255,.08);border:none;width:32px;height:32px;border-radius:50%;color:rgba(255,255,255,.7);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>
       </div>
-      <audio id="voice-pitch-audio-el" controls autoplay style="width:100%;height:42px;border-radius:8px" src="${voiceUrl}"></audio>
+      <audio id="vpp-audio" src="${voiceUrl}" preload="metadata"></audio>
+      <div style="margin-bottom:8px">
+        <input type="range" id="vpp-seek" min="0" max="100" value="0" step="0.1"
+          style="width:100%;height:5px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,.15);border-radius:3px;outline:none;cursor:pointer;accent-color:#a78bfa">
+      </div>
+      <div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);margin-bottom:18px">
+        <span id="vpp-cur">0:00</span>
+        <span id="vpp-dur">0:00</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px">
+        <button id="vpp-rew" title="Rewind 10 seconds"
+          style="background:rgba(255,255,255,.08);border:none;width:46px;height:46px;border-radius:50%;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px">
+          <span style="font-size:18px;line-height:1">↺</span><span style="font-size:9px;opacity:.55">10s</span>
+        </button>
+        <button id="vpp-play"
+          style="background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;width:60px;height:60px;border-radius:50%;color:#fff;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(124,58,237,.5);transition:transform .12s,background .2s">
+          ▶
+        </button>
+        <button id="vpp-fwd" title="Forward 10 seconds"
+          style="background:rgba(255,255,255,.08);border:none;width:46px;height:46px;border-radius:50%;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px">
+          <span style="font-size:18px;line-height:1">↻</span><span style="font-size:9px;opacity:.55">10s</span>
+        </button>
+      </div>
+      <div id="vpp-loading" style="text-align:center;margin-top:14px;font-size:11px;color:rgba(255,255,255,.3)">Loading audio...</div>
     </div>`;
-  // Close when clicking the dark backdrop (but not the card itself)
-  popover.addEventListener('click', (e) => { if (e.target === popover) popover.remove(); });
+
   document.body.appendChild(popover);
+
+  const audio   = document.getElementById('vpp-audio');
+  const seek    = document.getElementById('vpp-seek');
+  const curEl   = document.getElementById('vpp-cur');
+  const durEl   = document.getElementById('vpp-dur');
+  const playBtn = document.getElementById('vpp-play');
+  const rewBtn  = document.getElementById('vpp-rew');
+  const fwdBtn  = document.getElementById('vpp-fwd');
+  const loader  = document.getElementById('vpp-loading');
+
+  function syncPlayBtn() {
+    if (audio.paused) {
+      playBtn.textContent = '▶';
+      playBtn.style.background = 'linear-gradient(135deg,#7c3aed,#a855f7)';
+    } else {
+      playBtn.textContent = '⏸';
+      playBtn.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+    }
+  }
+
+  audio.addEventListener('timeupdate', () => {
+    if (!audio.duration) return;
+    seek.value = (audio.currentTime / audio.duration) * 100;
+    curEl.textContent = _vpFmt(audio.currentTime);
+  });
+
+  audio.addEventListener('loadedmetadata', () => {
+    durEl.textContent = _vpFmt(audio.duration);
+    loader.style.display = 'none';
+  });
+
+  audio.addEventListener('canplaythrough', () => { loader.style.display = 'none'; });
+
+  audio.addEventListener('ended', () => {
+    seek.value = 0; curEl.textContent = '0:00'; syncPlayBtn();
+  });
+
+  audio.addEventListener('play',  syncPlayBtn);
+  audio.addEventListener('pause', syncPlayBtn);
+
+  seek.addEventListener('input', () => {
+    if (audio.duration) audio.currentTime = (seek.value / 100) * audio.duration;
+  });
+
+  playBtn.addEventListener('click', () => { audio.paused ? audio.play() : audio.pause(); });
+  playBtn.addEventListener('mousedown', () => { playBtn.style.transform = 'scale(.92)'; });
+  playBtn.addEventListener('mouseup',   () => { playBtn.style.transform = 'scale(1)'; });
+
+  rewBtn.addEventListener('click', () => { audio.currentTime = Math.max(0, audio.currentTime - 10); });
+  rewBtn.addEventListener('mouseenter', () => { rewBtn.style.background = 'rgba(255,255,255,.18)'; });
+  rewBtn.addEventListener('mouseleave', () => { rewBtn.style.background = 'rgba(255,255,255,.08)'; });
+
+  fwdBtn.addEventListener('click', () => { audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 10); });
+  fwdBtn.addEventListener('mouseenter', () => { fwdBtn.style.background = 'rgba(255,255,255,.18)'; });
+  fwdBtn.addEventListener('mouseleave', () => { fwdBtn.style.background = 'rgba(255,255,255,.08)'; });
+
+  // Update card button to show playing state
+  const cardBtn = document.getElementById('ppbtn-' + candId);
+  if (cardBtn) {
+    cardBtn.textContent = '⏸ Playing...';
+    cardBtn.style.background = '#059669';
+    cardBtn.style.color = '#fff';
+    cardBtn.classList.add('ppbtn-active');
+  }
+
+  function closePlayer() {
+    audio.pause(); audio.src = '';
+    const b = document.getElementById('ppbtn-' + candId);
+    if (b) { b.textContent = '▶ Play Pitch'; b.style.cssText = ''; b.classList.remove('ppbtn-active'); }
+    popover.remove();
+    document.removeEventListener('keydown', keyHandler);
+  }
+
+  document.getElementById('vpp-close').addEventListener('click', closePlayer);
+  popover.addEventListener('click', (e) => { if (e.target === popover) closePlayer(); });
+
+  const keyHandler = (e) => {
+    if (!document.getElementById('voice-pitch-popover')) { document.removeEventListener('keydown', keyHandler); return; }
+    if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); audio.paused ? audio.play() : audio.pause(); }
+    else if (e.key === 'ArrowLeft')  { e.preventDefault(); audio.currentTime = Math.max(0, audio.currentTime - 5); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 5); }
+    else if (e.key === 'Escape')     { closePlayer(); }
+  };
+  document.addEventListener('keydown', keyHandler);
+
+  audio.play().catch(() => { loader.style.display = 'none'; });
 }
 
 function toggleSL(id) {
